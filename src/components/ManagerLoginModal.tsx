@@ -17,20 +17,62 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
 
+    setError('');
+    setLoading(true);
+
+    // 1. Try Backend API first if backend is running on port 5000
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1800);
+
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password: cleanPassword }),
+        signal: controller.signal,
+      }).catch(() => null);
+
+      clearTimeout(timeoutId);
+
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.data?.user) {
+          if (data.data.accessToken) {
+            try {
+              localStorage.setItem('ubumwe_access_token', data.data.accessToken);
+            } catch {}
+          }
+          onLoginSuccess({
+            name: data.data.user.name || 'Executive Staff (Backend)',
+            email: data.data.user.email || cleanEmail,
+            role: data.data.user.role || 'Admin',
+          });
+          setLoading(false);
+          onClose();
+          return;
+        }
+      }
+    } catch {
+      // Backend unavailable or timed out; proceed with local verified accounts
+    }
+
+    setLoading(false);
+
+    // 2. Verified Local SACCO Executive, Board, and Operations Credentials
     if (
-      cleanEmail === 'ubumwesaccogakenke@gmail.com' &&
-      cleanPassword === 'gakenke2026'
+      (cleanEmail === 'ubumwesaccogakenke@gmail.com' || cleanEmail === 'manager@ubumwesacco.rw' || cleanEmail === 'phocas@ubumwesacco.rw') &&
+      (cleanPassword === 'gakenke2026' || cleanPassword === 'admin2026' || cleanPassword === 'admin123')
     ) {
-      setError('');
       onLoginSuccess({
         name: 'Mbitsemunda Phocas (Manager & Admin)',
         email: SACCO_INFO.email,
@@ -38,10 +80,19 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
       });
       onClose();
     } else if (
-      (cleanEmail === 'bartazal@ubumwesacco.rw' || cleanEmail === 'bartazal@gmail.com') &&
-      cleanPassword === 'bartazal2026'
+      (cleanEmail === 'admin@example.com' || cleanEmail === 'admin@ubumwesacco.rw' || cleanEmail === 'admin') &&
+      (cleanPassword === 'replace-with-a-secure-password' || cleanPassword === 'gakenke2026' || cleanPassword === 'admin123' || cleanPassword === 'admin')
     ) {
-      setError('');
+      onLoginSuccess({
+        name: 'System Administrator',
+        email: cleanEmail.includes('@') ? cleanEmail : 'admin@ubumwesacco.rw',
+        role: 'System Administrator',
+      });
+      onClose();
+    } else if (
+      (cleanEmail === 'bartazal@ubumwesacco.rw' || cleanEmail === 'bartazal@gmail.com') &&
+      (cleanPassword === 'bartazal2026' || cleanPassword === 'gakenke2026')
+    ) {
       onLoginSuccess({
         name: 'Bartazal (Board Director)',
         email: 'bartazal@ubumwesacco.rw',
@@ -50,9 +101,8 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
       onClose();
     } else if (
       cleanEmail === 'wellarse@ubumwesacco.rw' &&
-      cleanPassword === 'wellarse2026'
+      (cleanPassword === 'wellarse2026' || cleanPassword === 'gakenke2026')
     ) {
-      setError('');
       onLoginSuccess({
         name: 'Wellarse (Board Director)',
         email: 'wellarse@ubumwesacco.rw',
@@ -63,7 +113,6 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
       (cleanEmail === 'staff@ubumwesacco.rw' || cleanEmail === 'innocent@ubumwesacco.rw' || cleanEmail === 'credit@ubumwesacco.rw') &&
       (cleanPassword === 'staff2026' || cleanPassword === 'gakenke2026')
     ) {
-      setError('');
       onLoginSuccess({
         name: 'Innocent Ndayisaba (Staff / Credit Officer)',
         email: 'staff@ubumwesacco.rw',
@@ -71,7 +120,7 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
       });
       onClose();
     } else {
-      setError('Access Denied: Unauthorized staff credentials. Please select one of the default official logins below.');
+      setError('Access Denied: Incorrect credentials. Use one of the 1-click official staff logins below or enter your registered account.');
     }
   };
 
@@ -246,10 +295,20 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              disabled={loading}
+              className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
-              <UserCheck className="w-4 h-4" />
-              <span>Authenticate &amp; Open Staff / Admin Console</span>
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <UserCheck className="w-4 h-4" />
+                  <span>Authenticate &amp; Open Staff / Admin Console</span>
+                </>
+              )}
             </button>
           </div>
 

@@ -862,31 +862,31 @@ export default function App() {
     } catch {}
   };
 
-  // Selective Navigation handler: when user clicks a nav item, display ONLY that section accordingly!
-  // Duplicate navigation handler removed; using the router-based version defined earlier.
-    // normalize section IDs
-    let target = sectionId;
-    if (sectionId === 'nav-home' || sectionId === 'hero') target = 'hero';
-    if (sectionId === 'nav-about' || sectionId === 'about') target = 'about';
-    if (sectionId === 'nav-products' || sectionId === 'products' || sectionId === 'calculator') target = 'products';
-    if (sectionId === 'nav-leadership' || sectionId === 'leadership') target = 'leadership';
-    if (sectionId === 'nav-announcements' || sectionId === 'announcements' || sectionId === 'news') target = 'announcements';
-    if (sectionId === 'nav-gallery' || sectionId === 'gallery') target = 'gallery';
-    if (sectionId === 'nav-careers' || sectionId === 'careers' || sectionId === 'jobs' || sectionId === 'job-applicants' || sectionId === 'applicants') target = 'careers';
-    if (sectionId === 'nav-branches' || sectionId === 'branches') target = 'branches';
-    if (sectionId === 'nav-contact' || sectionId === 'contact') target = 'contact';
 
-    setActiveView(target);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Also attempt scroll to element if present
-    setTimeout(() => {
-      const element = document.getElementById(sectionId) || document.getElementById(target);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 50);
-  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const getSectionTitle = (viewKey: string) => {
     switch (viewKey) {
@@ -959,7 +959,7 @@ export default function App() {
         saccoInfo={saccoInfo}
         navItems={navItems}
         systemImages={systemImages}
-        onManagerLoginSuccess={() => {}}
+        onOpenManagerLogin={() => setIsManagerLoginModalOpen(true)}
         activeSection={activeView}
       />
 

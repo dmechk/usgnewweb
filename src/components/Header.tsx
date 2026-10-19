@@ -11,6 +11,7 @@ import {
   Landmark,
   UserCheck,
   Mail,
+  Lock,
   Shield,
   LogOut,
   Settings,
@@ -38,6 +39,7 @@ interface HeaderProps {
   navItems?: NavItemConfig[];
   systemImages?: SystemImagesConfig;
   activeSection?: string;
+  onOpenManagerLogin?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -55,6 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
   navItems = INITIAL_NAV_ITEMS,
   systemImages,
   activeSection = 'all',
+  onOpenManagerLogin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
@@ -281,6 +284,19 @@ export const Header: React.FC<HeaderProps> = ({
                 FR
               </button>
             </div>
+
+            {/* Staff / Admin Login Button */}
+            {!isManagerLoggedIn && onOpenManagerLogin && (
+              <button
+                type="button"
+                onClick={onOpenManagerLogin}
+                className="flex items-center gap-1.5 text-[11px] text-emerald-300 hover:text-white px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-700 transition-colors border border-emerald-500/30 font-semibold cursor-pointer"
+                title="Staff & Board Login"
+              >
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span>Staff Login</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -425,7 +441,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Authenticated Manager Actions */}
-            {isManagerLoggedIn && (
+            {isManagerLoggedIn ? (
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-900">
                   <Shield className="w-4 h-4 text-emerald-700" />
@@ -467,7 +483,19 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>Open Full Admin Console</span>
                 </button>
               </div>
-            )}
+            ) : onOpenManagerLogin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenManagerLogin();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Staff &amp; Executive Login</span>
+              </button>
+            ) : null}
           </div>
         </div>
       )}

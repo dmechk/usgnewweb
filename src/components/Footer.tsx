@@ -21,8 +21,6 @@ import {
   Compass,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
-import { useState } from 'react';
-import { ManagerLoginModal } from './ManagerLoginModal';
 interface FooterProps {
   currentLang: Language;
   onNavigateToSection: (sectionId: string) => void;
@@ -54,15 +52,6 @@ export const Footer: React.FC<FooterProps> = ({
   saccoInfo = SACCO_INFO,
   navItems = INITIAL_NAV_ITEMS,
 }) => {
-  // Local state for showing the login modal
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  const handleLoginSuccess = (user: { name: string; email: string; role: string }) => {
-    // Forward user info to parent
-    onManagerLoginSuccess?.(user);
-    setShowLoginModal(false);
-  };
-
   const t = TRANSLATIONS[currentLang];
 
   const cleanWhatsapp = saccoInfo.whatsapp.replace(/[^0-9]/g, '') || '250786422080';
@@ -244,7 +233,7 @@ export const Footer: React.FC<FooterProps> = ({
             ) : (
               <button
                 type="button"
-                onClick={() => setShowLoginModal(true)}
+                onClick={onOpenManagerLogin}
                 className="w-full sm:w-auto px-5 py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer"
               >
                 <Lock className="w-3.5 h-3.5 text-emerald-200" />
