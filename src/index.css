@@ -1,0 +1,345 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #F5F0FF;
+  --color-secondary: #DCCCFF;
+  --color-accent: #F6F1FF;
+
+  --font-sans: 'Roboto', 'Lato', 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+:root {
+  --theme-primary: #047857;
+  --theme-primary-hover: #065f46;
+  --theme-primary-dark: #064e3b;
+  --theme-accent: #10b981;
+  --theme-light: #ecfdf5;
+  --theme-light-border: #a7f3d0;
+  --theme-text-dark: #064e3b;
+  --theme-badge-bg: #d1fae5;
+  --theme-badge-text: #065f46;
+
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+}
+
+[data-theme="ochre"] {
+  --theme-primary: #b45309;
+  --theme-primary-hover: #92400e;
+  --theme-primary-dark: #78350f;
+  --theme-accent: #f59e0b;
+  --theme-light: #fffbeb;
+  --theme-light-border: #fde68a;
+  --theme-text-dark: #78350f;
+  --theme-badge-bg: #fef3c7;
+  --theme-badge-text: #92400e;
+
+  --color-emerald-50: #fffbeb;
+  --color-emerald-100: #fef3c7;
+  --color-emerald-200: #fde68a;
+  --color-emerald-300: #fcd34d;
+  --color-emerald-400: #fbbf24;
+  --color-emerald-500: #f59e0b;
+  --color-emerald-600: #d97706;
+  --color-emerald-700: #b45309;
+  --color-emerald-800: #92400e;
+  --color-emerald-900: #78350f;
+  --color-emerald-950: #451a03;
+}
+
+[data-theme="blue"] {
+  --theme-primary: #1d4ed8;
+  --theme-primary-hover: #1e40af;
+  --theme-primary-dark: #1e3a8a;
+  --theme-accent: #3b82f6;
+  --theme-light: #eff6ff;
+  --theme-light-border: #bfdbfe;
+  --theme-text-dark: #1e3a8a;
+  --theme-badge-bg: #dbeafe;
+  --theme-badge-text: #1e40af;
+
+  --color-emerald-50: #eff6ff;
+  --color-emerald-100: #dbeafe;
+  --color-emerald-200: #bfdbfe;
+  --color-emerald-300: #93c5fd;
+  --color-emerald-400: #60a5fa;
+  --color-emerald-500: #3b82f6;
+  --color-emerald-600: #2563eb;
+  --color-emerald-700: #1d4ed8;
+  --color-emerald-800: #1e40af;
+  --color-emerald-900: #1e3a8a;
+  --color-emerald-950: #172554;
+}
+
+[data-theme="teal"] {
+  --theme-primary: #0f766e;
+  --theme-primary-hover: #115e59;
+  --theme-primary-dark: #134e4a;
+  --theme-accent: #14b8a6;
+  --theme-light: #f0fdfa;
+  --theme-light-border: #99f6e4;
+  --theme-text-dark: #134e4a;
+  --theme-badge-bg: #ccfbf1;
+  --theme-badge-text: #115e59;
+
+  --color-emerald-50: #f0fdfa;
+  --color-emerald-100: #ccfbf1;
+  --color-emerald-200: #99f6e4;
+  --color-emerald-300: #5eead4;
+  --color-emerald-400: #2dd4bf;
+  --color-emerald-500: #14b8a6;
+  --color-emerald-600: #0d9488;
+  --color-emerald-700: #0f766e;
+  --color-emerald-800: #115e59;
+  --color-emerald-900: #134e4a;
+  --color-emerald-950: #042f2e;
+}
+
+[data-theme="terracotta"] {
+  --theme-primary: #c2410c;
+  --theme-primary-hover: #9a3412;
+  --theme-primary-dark: #7c2d12;
+  --theme-accent: #ea580c;
+  --theme-light: #fff7ed;
+  --theme-light-border: #fed7aa;
+  --theme-text-dark: #7c2d12;
+  --theme-badge-bg: #ffedd5;
+  --theme-badge-text: #9a3412;
+
+  --color-emerald-50: #fff7ed;
+  --color-emerald-100: #ffedd5;
+  --color-emerald-200: #fed7aa;
+  --color-emerald-300: #fdba74;
+  --color-emerald-400: #fb923c;
+  --color-emerald-500: #f97316;
+  --color-emerald-600: #ea580c;
+  --color-emerald-700: #c2410c;
+  --color-emerald-800: #9a3412;
+  --color-emerald-900: #7c2d12;
+  --color-emerald-950: #431407;
+}
+
+[data-theme="charcoal"] {
+  --theme-primary: #334155;
+  --theme-primary-hover: #1e293b;
+  --theme-primary-dark: #0f172a;
+  --theme-accent: #64748b;
+  --theme-light: #f8fafc;
+  --theme-light-border: #cbd5e1;
+  --theme-text-dark: #0f172a;
+  --theme-badge-bg: #e2e8f0;
+  --theme-badge-text: #1e293b;
+
+  --color-emerald-50: #f8fafc;
+  --color-emerald-100: #f1f5f9;
+  --color-emerald-200: #e2e8f0;
+  --color-emerald-300: #cbd5e1;
+  --color-emerald-400: #94a3b8;
+  --color-emerald-500: #64748b;
+  --color-emerald-600: #475569;
+  --color-emerald-700: #334155;
+  --color-emerald-800: #1e293b;
+  --color-emerald-900: #0f172a;
+  --color-emerald-950: #020617;
+}
+
+/* System-Wide Direct Class Theme Overrides */
+[data-theme="ochre"] .bg-emerald-600,
+[data-theme="ochre"] .bg-emerald-700,
+[data-theme="ochre"] .bg-emerald-800 {
+  background-color: var(--theme-primary) !important;
+}
+[data-theme="ochre"] .hover\:bg-emerald-700:hover,
+[data-theme="ochre"] .hover\:bg-emerald-800:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+[data-theme="ochre"] .text-emerald-700,
+[data-theme="ochre"] .text-emerald-800,
+[data-theme="ochre"] .text-emerald-600 {
+  color: var(--theme-primary) !important;
+}
+[data-theme="ochre"] .text-emerald-400 {
+  color: var(--theme-accent) !important;
+}
+[data-theme="ochre"] .border-emerald-500,
+[data-theme="ochre"] .border-emerald-600,
+[data-theme="ochre"] .border-emerald-700 {
+  border-color: var(--theme-primary) !important;
+}
+[data-theme="ochre"] .bg-emerald-50,
+[data-theme="ochre"] .bg-emerald-100 {
+  background-color: var(--theme-light) !important;
+}
+
+[data-theme="blue"] .bg-emerald-600,
+[data-theme="blue"] .bg-emerald-700,
+[data-theme="blue"] .bg-emerald-800 {
+  background-color: var(--theme-primary) !important;
+}
+[data-theme="blue"] .hover\:bg-emerald-700:hover,
+[data-theme="blue"] .hover\:bg-emerald-800:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+[data-theme="blue"] .text-emerald-700,
+[data-theme="blue"] .text-emerald-800,
+[data-theme="blue"] .text-emerald-600 {
+  color: var(--theme-primary) !important;
+}
+[data-theme="blue"] .text-emerald-400 {
+  color: var(--theme-accent) !important;
+}
+[data-theme="blue"] .border-emerald-500,
+[data-theme="blue"] .border-emerald-600,
+[data-theme="blue"] .border-emerald-700 {
+  border-color: var(--theme-primary) !important;
+}
+[data-theme="blue"] .bg-emerald-50,
+[data-theme="blue"] .bg-emerald-100 {
+  background-color: var(--theme-light) !important;
+}
+
+[data-theme="teal"] .bg-emerald-600,
+[data-theme="teal"] .bg-emerald-700,
+[data-theme="teal"] .bg-emerald-800 {
+  background-color: var(--theme-primary) !important;
+}
+[data-theme="teal"] .hover\:bg-emerald-700:hover,
+[data-theme="teal"] .hover\:bg-emerald-800:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+[data-theme="teal"] .text-emerald-700,
+[data-theme="teal"] .text-emerald-800,
+[data-theme="teal"] .text-emerald-600 {
+  color: var(--theme-primary) !important;
+}
+[data-theme="teal"] .text-emerald-400 {
+  color: var(--theme-accent) !important;
+}
+[data-theme="teal"] .border-emerald-500,
+[data-theme="teal"] .border-emerald-600,
+[data-theme="teal"] .border-emerald-700 {
+  border-color: var(--theme-primary) !important;
+}
+[data-theme="teal"] .bg-emerald-50,
+[data-theme="teal"] .bg-emerald-100 {
+  background-color: var(--theme-light) !important;
+}
+
+[data-theme="terracotta"] .bg-emerald-600,
+[data-theme="terracotta"] .bg-emerald-700,
+[data-theme="terracotta"] .bg-emerald-800 {
+  background-color: var(--theme-primary) !important;
+}
+[data-theme="terracotta"] .hover\:bg-emerald-700:hover,
+[data-theme="terracotta"] .hover\:bg-emerald-800:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+[data-theme="terracotta"] .text-emerald-700,
+[data-theme="terracotta"] .text-emerald-800,
+[data-theme="terracotta"] .text-emerald-600 {
+  color: var(--theme-primary) !important;
+}
+[data-theme="terracotta"] .text-emerald-400 {
+  color: var(--theme-accent) !important;
+}
+[data-theme="terracotta"] .border-emerald-500,
+[data-theme="terracotta"] .border-emerald-600,
+[data-theme="terracotta"] .border-emerald-700 {
+  border-color: var(--theme-primary) !important;
+}
+[data-theme="terracotta"] .bg-emerald-50,
+[data-theme="terracotta"] .bg-emerald-100 {
+  background-color: var(--theme-light) !important;
+}
+
+[data-theme="charcoal"] .bg-emerald-600,
+[data-theme="charcoal"] .bg-emerald-700,
+[data-theme="charcoal"] .bg-emerald-800 {
+  background-color: var(--theme-primary) !important;
+}
+[data-theme="charcoal"] .hover\:bg-emerald-700:hover,
+[data-theme="charcoal"] .hover\:bg-emerald-800:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+[data-theme="charcoal"] .text-emerald-700,
+[data-theme="charcoal"] .text-emerald-800,
+[data-theme="charcoal"] .text-emerald-600 {
+  color: var(--theme-primary) !important;
+}
+[data-theme="charcoal"] .text-emerald-400 {
+  color: var(--theme-accent) !important;
+}
+[data-theme="charcoal"] .border-emerald-500,
+[data-theme="charcoal"] .border-emerald-600,
+[data-theme="charcoal"] .border-emerald-700 {
+  border-color: var(--theme-primary) !important;
+}
+[data-theme="charcoal"] .bg-emerald-50,
+[data-theme="charcoal"] .bg-emerald-100 {
+  background-color: var(--theme-light) !important;
+}
+
+.theme-btn-primary {
+  background-color: var(--theme-primary) !important;
+  color: #ffffff !important;
+}
+.theme-btn-primary:hover {
+  background-color: var(--theme-primary-hover) !important;
+}
+.theme-text-primary {
+  color: var(--theme-primary) !important;
+}
+.theme-border-primary {
+  border-color: var(--theme-primary) !important;
+}
+.theme-bg-light {
+  background-color: var(--theme-light) !important;
+}
+.theme-border-light {
+  border-color: var(--theme-light-border) !important;
+}
+.theme-text-dark {
+  color: var(--theme-text-dark) !important;
+}
+.theme-accent {
+  color: var(--theme-accent) !important;
+}
+
+@layer base {
+  html {
+    font-family: 'Roboto', 'Lato', 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F6F1FF;
+    color: #0f172a;
+    font-family: 'Roboto', 'Lato', 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+}
+
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@media print {
+  header, footer, nav, button:not(.print-include) {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
