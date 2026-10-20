@@ -936,29 +936,63 @@ export const Gallery: React.FC<GalleryProps> = ({
         </div>
       )}
 
-      {/* COMPLETE PHOTO ALBUM EXPLORER MODAL */}
+      {/* COMPLETE PHOTO ALBUM EXPLORER: FULL PAGE DISPLAY (Instead of Popup) */}
       {isAlbumModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-5xl w-full overflow-hidden relative shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[92vh]">
-            <ImigongoRibbon height={8} variant="light" bordered={false} />
+        <div className="fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col animate-in fade-in duration-200">
+          {/* Top Sticky Header */}
+          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setIsAlbumModalOpen(false)}
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-slate-900 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Retour à la Galerie'
+                  : currentLang === 'rw'
+                  ? 'Subira ku Mafoto'
+                  : 'Back to Photo Gallery'}
+              </span>
+            </button>
 
-            {/* Modal Header */}
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <Camera className="w-4 h-4 text-emerald-700" />
+              <span>UBUMWE SACCO GAKENKE · Complete Media Archive ({uniqueAlbumPhotos.length} Photos)</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsAlbumModalOpen(false)}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              aria-label="Close photo album"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <ImigongoRibbon height={8} variant="light" bordered={false} />
+
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 space-y-6 flex-1 flex flex-col">
+            <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
                   <Camera className="w-3.5 h-3.5" />
-                  <span>UBUMWE SACCO GAKENKE · Complete Photo Library</span>
+                  <span>Institutional Photo Library</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white">
                   Cooperative Photo Album ({uniqueAlbumPhotos.length} High-Resolution Photos)
-                </h3>
+                </h2>
+                <p className="text-slate-300 text-xs sm:text-sm mt-1">
+                  Explore full high-resolution images, milestones, community celebrations, and official cooperative events across Gakenke District.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAlbumModalOpen(false)}
-                className="p-2 rounded-full bg-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
               >
-                <X className="w-5 h-5" />
+                Close View
               </button>
             </div>
 
@@ -1115,26 +1149,42 @@ export const Gallery: React.FC<GalleryProps> = ({
         </div>
       )}
 
-      {/* SINGLE PHOTO ENLARGED VIEW FROM ALBUM (WITH CRYSTAL CLEAR WORDS) */}
+      {/* SINGLE PHOTO ENLARGED FULL PAGE VIEW (No Popup) */}
       {activeAlbumPhoto && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden relative shadow-2xl border border-slate-200 my-6 flex flex-col max-h-[94vh]">
-            <ImigongoRibbon height={8} variant="light" bordered={false} />
+        <div className="fixed inset-0 z-60 bg-white overflow-y-auto flex flex-col animate-in fade-in duration-200">
+          {/* Top Sticky Bar */}
+          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setActiveAlbumPhoto(null)}
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-slate-900 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Album</span>
+            </button>
+
+            <span className="text-xs font-bold text-slate-800 hidden sm:inline">
+              UBUMWE SACCO GAKENKE · Detailed Milestone Photo
+            </span>
 
             <button
               type="button"
               onClick={() => setActiveAlbumPhoto(null)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-900 transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
+          </div>
 
+          <ImigongoRibbon height={8} variant="light" bordered={false} />
+
+          <div className="max-w-5xl mx-auto w-full px-4 sm:px-8 py-8 space-y-6 flex-1">
             {/* Clear Image Viewing Area */}
-            <div className="max-h-[500px] w-full bg-slate-950 overflow-hidden flex items-center justify-center">
+            <div className="rounded-3xl overflow-hidden border-2 border-slate-200 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[380px] max-h-[650px]">
               <img
                 src={activeAlbumPhoto.imageUrl}
                 alt={activeAlbumPhoto.titleEn}
-                className="max-h-[500px] w-full object-contain"
+                className="max-h-[650px] w-full object-contain"
               />
             </div>
 

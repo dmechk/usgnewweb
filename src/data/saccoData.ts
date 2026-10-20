@@ -62,7 +62,7 @@ export const INITIAL_NAV_ITEMS: NavItemConfig[] = [
 ];
 
 export const INITIAL_SYSTEM_IMAGES: SystemImagesConfig = {
-  saccoLogo: "/src/assets/images/ubumwe_sacco_logo_1792063211447.jpg",
+  saccoLogo: "/src/assets/images/ubumwe_sacco_logo_1792063211447.png",
   heroBanking: "/src/assets/images/mbitsemunda_phocas_desk.jpg",
   heroSlides: [
     "/src/assets/images/mbitsemunda_phocas_desk.jpg",
@@ -1169,7 +1169,7 @@ export const SACCO_PHOTO_ALBUM = [
     category: "branch_opening",
     categoryLabel: "Institutional",
     date: "RCA Registration",
-    imageUrl: "/src/assets/images/ubumwe_sacco_logo_1792063211447.jpg",
+    imageUrl: "/src/assets/images/ubumwe_sacco_logo_1792063211447.png",
     description: "UBUMWE SACCO GAKENKE certified emblem and cooperative branding symbol of unity and financial prosperity."
   }
 ];

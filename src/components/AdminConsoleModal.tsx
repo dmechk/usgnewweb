@@ -1595,38 +1595,46 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl max-w-5xl w-full p-5 sm:p-7 relative shadow-2xl border border-slate-200 my-6 overflow-hidden max-h-[94vh] flex flex-col">
-        {/* Top Imigongo skeleton ribbon */}
-        <div className="absolute top-0 left-0 right-0">
-          <ImigongoRibbon height={8} variant="light" bordered={false} />
-        </div>
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col animate-in fade-in duration-200">
+      {/* Top Imigongo skeleton ribbon */}
+      <ImigongoRibbon height={8} variant="light" bordered={false} />
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
-          aria-label="Close admin console"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Modal Header */}
-        <div className="pt-2 pb-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-5 flex-1 flex flex-col space-y-4">
+        {/* Top Sticky Header */}
+        <div className="pb-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div>
             <div className="flex items-center gap-2 text-xs text-emerald-800 font-bold">
-              <span>{saccoInfo.name} · EXECUTIVE CRUD &amp; MEDIA HUB</span>
+              <span>{saccoInfo.name} · EXECUTIVE MANAGEMENT SYSTEM</span>
               <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-mono">
-                Full Admin Rights
+                Full Admin Rights Active
               </span>
             </div>
-            <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
               Operations &amp; Content Management Center
-            </h3>
+            </h1>
           </div>
 
-          {/* Console Navigation Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Public Website</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+              aria-label="Close admin console"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        {/* Console Navigation Tabs */}
+        <div className="flex items-center gap-1 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto max-w-full">
             {/* 1. Contact & Phone/Email/WhatsApp */}
             <button
               type="button"

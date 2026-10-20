@@ -204,7 +204,15 @@ export default function App() {
   const [systemImages, setSystemImages] = useState<SystemImagesConfig>(() => {
     try {
       const saved = localStorage.getItem('ubumwe_system_images');
-      return saved ? JSON.parse(saved) : INITIAL_SYSTEM_IMAGES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Self-heal stale logo if pointing to non-existent .jpg
+        if (parsed.saccoLogo && parsed.saccoLogo.endsWith('.jpg') && parsed.saccoLogo.includes('ubumwe_sacco_logo')) {
+          parsed.saccoLogo = INITIAL_SYSTEM_IMAGES.saccoLogo;
+        }
+        return { ...INITIAL_SYSTEM_IMAGES, ...parsed };
+      }
+      return INITIAL_SYSTEM_IMAGES;
     } catch {
       return INITIAL_SYSTEM_IMAGES;
     }

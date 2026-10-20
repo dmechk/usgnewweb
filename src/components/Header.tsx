@@ -316,23 +316,39 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 flex items-center justify-between gap-3 lg:gap-6">
-        {/* Zone 1: SACCO Identity */}
+        {/* Zone 1: SACCO Identity & Big Prominent Logo */}
         <button
           onClick={() => handleNavClick('hero')}
-          className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer shrink-0 text-left"
+          className="flex items-center gap-3 sm:gap-3.5 group cursor-pointer shrink-0 text-left py-1"
+          title="UBUMWE SACCO GAKENKE - Home"
         >
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-emerald-600/20 text-emerald-900 flex items-center justify-center font-bold shadow-sm group-hover:border-emerald-600 transition-all overflow-hidden p-1">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 border-emerald-600/40 text-emerald-900 flex items-center justify-center font-bold shadow-lg group-hover:border-emerald-600 group-hover:shadow-xl transition-all overflow-hidden p-1.5 bg-gradient-to-b from-white via-white to-slate-50 ring-2 ring-emerald-500/10">
             {systemImages?.saccoLogo ? (
-              <img src={systemImages.saccoLogo} alt="UBUMWE SACCO GAKENKE Logo" className="w-full h-full object-contain" />
+              <img
+                src={systemImages.saccoLogo}
+                alt="UBUMWE SACCO GAKENKE Logo"
+                className="w-full h-full object-contain filter drop-shadow-sm"
+                onError={(e) => {
+                  // Fallback to usglogo.png if custom path fails
+                  const target = e.currentTarget;
+                  if (!target.src.endsWith('/src/assets/images/usglogo.png')) {
+                    target.src = '/src/assets/images/usglogo.png';
+                  }
+                }}
+              />
             ) : (
-              <Landmark className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-800" />
+              <img
+                src="/src/assets/images/usglogo.png"
+                alt="UBUMWE SACCO GAKENKE Logo"
+                className="w-full h-full object-contain"
+              />
             )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs sm:text-sm font-black tracking-tight text-black leading-tight group-hover:text-emerald-800 transition-colors">
+          <div className="flex flex-col justify-center">
+            <span className="text-base sm:text-lg font-black tracking-tight text-black leading-tight group-hover:text-emerald-800 transition-colors">
               UBUMWE SACCO
             </span>
-            <span className="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">
+            <span className="text-xs sm:text-[13px] font-extrabold tracking-widest text-emerald-700 uppercase">
               GAKENKE
             </span>
           </div>
