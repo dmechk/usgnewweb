@@ -31,11 +31,11 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
   const getEmbedUrl = (url: string) => {
     if (url.includes('youtube.com/watch?v=')) {
       const id = url.split('v=')[1]?.split('&')[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+      return `https://www.youtube.com/embed/${id}?rel=0&playsinline=1&modestbranding=1`;
     }
     if (url.includes('youtu.be/')) {
       const id = url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+      return `https://www.youtube.com/embed/${id}?rel=0&playsinline=1&modestbranding=1`;
     }
     return url;
   };
@@ -94,7 +94,7 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
                     src={getEmbedUrl(activeVideo.videoUrl)}
                     title={activeVideo.titleEn}
                     className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   />
                 ) : (
@@ -102,6 +102,7 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
                     key={activeVideo.videoUrl}
                     src={activeVideo.videoUrl}
                     controls
+                    playsInline
                     autoPlay={false}
                     className="w-full h-full object-cover"
                     poster={activeVideo.thumbnailUrl}

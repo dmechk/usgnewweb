@@ -45,6 +45,7 @@ import {
   Search,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   Info,
   Phone,
   Mail,
@@ -1915,7 +1916,6 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
               <span>Guide</span>
             </button>
           </div>
-        </div>
 
         {/* Modal Body / Scrollable Content */}
         <div className="flex-1 overflow-y-auto py-4 space-y-6">
