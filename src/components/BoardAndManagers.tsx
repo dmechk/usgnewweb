@@ -103,16 +103,28 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4">
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
-              <Users className="w-4 h-4" />
-              <span>Cooperative Leadership &amp; Administration</span>
+              <Users className="w-4 h-4 text-emerald-700" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Leadership & Administration Coopérative'
+                  : currentLang === 'rw'
+                  ? "Ubuyobozi n'Imicungire ya Koperative"
+                  : 'Cooperative Leadership & Administration'}
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-              {currentLang === 'en' ? 'Board of Directors & Management' : 'Inama y\'Ubutegetsi n\'Abayobozi Bakuru'}
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+              {currentLang === 'fr'
+                ? 'Conseil & Direction · UBUMWE SACCO GAKENKE'
+                : currentLang === 'rw'
+                ? "Abayobozi n'Abakozi · UBUMWE SACCO GAKENKE"
+                : 'Board & Staff · UBUMWE SACCO GAKENKE'}
             </h2>
-            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-2xl">
-              {currentLang === 'en'
-                ? 'Meet the seasoned financial leaders and administrators guiding UBUMWE SACCO GAKENKE in full compliance with cooperative laws and RCA standards.'
-                : 'Menya abagize Inama y\'Ubutegetsi n\'abayobozi b\'imirimo ya buri munsi bayobora Ubumwe SACCO Gakenke mu mucyo n\'ubunyangamugayo.'}
+            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+              {currentLang === 'fr'
+                ? 'Rencontrez les dirigeants financiers expérimentés et administrateurs guidant UBUMWE SACCO GAKENKE conformément aux normes de la RCA.'
+                : currentLang === 'rw'
+                ? "Menya abagize Inama y'Ubutegetsi n'abayobozi b'imirimo ya buri munsi bayobora Ubumwe SACCO Gakenke mu mucyo n'ubunyangamugayo."
+                : 'Meet the seasoned financial leaders and administrators guiding UBUMWE SACCO GAKENKE in full compliance with cooperative laws and RCA standards.'}
             </p>
           </div>
 

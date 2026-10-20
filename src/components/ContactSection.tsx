@@ -88,37 +88,50 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   return (
     <section id="contact" className="py-16 lg:py-24 bg-white border-b border-slate-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-12">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 relative">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider border border-emerald-200">
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
-            <span>{currentLang === 'en' ? 'Direct Communication Desk' : 'Ibiro by\'Itumanaho n\'Ubufasha'}</span>
+        {/* Section Header (Aligned to Reference Image) */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+              <MessageSquare className="w-4 h-4 text-emerald-700" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Bureau de Communication Directe'
+                  : currentLang === 'rw'
+                  ? "Ibiro by'Itumanaho n'Ubufasha"
+                  : 'Direct Communication Desk'}
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+              {currentLang === 'fr'
+                ? 'Contactez-nous · UBUMWE SACCO GAKENKE'
+                : currentLang === 'rw'
+                ? 'Twandikire · UBUMWE SACCO GAKENKE'
+                : 'Contact Us · UBUMWE SACCO GAKENKE'}
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+              {currentLang === 'fr'
+                ? "Contactez notre service d'assistance client, les membres du conseil ou la direction via WhatsApp, téléphone, e-mail ou demande directe."
+                : currentLang === 'rw'
+                ? "Vugana n'abayobozi bacu cyangwa itsinda ryita ku banyamuryango ukoresheje WhatsApp, telefone, imeri cyangwa ubutumwa bwihuse."
+                : 'Reach our customer desk, Board Directors (Wellarse, Bartazal), or Manager (Mbitsemunda Phocas) via WhatsApp, telephone, email, or direct inquiry.'}
+            </p>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            {currentLang === 'en'
-              ? `Contact ${saccoInfo.name}`
-              : `Tuvugishe kuri ${saccoInfo.shortName}`}
-          </h2>
-
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            {currentLang === 'en'
-              ? 'Reach our customer desk, Board Directors (Wellarse, Bartazal), or Manager (Mbitsemunda Phocas) via WhatsApp, telephone, email, or direct inquiry.'
-              : 'Vugana n\'abayobozi bacu cyangwa itsinda ryita ku banyamuryango ukoresheje WhatsApp, telefone, imeri cyangwa ubutumwa bwihuse.'}
-          </p>
-
-          {/* Admin Edit Shortcut */}
           {isAdmin && onOpenAdminConsole && (
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenAdminConsole('contact')}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-emerald-300 shadow-2xs"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-                <span>Edit Phone, Email &amp; WhatsApp as Admin</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => onOpenAdminConsole('contact')}
+              className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Modifier Coordonnées (CRUD)'
+                  : currentLang === 'rw'
+                  ? 'Guhindura Imyirondoro (CRUD)'
+                  : 'Edit Phone, Email & WhatsApp'}
+              </span>
+            </button>
           )}
         </div>
 

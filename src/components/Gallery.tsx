@@ -19,6 +19,7 @@ import {
   Lock,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
   Upload,
   Image as ImageIcon,
   Grid,
@@ -330,17 +331,27 @@ export const Gallery: React.FC<GalleryProps> = ({
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
               <Camera className="w-4 h-4 text-emerald-700" />
-              <span>Memorable Milestones &amp; Photo Gallery</span>
+              <span>
+                {currentLang === 'fr'
+                  ? 'Moments Mémorables & Galerie Photos'
+                  : currentLang === 'rw'
+                  ? "Ibiganiro n'Amafoto y'Aho Tugeze"
+                  : 'Memorable Milestones & Photo Gallery'}
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
-              {currentLang === 'en'
-                ? 'Gallery · UBUMWE SACCO GAKENKE'
-                : 'Amafoto y\'Ikigo · UBUMWE SACCO GAKENKE'}
+              {currentLang === 'fr'
+                ? 'Galerie · UBUMWE SACCO GAKENKE'
+                : currentLang === 'rw'
+                ? "Amafoto y'Ikigo · UBUMWE SACCO GAKENKE"
+                : 'Gallery · UBUMWE SACCO GAKENKE'}
             </h2>
             <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
-              {currentLang === 'en'
-                ? 'Celebrating the proudest achievements in our institution: national excellence trophies, historic dividend payouts, modern banking launches, and farmer empowerment led by Board Director Wellarse and Manager Mbitsemunda Phocas.'
-                : 'Ibyishimo n\'intambwe ikomeye koperative yacu imaze gutera: ibikombe by\'indashyikirwa, iminsi mikuru yo kugabana inyungu, gufungura ibiro bigezweho no gushyigikira abahinzi n\'aborozi bo muri Gakenke.'}
+              {currentLang === 'fr'
+                ? "Célébrant les plus belles réussites de notre institution : trophées d'excellence nationale, distributions de dividendes, lancements bancaires modernes et soutien des agriculteurs de Gakenke."
+                : currentLang === 'rw'
+                ? "Ibyishimo n'intambwe ikomeye koperative yacu imaze gutera: ibikombe by'indashyikirwa, iminsi mikuru yo kugabana inyungu, gufungura ibiro bigezweho no gushyigikira abahinzi n'aborozi bo muri Gakenke."
+                : 'Celebrating the proudest achievements in our institution: national excellence trophies, historic dividend payouts, modern banking launches, and farmer empowerment led by Board Director Wellarse and Manager Mbitsemunda Phocas.'}
             </p>
           </div>
 
@@ -353,7 +364,13 @@ export const Gallery: React.FC<GalleryProps> = ({
               className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <Grid className="w-4 h-4 text-emerald-400" />
-              <span>Explore All Photos ({uniqueAlbumPhotos.length}+)</span>
+              <span>
+                {currentLang === 'fr'
+                  ? `Explorer Toutes les Photos (${uniqueAlbumPhotos.length}+)`
+                  : currentLang === 'rw'
+                  ? `Reba Amafoto Yose (${uniqueAlbumPhotos.length}+)`
+                  : `Explore All Photos (${uniqueAlbumPhotos.length}+)`}
+              </span>
             </button>
 
             {/* Admin Add Moment Button */}
@@ -623,21 +640,54 @@ export const Gallery: React.FC<GalleryProps> = ({
         </div>
       </div>
 
-      {/* MULTI-PHOTO LIGHTBOX MODAL */}
+      {/* FULL-PAGE IMMERSIVE PHOTO & MILESTONE READER (Full Page Instead of Popup) */}
       {activeMomentDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden relative shadow-2xl border border-slate-200 my-6 flex flex-col max-h-[94vh]">
-            <ImigongoRibbon height={8} variant="light" bordered={false} />
-
-            {/* Close Button */}
+        <div className="fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col animate-in fade-in duration-200">
+          {/* Top Sticky Bar */}
+          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-2xs">
             <button
               type="button"
               onClick={() => setActiveMomentDetail(null)}
-              className="absolute top-4 right-4 z-30 p-2 rounded-full bg-slate-900/80 text-white hover:bg-slate-900 transition-colors cursor-pointer"
-              aria-label="Close photo dialog"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-slate-900 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
             >
-              <X className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Retour à la Galerie'
+                  : currentLang === 'rw'
+                  ? 'Subira ku Mafoto'
+                  : 'Back to Photo Gallery'}
+              </span>
             </button>
+
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-700">
+              <Camera className="w-4 h-4 text-emerald-700" />
+              <span>Photo {activePhotoIndex + 1} of {activePhotos.length} · UBUMWE SACCO GAKENKE Media Archive</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsAlbumModalOpen(true)}
+                className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-200"
+              >
+                <Grid className="w-3.5 h-3.5 text-emerald-700" />
+                <span className="hidden sm:inline">Browse Full Album</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMomentDetail(null)}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                aria-label="Close dialog"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <ImigongoRibbon height={8} variant="light" bordered={false} />
+
+          <div className="flex-1 w-full max-w-5xl mx-auto flex flex-col p-4 sm:p-8 space-y-6">
 
             {/* Photo Viewing Area */}
             <div className="relative bg-slate-950 flex items-center justify-center min-h-[340px] sm:min-h-[460px] max-h-[540px] overflow-hidden group select-none">

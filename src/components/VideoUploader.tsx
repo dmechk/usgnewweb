@@ -23,14 +23,18 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
-      setErrorMsg('Please select a valid video file (MP4, WebM, OGG, etc.)');
+    // Accept any video file format (MP4, WebM, MOV, AVI, MKV, 3GP, OGG, FLV, WMV, etc.)
+    const isVideo = file.type.startsWith('video/') || 
+      /\.(mp4|webm|mkv|mov|avi|wmv|flv|3gp|m4v|ogv|ts)$/i.test(file.name);
+
+    if (!isVideo) {
+      setErrorMsg('Please select a video file (MP4, WebM, MOV, AVI, MKV, 3GP, etc.)');
       return;
     }
 
-    // Limit to 30MB for local browser base64 storage
-    if (file.size > 30 * 1024 * 1024) {
-      setErrorMsg('Direct video file size should be under 30MB. For larger videos, please paste a YouTube or hosted video link.');
+    // Limit to 60MB for local browser base64 storage
+    if (file.size > 60 * 1024 * 1024) {
+      setErrorMsg('Direct video file size should be under 60MB. For larger videos, please paste a YouTube, Vimeo, or hosted video link.');
       return;
     }
 
@@ -125,7 +129,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept="video/*"
+            accept="video/*,.mp4,.webm,.mkv,.mov,.avi,.wmv,.flv,.3gp,.m4v,.ts"
             className="hidden"
           />
           <button

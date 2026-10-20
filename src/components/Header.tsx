@@ -68,6 +68,26 @@ export const Header: React.FC<HeaderProps> = ({
     setMobileMenuOpen(false);
   };
 
+  const getNavLabel = (item: NavItemConfig) => {
+    if (currentLang === 'fr') return item.labelFr || item.labelEn;
+    if (currentLang === 'rw') return item.labelRw;
+    return item.labelEn;
+  };
+
+  const contactButtonLabel =
+    currentLang === 'fr'
+      ? 'Contactez-nous'
+      : currentLang === 'rw'
+      ? 'Twandikire'
+      : 'Contact Us';
+
+  const staffLoginLabel =
+    currentLang === 'fr'
+      ? 'Connexion Staff'
+      : currentLang === 'rw'
+      ? 'Kwinjira kw\'Abakozi'
+      : 'Staff Login';
+
   const visibleNavs = navItems.filter((i) => i.visible);
   // Loan calculator is embedded inside Our Services; Contact Us is a standalone CTA button — both excluded from the nav link list
   const headerNavs = visibleNavs.filter(
@@ -77,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
   const mobileNavs = visibleNavs.filter((item) => item.targetSection !== 'calculator');
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-xs">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-xs transition-colors duration-300">
       {/* Top Imigongo Skeleton Ribbon */}
       <ImigongoRibbon height={14} variant="light" bordered={false} />
 
@@ -237,7 +257,13 @@ export const Header: React.FC<HeaderProps> = ({
                               className="w-3 h-3 rounded-full border border-white/30"
                               style={{ backgroundColor: theme.primaryHex }}
                             />
-                            <span>{currentLang === 'en' ? theme.nameEn : theme.nameRw}</span>
+                            <span>
+                              {currentLang === 'fr'
+                                ? theme.nameFr || theme.nameEn
+                                : currentLang === 'rw'
+                                ? theme.nameRw
+                                : theme.nameEn}
+                            </span>
                           </div>
                           {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
                         </button>
@@ -284,19 +310,6 @@ export const Header: React.FC<HeaderProps> = ({
                 FR
               </button>
             </div>
-
-            {/* Staff / Admin Login Button */}
-            {!isManagerLoggedIn && onOpenManagerLogin && (
-              <button
-                type="button"
-                onClick={onOpenManagerLogin}
-                className="flex items-center gap-1.5 text-[11px] text-emerald-300 hover:text-white px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-700 transition-colors border border-emerald-500/30 font-semibold cursor-pointer"
-                title="Staff & Board Login"
-              >
-                <Lock className="w-3 h-3 text-emerald-400" />
-                <span>Staff Login</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -316,7 +329,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
           <div className="flex flex-col">
-            <span className="text-xs sm:text-sm font-black tracking-tight text-slate-900 leading-tight group-hover:text-emerald-800 transition-colors">
+            <span className="text-xs sm:text-sm font-black tracking-tight text-black leading-tight group-hover:text-emerald-800 transition-colors">
               UBUMWE SACCO
             </span>
             <span className="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">
@@ -326,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Zone 2: Navigation Links in Header (Excluding Contact Us so only one button exists) */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs lg:text-sm font-semibold text-slate-700 flex-wrap justify-center">
+        <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm xl:text-base font-extrabold text-black flex-wrap justify-center">
           {headerNavs.map((item) => {
             const isActive =
               activeSection === item.targetSection ||
@@ -337,15 +350,14 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.targetSection)}
-                className={`transition-all whitespace-nowrap shrink-0 px-3 py-1.5 rounded-xl cursor-pointer ${
+                className={`transition-all whitespace-nowrap shrink-0 px-3.5 py-2 rounded-xl cursor-pointer font-bold tracking-tight text-sm xl:text-base ${
                   isActive
-                    ? 'bg-emerald-700 text-white font-extrabold shadow-xs hover:bg-emerald-800'
-                    : item.isPrimary
-                    ? 'text-emerald-800 hover:text-emerald-950 hover:bg-emerald-50/80 font-bold'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    ? 'active-nav bg-emerald-700 text-white font-extrabold shadow-sm hover:bg-emerald-800'
+                    : 'text-black hover:text-emerald-800 hover:bg-slate-100'
                 }`}
+                style={!isActive ? { color: '#000000' } : undefined}
               >
-                {currentLang === 'en' ? item.labelEn : item.labelRw}
+                {getNavLabel(item)}
               </button>
             );
           })}
@@ -363,7 +375,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-200" />
-            <span>{currentLang === 'en' ? 'Contact Us' : 'Twandikire'}</span>
+            <span>{contactButtonLabel}</span>
           </button>
 
           {/* Mobile menu toggle button */}
@@ -384,7 +396,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-3 shadow-lg max-h-[80vh] overflow-y-auto">
-          <div className="flex flex-col gap-1.5 font-medium text-sm text-slate-800">
+          <div className="flex flex-col gap-2 font-bold text-base text-slate-800">
             {mobileNavs.map((item) => {
               const isActive =
                 activeSection === item.targetSection ||
@@ -393,15 +405,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.targetSection)}
-                  className={`text-left py-2 px-3 rounded-xl font-semibold transition-colors cursor-pointer ${
+                  className={`text-left py-2.5 px-4 rounded-xl font-bold text-base transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-700 text-white font-bold'
-                      : item.isPrimary
-                      ? 'bg-emerald-50 text-emerald-800 font-bold'
-                      : 'text-slate-900 hover:bg-slate-100'
+                      ? 'active-nav bg-emerald-700 text-white font-extrabold shadow-sm'
+                      : 'text-black hover:bg-slate-100'
                   }`}
+                  style={!isActive ? { color: '#000000' } : undefined}
                 >
-                  {currentLang === 'en' ? item.labelEn : item.labelRw}
+                  {getNavLabel(item)}
                 </button>
               );
             })}
@@ -419,7 +430,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {THEME_OPTIONS.find((t) => t.id === currentTheme)?.nameEn}
                 </span>
               </div>
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-7 gap-1.5">
                 {THEME_OPTIONS.map((theme) => {
                   const isSelected = currentTheme === theme.id;
                   return (
@@ -441,7 +452,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Authenticated Manager Actions */}
-            {isManagerLoggedIn ? (
+            {isManagerLoggedIn && (
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-900">
                   <Shield className="w-4 h-4 text-emerald-700" />
@@ -483,19 +494,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>Open Full Admin Console</span>
                 </button>
               </div>
-            ) : onOpenManagerLogin ? (
-              <button
-                type="button"
-                onClick={() => {
-                  onOpenManagerLogin();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
-              >
-                <Lock className="w-3.5 h-3.5 text-emerald-300" />
-                <span>Staff &amp; Executive Login</span>
-              </button>
-            ) : null}
+            )}
           </div>
         </div>
       )}

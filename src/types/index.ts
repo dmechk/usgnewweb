@@ -1,11 +1,12 @@
 export type Language = 'en' | 'rw' | 'fr';
 
-export type ThemeColor = 'emerald' | 'ochre' | 'blue' | 'teal' | 'terracotta' | 'charcoal';
+export type ThemeColor = 'emerald' | 'ochre' | 'blue' | 'teal' | 'terracotta' | 'charcoal' | 'black';
 
 export interface ThemeOption {
   id: ThemeColor;
   nameEn: string;
   nameRw: string;
+  nameFr?: string;
   primaryHex: string;
   accentHex: string;
   bgLightHex: string;
@@ -154,6 +155,7 @@ export interface NavItemConfig {
   id: string;
   labelEn: string;
   labelRw: string;
+  labelFr?: string;
   targetSection: string;
   visible: boolean;
   isPrimary?: boolean;
@@ -175,14 +177,16 @@ export interface ManagerMessage {
 }
 
 export interface SystemImagesConfig {
+  saccoLogo?: string;
   heroBanking: string;
+  heroSlides?: string[];
   farmersCoop: string;
   entrepreneur: string;
   governance: string;
   managerPortrait?: string;
   boardChairPortrait?: string;
   bartazalPortrait?: string;
-  [key: string]: string | undefined;
+  [key: string]: any;
 }
 
 export interface JobPosting {
@@ -288,8 +292,10 @@ export interface HomeMetricItem {
   value: string;
   labelEn: string;
   labelRw: string;
+  labelFr?: string;
   detailEn: string;
   detailRw: string;
+  detailFr?: string;
   iconName: string; // 'users' | 'piggy' | 'landmark' | 'building' | 'shield' | 'trending' | 'award' | 'star'
   colorClass: string;
   bgClass: string;

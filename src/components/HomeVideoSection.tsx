@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Language, HomeVideoItem } from '../types';
 import { TRANSLATIONS } from '../i18n/translations';
-import { Play, Video as VideoIcon, Plus, Sparkles } from 'lucide-react';
+import { Play, Video as VideoIcon, Plus, Sparkles, Edit2 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 
 interface HomeVideoSectionProps {
@@ -221,9 +221,6 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
         )}
       </div>
 
-      <div className="mt-12">
-        <ImigongoRibbon height={12} variant="light" bordered={false} />
-      </div>
     </section>
   );
 };

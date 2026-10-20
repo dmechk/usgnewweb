@@ -46,42 +46,61 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
   return (
     <section id="branches" className="py-16 lg:py-24 bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
-            <Building2 className="w-4 h-4" />
-            <span>Serving 19 Sectors in Gakenke District</span>
+        {/* Header (Aligned to reference picture) */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 mb-10">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+              <Building2 className="w-4 h-4 text-emerald-700" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Au service des 19 Secteurs du District de Gakenke'
+                  : currentLang === 'rw'
+                  ? 'Dukorera mu Mirenge 19 ya Gakenke'
+                  : 'Serving 19 Sectors in Gakenke District'}
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+              {currentLang === 'fr'
+                ? 'Agences & Postes · UBUMWE SACCO GAKENKE'
+                : currentLang === 'rw'
+                ? 'Amashami yacu · UBUMWE SACCO GAKENKE'
+                : 'Branches & Outposts · UBUMWE SACCO GAKENKE'}
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+              {t.branches.subtitle} · {currentLang === 'fr' ? 'Ligne Centrale :' : currentLang === 'rw' ? 'Telefone Rusange :' : 'Central Support Line:'}{' '}
+              <strong className="text-slate-900 font-mono-numbers">{SACCO_INFO.phone}</strong>
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
-            {t.branches.title}
-          </h2>
-          <p className="text-slate-600 mt-2 text-base">
-            {t.branches.subtitle} · Central Support Line: <strong className="text-slate-900">{SACCO_INFO.phone}</strong>
-          </p>
 
-          {isAdmin && onOpenAdminConsole && (
-            <div className="mt-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            {/* Search Box */}
+            <div className="relative w-full sm:w-72">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.branches.searchPlaceholder}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            </div>
+
+            {isAdmin && onOpenAdminConsole && (
               <button
                 type="button"
                 onClick={() => onOpenAdminConsole('branches')}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors cursor-pointer border border-emerald-300 shadow-2xs"
+                className="px-3.5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-1.5 shrink-0"
               >
                 <Edit2 className="w-3.5 h-3.5" />
-                <span>Manage Branches &amp; Sub-branches as Admin</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Gérer Agences'
+                    : currentLang === 'rw'
+                    ? 'Gucunga Amashami'
+                    : 'Manage Branches'}
+                </span>
               </button>
-            </div>
-          )}
-
-          {/* Search Box */}
-          <div className="mt-6 max-w-md mx-auto relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t.branches.searchPlaceholder}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            )}
           </div>
         </div>
 
@@ -197,29 +216,38 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
 
             {/* Map Display Box */}
             {mapMode === 'google' ? (
-              <div className="relative rounded-2xl overflow-hidden border border-slate-300 bg-slate-100 h-72 sm:h-80 shadow-inner">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-300 bg-slate-100 h-72 sm:h-84 shadow-inner">
+                {/* Dynamically generated Google Map embed for the selected branch */}
                 <iframe
-                  title="UBUMWE SACCO GAKENKE Google Map"
-                  src={`https://maps.google.com/maps?q=${
+                  key={`map-${selectedBranch?.id || 'default'}-${selectedBranch?.sector || ''}`}
+                  title={`${selectedBranch?.name || 'UBUMWE SACCO'} Location Map`}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
                     selectedBranch?.coordinates
                       ? `${selectedBranch.coordinates.lat},${selectedBranch.coordinates.lng}`
-                      : '-1.6924232,29.742604'
-                  }&t=&z=12&ie=UTF8&iwloc=&output=embed`}
+                      : `${selectedBranch?.name || 'UBUMWE SACCO'}, ${selectedBranch?.sector || 'Gakenke'}, Gakenke District, Rwanda`
+                  )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
                   className="w-full h-full border-0"
                   loading="lazy"
                   allowFullScreen
                 />
-                <div className="absolute bottom-2 left-2 right-2 bg-slate-900/90 text-white px-3 py-1.5 rounded-lg text-[11px] backdrop-blur-md flex items-center justify-between pointer-events-auto">
-                  <span className="truncate">
-                    📍 {selectedBranch?.name || 'UBUMWE SACCO GAKENKE'} · Gakenke District
-                  </span>
+                <div className="absolute bottom-2 left-2 right-2 bg-slate-900/95 text-white px-3.5 py-2 rounded-xl text-xs backdrop-blur-md flex items-center justify-between pointer-events-auto border border-white/10 shadow-lg">
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="truncate font-semibold">
+                      {selectedBranch?.name || 'UBUMWE SACCO GAKENKE'} · Sector {selectedBranch?.sector || 'Gakenke'}
+                    </span>
+                  </div>
                   <a
-                    href={GAKENKE_MAP_DIRECTIONS_URL}
+                    href={
+                      selectedBranch?.coordinates
+                        ? `https://www.google.com/maps/dir/?api=1&destination=${selectedBranch.coordinates.lat},${selectedBranch.coordinates.lng}`
+                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedBranch?.name || 'UBUMWE SACCO'}, ${selectedBranch?.sector || 'Gakenke'}, Rwanda`)}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 shrink-0 ml-2"
+                    className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 shrink-0 ml-3 text-[11px] bg-slate-800/80 px-2 py-1 rounded-md border border-slate-700 hover:bg-slate-700 transition-colors"
                   >
-                    <span>Full Map</span>
+                    <span>Open in Google Maps</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -353,10 +381,6 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
         </div>
       </div>
 
-      {/* Imigongo skeleton ribbon connecting to governance */}
-      <div className="mt-16">
-        <ImigongoRibbon height={16} variant="light" bordered={true} />
-      </div>
     </section>
   );
 };

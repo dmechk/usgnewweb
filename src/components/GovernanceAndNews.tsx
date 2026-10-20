@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Language, Announcement, CommunityImpactStory } from '../types';
 import { TRANSLATIONS } from '../i18n/translations';
 import { ANNOUNCEMENTS, TESTIMONIALS, SACCO_IMAGES, SACCO_INFO } from '../data/saccoData';
-import { ShieldCheck, Calendar, ArrowRight, UserCheck, X, Phone, Mail, Plus, Edit2, Trash2, ImageIcon } from 'lucide-react';
+import { ShieldCheck, Calendar, ArrowRight, ArrowLeft, UserCheck, X, Phone, Mail, Plus, Edit2, Trash2, ImageIcon, Sparkles, Bell, Printer } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { ImageUploader } from './ImageUploader';
 
@@ -64,28 +64,49 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16 lg:space-y-24">
         {/* Section 1: Member Stories & Social Proof */}
         <div>
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-xs font-bold text-emerald-800 tracking-wider uppercase">
-              UBUMWE SACCO GAKENKE · Community Impact
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight" style={{ textWrap: 'balance' }}>
-              {t.governance.storiesTitle}
-            </h2>
-            <p className="text-slate-600 mt-2 text-sm sm:text-base">
-              Real accounts of agricultural transformation and retail expansion from Gakenke members.
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 mb-8 border-b border-slate-200">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+                <Sparkles className="w-4 h-4 text-emerald-700" />
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Impact Communautaire & Témoignages'
+                    : currentLang === 'rw'
+                    ? "Ubuhamya bw'Iterambere"
+                    : 'Community Impact & Stories'}
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+                {currentLang === 'fr'
+                  ? 'Témoignages · UBUMWE SACCO GAKENKE'
+                  : currentLang === 'rw'
+                  ? 'Ubuhamya · UBUMWE SACCO GAKENKE'
+                  : 'Impact Stories · UBUMWE SACCO GAKENKE'}
+              </h2>
+              <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+                {currentLang === 'fr'
+                  ? "Témoignages authentiques de transformation agricole et d'expansion commerciale des membres de Gakenke."
+                  : currentLang === 'rw'
+                  ? "Ubuhamya bw'abahinzi, aborozi n'abacuruzi batejwe imbere na serivisi za Ubumwe SACCO Gakenke."
+                  : 'Real accounts of agricultural transformation and retail expansion from Gakenke members.'}
+              </p>
+            </div>
 
             {isAdmin && onOpenAdminConsole && (
-              <div className="mt-4 flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onOpenAdminConsole('impact')}
-                  className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Manage / Add Impact Stories as Admin</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => onOpenAdminConsole('impact')}
+                className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Gérer Témoignages (CRUD)'
+                    : currentLang === 'rw'
+                    ? 'Kongeraho Ubuhamya (CRUD)'
+                    : 'Manage Stories (CRUD)'}
+                </span>
+              </button>
             )}
           </div>
 
@@ -159,16 +180,31 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
         {/* Section 2: Official Announcements & News for UBUMWE SACCO GAKENKE */}
         <div id="news">
           {/* Header */}
-          <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 mb-8">
             <div>
-              <span className="text-xs font-bold text-emerald-800 tracking-wider uppercase">
-                Official Bulletins &amp; Press
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                {currentLang === 'en' ? 'News · UBUMWE SACCO GAKENKE' : 'Amakuru · UBUMWE SACCO GAKENKE'}
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+                <Bell className="w-4 h-4 text-emerald-700" />
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Bulletins Officiels & Presse'
+                    : currentLang === 'rw'
+                    ? "Amatangazo n'Amakuru Mashya"
+                    : 'Official Bulletins & Press'}
+                </span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                {currentLang === 'fr'
+                  ? 'Actualités · UBUMWE SACCO GAKENKE'
+                  : currentLang === 'rw'
+                  ? 'Amakuru · UBUMWE SACCO GAKENKE'
+                  : 'News · UBUMWE SACCO GAKENKE'}
               </h3>
-              <p className="text-sm text-slate-600 mt-1">
-                Direct inquiries: <span className="font-semibold text-slate-900">{SACCO_INFO.phone}</span> · <span className="text-emerald-700 font-semibold">{SACCO_INFO.email}</span>
+              <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+                {currentLang === 'fr'
+                  ? `Annonces des assemblées générales, dividendes et avis officiels. Ligne directe : ${SACCO_INFO.phone}`
+                  : currentLang === 'rw'
+                  ? `Amatangazo y'inama rusange, amakuru y'inyungu n'imigabane. Telefone: ${SACCO_INFO.phone}`
+                  : `General assembly notices, dividend releases, and official updates. Direct inquiries: ${SACCO_INFO.phone}`}
               </p>
             </div>
 
@@ -271,121 +307,202 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
           </div>
         </div>
 
-        {/* Announcement Detail Modal */}
+        {/* Full-Page Official News & Bulletin Reader (Full Page instead of Popup) */}
         {selectedAnnouncement && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-3xl max-w-xl w-full relative shadow-2xl border border-slate-200 overflow-hidden">
-              {/* Close button */}
+          <div className="fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col animate-in fade-in duration-200">
+            {/* Top Navigation Bar */}
+            <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setSelectedAnnouncement(null)}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-900/70 backdrop-blur-md hover:bg-slate-900/90 text-white transition-colors"
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-slate-900 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Retour aux Actualités'
+                    : currentLang === 'rw'
+                    ? 'Subira ku Makuru'
+                    : 'Back to All News & Bulletins'}
+                </span>
               </button>
 
-              {/* Hero Image */}
+              <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-700">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <span>UBUMWE SACCO GAKENKE · Official Bulletin Archive</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Print Official Bulletin"
+                >
+                  <Printer className="w-4 h-4 text-slate-600" />
+                  <span className="hidden sm:inline">Print Bulletin</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAnnouncement(null)}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                  aria-label="Close article"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Imigongo ribbon top trim */}
+            <ImigongoRibbon height={8} variant="light" bordered={false} />
+
+            {/* Main Full-Page Article Content Area */}
+            <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-8 py-8 sm:py-12 space-y-8">
+              {/* Meta tags and breadcrumb */}
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-bold border border-emerald-300 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>OFFICIAL SACCO NOTICE</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-500 font-medium">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Published: <strong>{selectedAnnouncement.date}</strong></span>
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-500">Gakenke District, Northern Province, Rwanda</span>
+              </div>
+
+              {/* Massive Full Article Headline */}
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight sm:leading-tight">
+                {currentLang === 'en' ? selectedAnnouncement.titleEn : selectedAnnouncement.titleRw}
+              </h1>
+
+              {/* Full-Width Featured Photograph */}
               {selectedAnnouncement.imageUrl && (
-                <div className="aspect-video overflow-hidden bg-slate-100">
+                <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-lg bg-slate-950 max-h-[500px]">
                   <img
                     src={selectedAnnouncement.imageUrl}
                     alt={currentLang === 'en' ? selectedAnnouncement.titleEn : selectedAnnouncement.titleRw}
                     className="w-full h-full object-cover"
                   />
+                  <div className="p-3 bg-slate-900/90 text-slate-300 text-xs flex items-center justify-between">
+                    <span>Official Institutional Archive Photograph · UBUMWE SACCO GAKENKE</span>
+                    <span className="text-emerald-400 font-mono-numbers">{selectedAnnouncement.date}</span>
+                  </div>
                 </div>
               )}
 
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center gap-2 text-xs text-emerald-800 font-semibold mb-2">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>OFFICIAL NOTICE · {selectedAnnouncement.date}</span>
-                </div>
+              {/* Lead Summary Callout */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-700 border-y border-r border-emerald-200 text-slate-900 text-sm sm:text-base font-semibold leading-relaxed shadow-2xs">
+                {currentLang === 'en' ? selectedAnnouncement.summaryEn : selectedAnnouncement.summaryRw}
+              </div>
 
-                <h3 className="text-xl font-extrabold text-slate-900 pr-4">
-                  {currentLang === 'en' ? selectedAnnouncement.titleEn : selectedAnnouncement.titleRw}
-                </h3>
-
-                <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed">
+              {/* Full Detailed Body Content */}
+              <div className="text-sm sm:text-base lg:text-lg text-slate-800 leading-loose space-y-6">
+                <div className="whitespace-pre-line leading-relaxed">
                   {currentLang === 'en' ? selectedAnnouncement.contentEn : selectedAnnouncement.contentRw}
                 </div>
+              </div>
 
-                <div className="mt-4 p-3 bg-slate-100 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 text-slate-700">
-                  <span className="flex items-center gap-1 font-mono-numbers">
+              {/* Administrative Regulatory Signature Box */}
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Cooperative Governance &amp; Compliance Statement</h4>
+                    <p className="text-xs text-slate-500">
+                      RCA Microfinance Regulation: {SACCO_INFO.rcaRegistration} · District: {SACCO_INFO.district}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  This bulletin has been issued under the cooperative authority of Executive Manager (Mbitsemunda Phocas) and the Board of Directors (Wellarse, Bartazal). For questions regarding meeting resolutions, dividend distribution formulas, or credit policies, please contact our help desk.
+                </p>
+
+                <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono-numbers text-slate-700">
+                  <a href={`tel:${SACCO_INFO.phone}`} className="flex items-center gap-1.5 hover:text-emerald-700">
                     <Phone className="w-3.5 h-3.5 text-emerald-700" />
                     <span>{SACCO_INFO.phone}</span>
-                  </span>
-                  <span className="flex items-center gap-1">
+                  </a>
+                  <a href={`mailto:${SACCO_INFO.email}`} className="flex items-center gap-1.5 hover:text-emerald-700">
                     <Mail className="w-3.5 h-3.5 text-emerald-700" />
                     <span>{SACCO_INFO.email}</span>
-                  </span>
-                </div>
-
-                {/* Admin: Quick image change in modal */}
-                {isAdmin && onUpdateAnnouncement && (
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    {quickEditId === selectedAnnouncement.id ? (
-                      <div className="space-y-2">
-                        <ImageUploader
-                          value={quickImgUrl}
-                          onChange={setQuickImgUrl}
-                          label="Change Bulletin Picture"
-                          aspectRatio="video"
-                          presets={[
-                            { label: 'Governance', url: '/src/assets/images/community_governance_1791989970347.jpg' },
-                            { label: 'Farmers', url: '/src/assets/images/farmers_cooperative_1791989969904.jpg' },
-                            { label: 'Banking Hall', url: '/src/assets/images/mbitsemunda_phocas_desk.jpg' },
-                          ]}
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleQuickImageSave}
-                            className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold"
-                          >
-                            Save Image
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setQuickEditId(null); setQuickImgUrl(''); }}
-                            className="px-3 py-1.5 text-slate-500 hover:text-slate-700 text-xs"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => { setQuickEditId(selectedAnnouncement.id); setQuickImgUrl(selectedAnnouncement.imageUrl || ''); }}
-                        className="text-xs text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1"
-                      >
-                        <ImageIcon className="w-3.5 h-3.5" />
-                        Change bulletin image
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-                  <span>By Order of the Board of Directors</span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedAnnouncement(null)}
-                    className="px-4 py-2 bg-slate-900 text-white rounded-lg font-bold text-xs"
-                  >
-                    Close Notice
-                  </button>
+                  </a>
                 </div>
               </div>
-            </div>
+
+              {/* Admin: In-reader image editor */}
+              {isAdmin && onUpdateAnnouncement && (
+                <div className="p-5 bg-slate-100 rounded-2xl border border-slate-200">
+                  {quickEditId === selectedAnnouncement.id ? (
+                    <div className="space-y-3">
+                      <ImageUploader
+                        value={quickImgUrl}
+                        onChange={setQuickImgUrl}
+                        label="Change Bulletin Article Picture"
+                        aspectRatio="video"
+                        presets={[
+                          { label: 'Governance', url: '/src/assets/images/community_governance_1791989970347.jpg' },
+                          { label: 'Farmers', url: '/src/assets/images/farmers_cooperative_1791989969904.jpg' },
+                          { label: 'Banking Hall', url: '/src/assets/images/mbitsemunda_phocas_desk.jpg' },
+                        ]}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleQuickImageSave}
+                          className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                        >
+                          Save New Picture
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setQuickEditId(null); setQuickImgUrl(''); }}
+                          className="px-4 py-2 text-slate-600 hover:text-slate-800 text-xs font-bold cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setQuickEditId(selectedAnnouncement.id); setQuickImgUrl(selectedAnnouncement.imageUrl || ''); }}
+                      className="text-xs text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      <span>Admin: Update or replace this article photograph</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Bottom Back Button */}
+              <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAnnouncement(null)}
+                  className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>
+                    {currentLang === 'fr'
+                      ? 'Retour à la Liste des Actualités'
+                      : currentLang === 'rw'
+                      ? 'Subira ku Rutonde rw\'Amakuru'
+                      : 'Return to All Bulletins & News'}
+                  </span>
+                </button>
+                <span className="text-xs text-slate-500">UBUMWE SACCO GAKENKE · Official Publication</span>
+              </div>
+            </main>
           </div>
         )}
       </div>
 
-      {/* Imigongo skeleton ribbon connecting to footer */}
-      <div className="mt-16">
-        <ImigongoRibbon height={18} variant="light" bordered={true} />
-      </div>
     </section>
   );
 };

@@ -68,9 +68,26 @@ import { Footer } from './components/Footer';
 import { Shield, Phone, ImageIcon, Compass, Settings, LogOut, Quote, Briefcase, Eye, ArrowRight, LayoutGrid, Users, Video } from 'lucide-react';
 
 export default function App() {
-  const [currentLang, setCurrentLang] = useState<Language>('en');
-  // Router hooks for navigation syncing
+  const [currentLang, setCurrentLang] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('ubumwe_lang') as Language;
+      if (['en', 'rw', 'fr'].includes(saved)) {
+        return saved;
+      }
+      return 'en';
+    } catch {
+      return 'en';
+    }
+  });
 
+  const handleLanguageChange = (lang: Language) => {
+    setCurrentLang(lang);
+    try {
+      localStorage.setItem('ubumwe_lang', lang);
+    } catch {}
+  };
+
+  // Router hooks for navigation syncing
   const navigate = useNavigate();
   const location = useLocation();
   // Sync URL path with activeView state and automatically scroll to top
@@ -80,16 +97,22 @@ export default function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
-  // Theme Color State
+  // Theme Color State — default: Obsidian Dark Black
   const [currentTheme, setCurrentTheme] = useState<ThemeColor>(() => {
     try {
       const saved = localStorage.getItem('ubumwe_theme_color') as ThemeColor;
-      if (['emerald', 'ochre', 'blue', 'teal', 'terracotta', 'charcoal'].includes(saved)) {
+      if (['emerald', 'ochre', 'blue', 'teal', 'terracotta', 'charcoal', 'black'].includes(saved)) {
+        // Apply immediately to avoid flash of wrong theme
+        document.documentElement.setAttribute('data-theme', saved);
+        document.body.setAttribute('data-theme', saved);
         return saved;
       }
-      return 'emerald';
+      // First-time visit: default to dark black
+      document.documentElement.setAttribute('data-theme', 'black');
+      document.body.setAttribute('data-theme', 'black');
+      return 'black';
     } catch {
-      return 'emerald';
+      return 'black';
     }
   });
 
@@ -403,9 +426,28 @@ export default function App() {
 
   useEffect(() => {
     try {
+      // Try full save first
       localStorage.setItem('ubumwe_moments', JSON.stringify(moments));
     } catch (e) {
-      console.warn('Unable to save moments to localStorage', e);
+      // localStorage quota exceeded — strip large base64 images and save without them
+      console.warn('localStorage quota exceeded saving moments; stripping large base64 images', e);
+      try {
+        const stripped = moments.map((m) => ({
+          ...m,
+          // Keep base64 only if small (<200KB), otherwise replace with placeholder
+          imageUrl: m.imageUrl.startsWith('data:') && m.imageUrl.length > 200000
+            ? '/src/assets/images/moment_cooperative_award_1791994900000.jpg'
+            : m.imageUrl,
+          additionalImages: (m.additionalImages || []).map((img: string) =>
+            img.startsWith('data:') && img.length > 200000
+              ? '/src/assets/images/moment_cooperative_award_1791994900000.jpg'
+              : img
+          ),
+        }));
+        localStorage.setItem('ubumwe_moments', JSON.stringify(stripped));
+      } catch {
+        console.warn('Unable to save moments even after stripping images');
+      }
     }
   }, [moments]);
 
@@ -421,6 +463,17 @@ export default function App() {
     try {
       localStorage.setItem('ubumwe_branches', JSON.stringify(branches));
     } catch {}
+
+    // Synchronize branchesCount across saccoInfo and all metrics whenever branches change
+    setSaccoInfo((prev) => (prev.branchesCount !== branches.length ? { ...prev, branchesCount: branches.length } : prev));
+    setHomeMetrics((prevMetrics) =>
+      prevMetrics.map((m) => {
+        if (m.id === 'metric-4' || m.labelEn.toLowerCase().includes('branch') || m.labelEn.toLowerCase().includes('outpost')) {
+          return { ...m, value: `${branches.length} Branches` };
+        }
+        return m;
+      })
+    );
   }, [branches]);
 
   useEffect(() => {
@@ -525,6 +578,22 @@ export default function App() {
       try {
         localStorage.setItem('ubumwe_sacco_info', JSON.stringify(next));
       } catch {}
+
+      // Cross-sync metrics if related stats changed (e.g. branchesCount, activeMembers)
+      if (updated.branchesCount !== undefined || updated.activeMembers !== undefined) {
+        setHomeMetrics((prevMetrics) =>
+          prevMetrics.map((m) => {
+            if (m.id === 'metric-4' && updated.branchesCount !== undefined) {
+              return { ...m, value: `${updated.branchesCount} Branches` };
+            }
+            if (m.id === 'metric-1' && updated.activeMembers !== undefined) {
+              return { ...m, value: `${updated.activeMembers.toLocaleString()}+` };
+            }
+            return m;
+          })
+        );
+      }
+
       return next;
     });
   };
@@ -677,7 +746,15 @@ export default function App() {
 
   const handleAddBranch = (branch: Omit<BranchOutpost, 'id'>) => {
     const newB = { ...branch, id: `branch-${Date.now()}` };
-    setBranches((prev) => [newB, ...prev]);
+    setBranches((prev) => {
+      const next = [newB, ...prev];
+      // Keep saccoInfo.branchesCount and Home Metrics in exact sync
+      setSaccoInfo((s) => ({ ...s, branchesCount: next.length }));
+      setHomeMetrics((mList) =>
+        mList.map((m) => (m.id === 'metric-4' ? { ...m, value: `${next.length} Branches` } : m))
+      );
+      return next;
+    });
   };
 
   const handleUpdateBranch = (id: string, updated: Partial<BranchOutpost>) => {
@@ -685,7 +762,15 @@ export default function App() {
   };
 
   const handleDeleteBranch = (id: string) => {
-    setBranches((prev) => prev.filter((b) => b.id !== id));
+    setBranches((prev) => {
+      const next = prev.filter((b) => b.id !== id);
+      // Keep saccoInfo.branchesCount and Home Metrics in exact sync
+      setSaccoInfo((s) => ({ ...s, branchesCount: next.length }));
+      setHomeMetrics((mList) =>
+        mList.map((m) => (m.id === 'metric-4' ? { ...m, value: `${next.length} Branches` } : m))
+      );
+      return next;
+    });
   };
 
   const handleAddSubBranch = (branchId: string, sub: { name: string; sector: string; managerName: string; phone: string }) => {
@@ -955,11 +1040,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 ${currentTheme === 'black' ? 'bg-[#09090b] text-zinc-100' : 'bg-slate-50 text-slate-900'}`}>
       {/* Universal Top Header with Active Section Highlighting */}
       <Header
         currentLang={currentLang}
-        onLanguageChange={setCurrentLang}
+        onLanguageChange={handleLanguageChange}
         onOpenMembershipModal={handleOpenMembershipModal}
         onNavigateToSection={handleNavigateToSection}
         isManagerLoggedIn={isManagerLoggedIn}
@@ -989,9 +1074,11 @@ export default function App() {
               onScrollToContact={() => handleNavigateToSection('contact')}
               saccoInfo={saccoInfo}
               heroImage={systemImages.heroBanking}
+              heroSlides={systemImages.heroSlides}
               heroContent={heroContent}
               isAdmin={isManagerLoggedIn}
               onOpenAdminConsole={handleOpenAdminConsole}
+              onUpdateSlides={(newSlides) => handleUpdateSystemImage('heroSlides', newSlides as any)}
             />
 
             {/* 4-Column Full-Width Metric Strip */}

@@ -126,51 +126,45 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 relative shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
         {/* Top Imigongo skeleton ribbon */}
         <div className="absolute top-0 left-0 right-0">
-          <ImigongoRibbon height={8} variant="light" bordered={false} />
+          <ImigongoRibbon height={6} variant="light" bordered={false} />
         </div>
 
+        {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          className="absolute top-3.5 right-3.5 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
           aria-label="Close login dialog"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="pt-2 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-3">
-            <Lock className="w-6 h-6" />
+        {/* Compact Centered Header */}
+        <div className="text-center pt-1 pb-3">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 mb-2 shadow-xs">
+            <Lock className="w-5 h-5 text-emerald-700" />
           </div>
-          <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-800 font-bold uppercase tracking-wider mb-1">
-            <ShieldCheck className="w-4 h-4 text-emerald-700" />
-            <span>OFFICIAL STAFF PORTAL</span>
-          </div>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-            Staff &amp; Executive Login
+          <h3 className="text-lg font-extrabold text-slate-900 tracking-tight leading-tight">
+            Staff &amp; Board Login
           </h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            Authorized sign in for SACCO Staff, Executive Manager (Mbitsemunda Phocas), and Board Trustees (Wellarse, Bartazal).
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            UBUMWE SACCO GAKENKE Management &amp; Board Portal
           </p>
         </div>
 
-        {/* Default Official Credentials Display with 1-click Auto-fill */}
-        <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
-            <span className="flex items-center gap-1.5 text-emerald-800">
-              <KeyRound className="w-3.5 h-3.5" />
-              Default Staff &amp; Admin Credentials:
-            </span>
-            <span className="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              Click to Auto-fill
+        {/* Compact 1-Click Fill Credentials Chips */}
+        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl mb-3">
+          <div className="flex items-center justify-between text-[10px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
+            <span className="flex items-center gap-1 text-emerald-800">
+              <KeyRound className="w-3 h-3" />
+              1-Click Demo Logins:
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {/* Manager / Admin */}
+          <div className="grid grid-cols-2 gap-1.5">
             <button
               type="button"
               onClick={() => {
@@ -178,17 +172,12 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
                 setPassword('gakenke2026');
                 setError('');
               }}
-              className="text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 transition-all group shadow-2xs cursor-pointer"
+              className="text-left px-2 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-[10px] font-bold text-slate-800 truncate cursor-pointer transition-colors shadow-2xs"
+              title="Manager: Mbitsemunda Phocas (ubumwesaccogakenke@gmail.com)"
             >
-              <div className="text-[11px] font-bold text-slate-900 group-hover:text-emerald-800 flex items-center justify-between">
-                <span>Manager: Mbitsemunda</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">Use</span>
-              </div>
-              <div className="text-[10px] text-slate-600 font-mono truncate mt-0.5">ubumwesaccogakenke@gmail.com</div>
-              <div className="text-[10px] text-emerald-700 font-mono font-semibold">PIN: gakenke2026</div>
+              👑 Manager: Mbitsemunda
             </button>
 
-            {/* Board: Bartazal */}
             <button
               type="button"
               onClick={() => {
@@ -196,17 +185,12 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
                 setPassword('bartazal2026');
                 setError('');
               }}
-              className="text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 transition-all group shadow-2xs cursor-pointer"
+              className="text-left px-2 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-[10px] font-bold text-slate-800 truncate cursor-pointer transition-colors shadow-2xs"
+              title="Board: Bartazal (bartazal@ubumwesacco.rw)"
             >
-              <div className="text-[11px] font-bold text-slate-900 group-hover:text-emerald-800 flex items-center justify-between">
-                <span>Board: Bartazal</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">Use</span>
-              </div>
-              <div className="text-[10px] text-slate-600 font-mono truncate mt-0.5">bartazal@ubumwesacco.rw</div>
-              <div className="text-[10px] text-emerald-700 font-mono font-semibold">PIN: bartazal2026</div>
+              🏛️ Board: Bartazal
             </button>
 
-            {/* Board: Wellarse */}
             <button
               type="button"
               onClick={() => {
@@ -214,17 +198,12 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
                 setPassword('wellarse2026');
                 setError('');
               }}
-              className="text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 transition-all group shadow-2xs cursor-pointer"
+              className="text-left px-2 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-[10px] font-bold text-slate-800 truncate cursor-pointer transition-colors shadow-2xs"
+              title="Board: Wellarse (wellarse@ubumwesacco.rw)"
             >
-              <div className="text-[11px] font-bold text-slate-900 group-hover:text-emerald-800 flex items-center justify-between">
-                <span>Board: Wellarse</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">Use</span>
-              </div>
-              <div className="text-[10px] text-slate-600 font-mono truncate mt-0.5">wellarse@ubumwesacco.rw</div>
-              <div className="text-[10px] text-emerald-700 font-mono font-semibold">PIN: wellarse2026</div>
+              ⭐ Board: Wellarse
             </button>
 
-            {/* Staff / Credit */}
             <button
               type="button"
               onClick={() => {
@@ -232,49 +211,46 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
                 setPassword('staff2026');
                 setError('');
               }}
-              className="text-left p-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 transition-all group shadow-2xs cursor-pointer"
+              className="text-left px-2 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-[10px] font-bold text-slate-800 truncate cursor-pointer transition-colors shadow-2xs"
+              title="Staff / Credit: Innocent (staff@ubumwesacco.rw)"
             >
-              <div className="text-[11px] font-bold text-slate-900 group-hover:text-emerald-800 flex items-center justify-between">
-                <span>Staff: Innocent / Credit</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">Use</span>
-              </div>
-              <div className="text-[10px] text-slate-600 font-mono truncate mt-0.5">staff@ubumwesacco.rw</div>
-              <div className="text-[10px] text-emerald-700 font-mono font-semibold">PIN: staff2026</div>
+              💼 Staff: Innocent
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2.5">
+          <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="mt-4 space-y-3.5">
+        {/* Compact Form */}
+        <form onSubmit={handleLogin} className="space-y-2.5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Staff Email / ID
+            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Staff Email
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               placeholder="ubumwesaccogakenke@gmail.com"
             />
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Staff Passcode / PIN
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                Passcode / PIN
               </label>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[11px] text-slate-500 hover:text-slate-800 cursor-pointer"
+                className="text-[10px] text-slate-500 hover:text-slate-800 cursor-pointer"
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -285,36 +261,31 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
                 placeholder="Enter passcode (e.g. gakenke2026)"
               />
-              <KeyRound className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+              <KeyRound className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5 pointer-events-none" />
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Verifying Credentials...</span>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Verifying...</span>
                 </>
               ) : (
                 <>
-                  <UserCheck className="w-4 h-4" />
-                  <span>Authenticate &amp; Open Staff / Admin Console</span>
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Sign In to Admin Hub</span>
                 </>
               )}
             </button>
-          </div>
-
-          <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200/80 flex items-center gap-2 text-[11px] text-emerald-900">
-            <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-emerald-700" />
-            <span>Staff Portal: Sign in to manage contacts, working hours, pictures, navs, and cooperative records.</span>
           </div>
         </form>
       </div>

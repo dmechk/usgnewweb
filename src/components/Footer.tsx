@@ -166,14 +166,22 @@ export const Footer: React.FC<FooterProps> = ({
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition-colors shrink-0" />
-                  <span className="truncate">{currentLang === 'en' ? item.labelEn : item.labelRw}</span>
+                  <span className="truncate">
+                    {currentLang === 'fr'
+                      ? item.labelFr || item.labelEn
+                      : currentLang === 'rw'
+                      ? item.labelRw
+                      : item.labelEn}
+                  </span>
                 </button>
               ))}
             </div>
             <p className="text-[11px] text-slate-500 pt-2">
-              {currentLang === 'en'
-                ? (saccoInfo.operatingHoursEn || 'Mon - Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM')
-                : (saccoInfo.operatingHoursRw || 'Kuwa Mbere - Kuwa Gatanu: Saa 8:00 - 17:00 | Kuwa Gatandatu: Saa 8:00 - 13:00')}
+              {currentLang === 'fr'
+                ? 'Lun - Ven : 8h00 - 17h00 | Sam : 8h00 - 13h00'
+                : currentLang === 'rw'
+                ? (saccoInfo.operatingHoursRw || 'Kuwa Mbere - Kuwa Gatanu: Saa 8:00 - 17:00 | Kuwa Gatandatu: Saa 8:00 - 13:00')
+                : (saccoInfo.operatingHoursEn || 'Mon - Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM')}
             </p>
           </div>
         </div>
@@ -247,9 +255,11 @@ export const Footer: React.FC<FooterProps> = ({
               >
                 <Lock className="w-3.5 h-3.5 text-emerald-200" />
                 <span>
-                  {currentLang === 'en'
-                    ? 'Staff Login'
-                    : 'Kwinjira kw\'Abakozi (Staff)'}
+                  {currentLang === 'fr'
+                    ? 'Connexion Staff'
+                    : currentLang === 'rw'
+                    ? "Kwinjira kw'Abakozi"
+                    : 'Staff Login'}
                 </span>
               </button>
             )}

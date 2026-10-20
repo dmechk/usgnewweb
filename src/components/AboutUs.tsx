@@ -59,51 +59,92 @@ export const AboutUs: React.FC<AboutUsProps> = ({
     }
   };
 
-  const badgeTitle = currentLang === 'en' ? aboutContent.badgeTitleEn : aboutContent.badgeTitleRw;
-  const mainTitle = currentLang === 'en' ? aboutContent.mainTitleEn : aboutContent.mainTitleRw;
-  const subtitle = currentLang === 'en' ? aboutContent.subtitleEn : aboutContent.subtitleRw;
+  const badgeTitle =
+    currentLang === 'fr'
+      ? "Identité Coopérative & Patrimoine"
+      : currentLang === 'rw'
+      ? aboutContent.badgeTitleRw
+      : aboutContent.badgeTitleEn;
+
+  const mainTitle =
+    currentLang === 'fr'
+      ? "À Propos · UBUMWE SACCO GAKENKE"
+      : currentLang === 'rw'
+      ? "Abo Turibo · UBUMWE SACCO GAKENKE"
+      : "About Us · UBUMWE SACCO GAKENKE";
+
+  const subtitle =
+    currentLang === 'fr'
+      ? "Une coopérative d'épargne et de crédit agréée au Rwanda, au service de plus de 18 600 membres dans les 19 secteurs du district de Gakenke."
+      : currentLang === 'rw'
+      ? aboutContent.subtitleRw
+      : aboutContent.subtitleEn;
+
   const regulationNotice =
-    currentLang === 'en' ? aboutContent.regulationNoticeEn : aboutContent.regulationNoticeRw;
-  const storyP1 = currentLang === 'en' ? aboutContent.storyP1En : aboutContent.storyP1Rw;
-  const storyP2 = currentLang === 'en' ? aboutContent.storyP2En : aboutContent.storyP2Rw;
+    currentLang === 'fr'
+      ? "Agréé et supervisé par l'Agence Rwandaise des Coopératives (RCA)"
+      : currentLang === 'rw'
+      ? aboutContent.regulationNoticeRw
+      : aboutContent.regulationNoticeEn;
+
+  const storyP1 =
+    currentLang === 'fr'
+      ? "Fondée en 2011 par des citoyens visionnaires de Gakenke, UBUMWE SACCO a été créée pour bâtir une institution financière coopérative détenue et gérée par sa propre communauté."
+      : currentLang === 'rw'
+      ? aboutContent.storyP1Rw
+      : aboutContent.storyP1En;
+
+  const storyP2 =
+    currentLang === 'fr'
+      ? "Aujourd'hui, nous exploitons un réseau de 6 agences et postes avancés, offrant des services bancaires numériques 24h/24 via USSD *541# et soutenant l'autonomie économique locale."
+      : currentLang === 'rw'
+      ? aboutContent.storyP2Rw
+      : aboutContent.storyP2En;
+
   const imageCaption =
-    currentLang === 'en' ? aboutContent.imageCaptionEn : aboutContent.imageCaptionRw;
+    currentLang === 'fr'
+      ? "Assemblée Générale Annuelle des Membres et Délibérations du Conseil à Gakenke"
+      : currentLang === 'rw'
+      ? aboutContent.imageCaptionRw
+      : aboutContent.imageCaptionEn;
+
   const assemblyImage =
     aboutContent.imageUrl || '/src/assets/images/community_governance_1791989970347.jpg';
 
   return (
     <section id="about" className="py-16 lg:py-24 bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-12">
-        {/* Admin Bar */}
-        {isAdmin && onOpenAdminConsole && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-emerald-950 font-bold">
-              <Sparkles className="w-4 h-4 text-emerald-700" />
-              <span>About Us &amp; Cooperative Heritage (Admin Management Active)</span>
+        {/* Section Header (Left-aligned matching reference image) */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+              <Landmark className="w-4 h-4 text-emerald-700" />
+              <span>{badgeTitle}</span>
             </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+              {mainTitle}
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+              {subtitle}
+            </p>
+          </div>
+
+          {isAdmin && onOpenAdminConsole && (
             <button
               type="button"
               onClick={() => onOpenAdminConsole('about')}
-              className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit About Content &amp; Values (CRUD)</span>
+              <span>
+                {currentLang === 'fr'
+                  ? 'Gérer Contenu & Valeurs'
+                  : currentLang === 'rw'
+                  ? 'Guhindura Ibirimo (CRUD)'
+                  : 'Edit About & Values'}
+              </span>
             </button>
-          </div>
-        )}
-
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
-            <Landmark className="w-4 h-4" />
-            <span>{badgeTitle}</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
-            {mainTitle}
-          </h2>
-          <p className="text-slate-600 mt-2 text-base">
-            {subtitle}
-          </p>
+          )}
         </div>
 
         {/* 2-Column Story and Assembly Visual */}
@@ -112,7 +153,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({
             <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 flex items-start gap-3 text-xs sm:text-sm text-emerald-950">
               <Award className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold">Regulated &amp; Audited Cooperative Institution</span>
+                <span className="font-bold">{currentLang === 'fr' ? 'Institution Coopérative Réglementée & Auditée' : currentLang === 'rw' ? "Koperative Yemejwe n'Ingenzurabikorwa" : 'Regulated & Audited Cooperative Institution'}</span>
                 <p className="text-emerald-800 text-xs mt-0.5 font-mono-numbers">
                   {regulationNotice}
                 </p>
@@ -126,7 +167,7 @@ export const AboutUs: React.FC<AboutUsProps> = ({
             <div className="pt-2">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  {currentLang === 'en' ? 'Core Cooperative Principles' : 'Amahame n\'Indangagaciro'}
+                  {currentLang === 'fr' ? 'Principes Coopératifs Fondamentaux' : currentLang === 'rw' ? "Amahame n'Indangagaciro" : 'Core Cooperative Principles'}
                 </span>
                 {isAdmin && onOpenAdminConsole && (
                   <button
@@ -143,8 +184,8 @@ export const AboutUs: React.FC<AboutUsProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 {(aboutContent.values || []).map((val) => {
                   const Icon = getValueIcon(val.iconName);
-                  const title = currentLang === 'en' ? val.titleEn : val.titleRw;
-                  const desc = currentLang === 'en' ? val.descEn : val.descRw;
+                  const title = currentLang === 'fr' ? val.titleEn : currentLang === 'rw' ? val.titleRw : val.titleEn;
+                  const desc = currentLang === 'fr' ? val.descEn : currentLang === 'rw' ? val.descRw : val.descEn;
 
                   return (
                     <div

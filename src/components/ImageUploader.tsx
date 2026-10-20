@@ -28,7 +28,49 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [isUrlMode, setIsUrlMode] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Compress image via HTML5 Canvas to prevent browser localStorage quota exceeded errors
+  const compressImage = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.8): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(readerEvent.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => reject(new Error('Failed to load image for compression'));
+        img.src = readerEvent.target?.result as string;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -37,21 +79,29 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // Limit to 6MB
-    if (file.size > 6 * 1024 * 1024) {
-      setErrorMsg('Image file size must be less than 6MB');
+    // Limit to 10MB input file
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Image file size must be less than 10MB');
       return;
     }
 
     setErrorMsg(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        onChange(reader.result);
-        setInputUrl(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Compress to lightweight web-optimized JPEG so it permanently saves in localStorage without disappearing
+      const compressed = await compressImage(file, 1200, 1200, 0.8);
+      onChange(compressed);
+      setInputUrl(compressed);
+    } catch {
+      // Fallback to uncompressed if canvas compression is unavailable
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          onChange(reader.result);
+          setInputUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleApplyUrl = () => {

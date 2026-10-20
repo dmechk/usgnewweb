@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Calculator,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 
 interface ProductCatalogProps {
@@ -38,6 +39,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   onApplyWithCalculation,
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'savings' | 'loans' | 'digital'>('all');
+  const [showComingSoon, setShowComingSoon] = useState<string | null>(null);
   const t = TRANSLATIONS[currentLang];
 
   const filteredProducts = products.filter((p) => {
@@ -60,28 +62,41 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   return (
     <section id="products" className="bg-slate-50 border-b border-slate-200">
-      {/* Page Title Header */}
-      <div className="bg-[#1a3c34] text-white py-14 sm:py-16 px-4 sm:px-8 text-center relative overflow-hidden">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase bg-emerald-800/80 text-emerald-200 border border-emerald-600/30 mb-3">
-            {currentLang === 'en' ? 'Our Cooperative Solutions' : 'Serivisi za Koperative'}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            {t.products.title}
-          </h2>
-          <p className="text-emerald-100/90 text-sm sm:text-base mt-2 max-w-2xl mx-auto font-normal">
-            {t.products.subtitle}
-          </p>
+      {/* Page Title Header (Aligned to Reference Image) */}
+      <div className="bg-white border-b border-slate-200 py-10 sm:py-14 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
+              <CreditCard className="w-4 h-4 text-emerald-700" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Nos Solutions Financières Coopératives'
+                  : currentLang === 'rw'
+                  ? 'Serivisi za Koperative'
+                  : 'Our Cooperative Financial Solutions'}
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
+              {currentLang === 'fr'
+                ? 'Services · UBUMWE SACCO GAKENKE'
+                : currentLang === 'rw'
+                ? 'Serivisi Zacu · UBUMWE SACCO GAKENKE'
+                : 'Our Services · UBUMWE SACCO GAKENKE'}
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
+              {t.products.subtitle}
+            </p>
+          </div>
 
           {/* Navigation Category Tabs */}
-          <div className="flex flex-wrap justify-center items-center gap-2 mt-8">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === 'all'
-                  ? 'bg-white text-[#1a3c34] font-bold shadow-sm'
-                  : 'bg-emerald-900/60 text-emerald-100 hover:bg-emerald-800/60'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {t.products.allTab}
@@ -89,10 +104,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('savings')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === 'savings'
-                  ? 'bg-white text-[#1a3c34] font-bold shadow-sm'
-                  : 'bg-emerald-900/60 text-emerald-100 hover:bg-emerald-800/60'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {t.products.savingsTab}
@@ -100,10 +115,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('loans')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === 'loans'
-                  ? 'bg-white text-[#1a3c34] font-bold shadow-sm'
-                  : 'bg-emerald-900/60 text-emerald-100 hover:bg-emerald-800/60'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {t.products.loansTab}
@@ -111,10 +126,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('digital')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeTab === 'digital'
-                  ? 'bg-white text-[#1a3c34] font-bold shadow-sm'
-                  : 'bg-emerald-900/60 text-emerald-100 hover:bg-emerald-800/60'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {t.products.digitalTab}
@@ -197,11 +212,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onSelectProductForAccount(product)}
+                      onClick={() => setShowComingSoon(product.titleEn || 'Savings Account')}
                       className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
                     >
                       <ShieldCheck className="w-4 h-4 text-emerald-200" />
-                      <span>{currentLang === 'en' ? 'Open Account' : 'Fungura Konti'}</span>
+                      <span>{currentLang === 'en' ? 'Open Account' : currentLang === 'fr' ? 'Ouvrir un Compte' : 'Fungura Konti'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}
@@ -210,6 +225,67 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             );
           })}
         </div>
+
+        {/* Coming Soon Interactive Toast/Modal */}
+        {showComingSoon && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-emerald-500/30 text-center space-y-4 relative">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-xs">
+                <Sparkles className="w-7 h-7 text-amber-500 animate-pulse" />
+              </div>
+
+              <div>
+                <span className="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 mb-2">
+                  {currentLang === 'en' ? 'Coming Soon' : currentLang === 'fr' ? 'Bientôt Disponible' : 'Biri Hafi Kuza'}
+                </span>
+                <h3 className="text-xl font-extrabold text-slate-900">
+                  {currentLang === 'en'
+                    ? 'Online Account Opening Coming Soon'
+                    : currentLang === 'fr'
+                    ? 'Ouverture de Compte en Ligne Bientôt Disponible'
+                    : 'Gufungura Konti kuri Interineti Biri Hafi Kuza'}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-2">
+                  {currentLang === 'en'
+                    ? `Direct self-service digital account onboarding for ${showComingSoon} is currently being upgraded for security compliance with BNR/RCA regulations.`
+                    : currentLang === 'fr'
+                    ? `Le service d'ouverture de compte direct en ligne pour ${showComingSoon} est en cours de déploiement sécurisé.`
+                    : `Gufungura konti ya ${showComingSoon} ako kanya kuri interineti biri gutunganywa neza kugira ngo byubahirize amabwiriza ya Banki Nkuru y'u Rwanda.`}
+                </p>
+              </div>
+
+              <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-left text-xs text-emerald-950 space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-emerald-900">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    {currentLang === 'en'
+                      ? 'Available Now via USSD or Branch'
+                      : currentLang === 'fr'
+                      ? 'Disponible via USSD ou en Agence'
+                      : 'Wafungura Konti ako kanya uciye kuri USSD cyangwa ku Ishami'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-emerald-800">
+                  {currentLang === 'en'
+                    ? 'Dial *541# on your phone or visit any of our 6 branches across Gakenke District.'
+                    : currentLang === 'fr'
+                    ? 'Composez le *541# sur votre téléphone ou rendez-vous dans l’une de nos 6 agences à Gakenke.'
+                    : 'Kanda *541# kuri telefoni yawe cyangwa usure rimwe mu mashami yacu 6 ari muri Gakenke.'}
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowComingSoon(null)}
+                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+                >
+                  {currentLang === 'en' ? 'Understood' : currentLang === 'fr' ? 'Compris' : 'Nabyumvise'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Loan Calculator Integrated Directly Inside Our Services */}

@@ -2157,24 +2157,102 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                   />
                 </div>
 
-                {/* 1. Main Hero Banking Hall */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-800">1. Hero Section Banking Photo</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">Hero Banner</span>
+                {/* 1. Main Hero Welcome Slides & Carousel (Multi-Image) */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 md:col-span-2">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-800">1. Welcome Section Multi-Image Slider (Left Slide Movement)</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+                          {(systemImages.heroSlides || [systemImages.heroBanking]).length} Slides Active
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-500">
+                        Images slide left automatically on the welcome home screen. Full admin can add new photos, delete slides, or change existing ones.
+                      </span>
+                    </div>
+
+                    {/* Quick Add Slide Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = systemImages.heroSlides && systemImages.heroSlides.length > 0
+                          ? [...systemImages.heroSlides]
+                          : [systemImages.heroBanking];
+                        const newSlides = [...current, '/src/assets/images/hero_sacco_banking_1791989969362.jpg'];
+                        onUpdateSystemImage('heroSlides', newSlides as any);
+                      }}
+                      className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Add Slide Photo</span>
+                    </button>
                   </div>
-                  <ImageUploader
-                    value={systemImages.heroBanking}
-                    onChange={(url) => onUpdateSystemImage('heroBanking', url)}
-                    label="Hero Banking Hall Image"
-                    aspectRatio="video"
-                    presets={[
-                      { label: 'Banking Hall', url: '/src/assets/images/hero_sacco_banking_1791989969362.jpg' },
-                      { label: 'Farmers Support', url: '/src/assets/images/farmers_cooperative_1791989969904.jpg' },
-                      { label: 'Entrepreneurs', url: '/src/assets/images/entrepreneur_business_1791989970089.jpg' },
-                    ]}
-                    helpText="Appears prominently in the main hero display with dark scrim overlay."
-                  />
+
+                  {/* Grid of All Slides */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                    {(systemImages.heroSlides && systemImages.heroSlides.length > 0
+                      ? systemImages.heroSlides
+                      : [systemImages.heroBanking]
+                    ).map((slideUrl, idx) => (
+                      <div
+                        key={`hero-slide-admin-${idx}`}
+                        className="p-3 bg-white border border-slate-200 rounded-xl space-y-2 shadow-xs relative group"
+                      >
+                        <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono">
+                              {idx + 1}
+                            </span>
+                            <span>Slide {idx + 1}</span>
+                          </span>
+
+                          {/* Delete Slide Button */}
+                          {(systemImages.heroSlides || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = [...(systemImages.heroSlides || [])];
+                                current.splice(idx, 1);
+                                onUpdateSystemImage('heroSlides', current as any);
+                                if (idx === 0 && current[0]) {
+                                  onUpdateSystemImage('heroBanking', current[0]);
+                                }
+                              }}
+                              className="p-1 text-rose-500 hover:text-white hover:bg-rose-600 rounded-lg transition-colors cursor-pointer"
+                              title="Delete this slide"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <ImageUploader
+                          value={slideUrl}
+                          onChange={(newUrl) => {
+                            const current = systemImages.heroSlides && systemImages.heroSlides.length > 0
+                              ? [...systemImages.heroSlides]
+                              : [systemImages.heroBanking];
+                            current[idx] = newUrl;
+                            onUpdateSystemImage('heroSlides', current as any);
+                            if (idx === 0) {
+                              onUpdateSystemImage('heroBanking', newUrl);
+                            }
+                          }}
+                          label={`Slide #${idx + 1} Image`}
+                          aspectRatio="video"
+                          presets={[
+                            { label: 'Phocas Desk', url: '/src/assets/images/mbitsemunda_phocas_desk.jpg' },
+                            { label: 'Banking Hall', url: '/src/assets/images/hero_sacco_banking_1791989969362.jpg' },
+                            { label: 'Farmers Support', url: '/src/assets/images/farmers_cooperative_1791989969904.jpg' },
+                            { label: 'Governance AGM', url: '/src/assets/images/community_governance_1791989970347.jpg' },
+                            { label: 'Entrepreneurs', url: '/src/assets/images/entrepreneur_business_1791989970089.jpg' },
+                          ]}
+                          helpText="Upload from computer or pick preset. Automatically compresses."
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* 2. Manager Mbitsemunda Phocas Portrait */}
