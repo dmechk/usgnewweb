@@ -73,10 +73,11 @@ export default function App() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  // Sync URL path with activeView state
+  // Sync URL path with activeView state and automatically scroll to top
   useEffect(() => {
     const path = location.pathname.replace(/^\//, '') || 'all';
     setActiveView(path);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
   // Theme Color State
@@ -94,10 +95,21 @@ export default function App() {
 
   // Dedicated View Navigation State: 'all' or specific section id ('hero', 'about', 'products', 'leadership', 'announcements', 'gallery', 'careers', 'branches', 'contact')
   const [activeView, setActiveView] = useState<string>('all');
-  // Navigation handler using react-router
+
+  // Navigation handler using react-router with automatic scroll to top
   const handleNavigateToSection = (sectionId: string) => {
     const targetPath = sectionId === 'all' ? '/' : `/${sectionId}`;
-    navigate(targetPath);
+    const currentPath = location.pathname.replace(/^\//, '') || 'all';
+
+    if (currentPath === sectionId || (currentPath === 'all' && (sectionId === 'hero' || sectionId === 'all'))) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } else {
+      navigate(targetPath);
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      }, 50);
+    }
   };
 
 

@@ -74,14 +74,19 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Brand & Regulatory Statement (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigateToSection('hero')}
+              className="flex items-center gap-2.5 text-left cursor-pointer group transition-all"
+              title="Return to Home / Top"
+            >
+              <div className="w-8 h-8 rounded-lg bg-emerald-700 group-hover:bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 transition-colors shadow-sm">
                 <Landmark className="w-4 h-4 text-emerald-100" />
               </div>
-              <span className="text-base font-extrabold text-white tracking-tight">
+              <span className="text-base font-extrabold text-white tracking-tight group-hover:text-emerald-300 transition-colors">
                 {saccoInfo.name}
               </span>
-            </div>
+            </button>
 
             <p className="text-slate-400 text-xs leading-relaxed">
               Financial cooperative dedicated to the socio-economic prosperity of farmers, merchants, and families across the 19 sectors of Gakenke District.
@@ -148,16 +153,20 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               {t.footer.quickLinks}
             </h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               {visibleNavs.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => onNavigateToSection(item.targetSection)}
-                  className={`text-left hover:text-emerald-400 transition-colors ${item.isPrimary ? 'text-emerald-400 font-bold' : ''
-                    }`}
+                  className={`text-left text-xs transition-all flex items-center gap-1.5 py-1 px-1.5 rounded-lg cursor-pointer group ${
+                    item.isPrimary
+                      ? 'text-emerald-400 font-bold hover:text-emerald-300'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-900/80 hover:translate-x-1'
+                  }`}
                 >
-                  {currentLang === 'en' ? item.labelEn : item.labelRw}
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition-colors shrink-0" />
+                  <span className="truncate">{currentLang === 'en' ? item.labelEn : item.labelRw}</span>
                 </button>
               ))}
             </div>
