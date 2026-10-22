@@ -167,10 +167,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       } catch {}
     }
 
-    // 2. Dispatch to FormSubmit endpoint directly to dmechack12@gmail.com (with quick abort fallback)
+    // 2. Dispatch to FormSubmit endpoint directly to dmechack12@gmail.com
+    // _replyto = member's email → hitting "Reply" in Gmail goes directly to the member
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
       await fetch(`https://formsubmit.co/ajax/${TARGET_INQUIRY_EMAIL}`, {
         method: 'POST',
         headers: {
@@ -178,17 +179,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          _subject: `UBUMWE SACCO Member Inquiry: [${topicLabel}] - From ${newInquiry.name}`,
-          Member_Name: newInquiry.name,
-          Member_Email: newInquiry.email,
-          Telephone: newInquiry.phone,
-          Inquiry_Topic: topicLabel,
-          Message: newInquiry.message,
-          Dispatched_To: TARGET_INQUIRY_EMAIL,
-          Submission_Time: nowFormatted,
-          _replyto: newInquiry.email,
+          // Email metadata — reply goes directly to the member's inbox
+          _subject: `📩 [${topicLabel}] from ${newInquiry.name} — UBUMWE SACCO`,
+          _replyto: newInquiry.email,          // ← Hit "Reply" → goes to member
           _template: 'table',
           _captcha: 'false',
+          _next: 'false',
+
+          // Structured member details — displayed as a table in your inbox
+          '1_Member_Name': newInquiry.name,
+          '2_Member_Email': newInquiry.email,
+          '3_Telephone': newInquiry.phone,
+          '4_Inquiry_Topic': topicLabel,
+          '5_Date_Submitted': nowFormatted,
+          '6_Message': newInquiry.message,
+          '7_Reply_Instructions': `Hit "Reply" to respond directly to ${newInquiry.name} at ${newInquiry.email}`,
         }),
         signal: controller.signal,
       }).catch(() => {});

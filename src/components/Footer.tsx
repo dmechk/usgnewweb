@@ -260,24 +260,54 @@ export const Footer: React.FC<FooterProps> = ({
                   {socialLinks
                     .filter((s) => s.visible !== false)
                     .map((social) => {
-                      const getIcon = () => {
+                      // Official brand colors for each platform
+                      const getBrandStyle = (): { bg: string; hover: string; icon: React.ReactNode } => {
                         switch (social.platform) {
                           case 'linkedin':
-                            return <Linkedin size={20} />;
+                            return {
+                              bg: 'bg-[#0077B5]',
+                              hover: 'hover:bg-[#005885]',
+                              icon: <Linkedin size={20} className="text-white" />,
+                            };
                           case 'facebook':
-                            return <Facebook size={20} />;
+                            return {
+                              bg: 'bg-[#1877F2]',
+                              hover: 'hover:bg-[#0d65d8]',
+                              icon: <Facebook size={20} className="text-white" />,
+                            };
                           case 'twitter':
-                            return <X size={20} />;
+                            return {
+                              bg: 'bg-[#000000]',
+                              hover: 'hover:bg-[#2d2d2d]',
+                              icon: <X size={20} className="text-white" />,
+                            };
                           case 'instagram':
-                            return <Instagram size={20} />;
+                            return {
+                              bg: 'bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]',
+                              hover: 'hover:opacity-90',
+                              icon: <Instagram size={20} className="text-white" />,
+                            };
                           case 'youtube':
-                            return <Youtube size={20} />;
+                            return {
+                              bg: 'bg-[#FF0000]',
+                              hover: 'hover:bg-[#cc0000]',
+                              icon: <Youtube size={20} className="text-white" />,
+                            };
                           case 'whatsapp':
-                            return <MessageCircle size={20} />;
+                            return {
+                              bg: 'bg-[#25D366]',
+                              hover: 'hover:bg-[#1da851]',
+                              icon: <MessageCircle size={20} className="text-white" />,
+                            };
                           default:
-                            return <Globe size={20} />;
+                            return {
+                              bg: 'bg-slate-700',
+                              hover: 'hover:bg-slate-600',
+                              icon: <Globe size={20} className="text-white" />,
+                            };
                         }
                       };
+                      const { bg, hover, icon } = getBrandStyle();
                       return (
                         <a
                           key={social.id}
@@ -286,9 +316,9 @@ export const Footer: React.FC<FooterProps> = ({
                           rel="noopener noreferrer"
                           aria-label={social.label}
                           title={social.label}
-                          className="p-2.5 rounded-lg bg-slate-800 text-slate-400 hover:bg-emerald-600 hover:text-white transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-400 inline-flex items-center justify-center"
+                          className={`p-2.5 rounded-xl ${bg} ${hover} text-white transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 inline-flex items-center justify-center shadow-sm hover:scale-110 hover:shadow-md`}
                         >
-                          {getIcon()}
+                          {icon}
                         </a>
                       );
                     })}

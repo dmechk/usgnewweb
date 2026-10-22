@@ -5517,17 +5517,17 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                       const getPlatformIcon = () => {
                         switch (social.platform) {
                           case 'linkedin':
-                            return <Linkedin className="w-4 h-4 text-blue-600" />;
+                            return <Linkedin className="w-4 h-4 text-[#0077B5]" />;
                           case 'facebook':
-                            return <Facebook className="w-4 h-4 text-blue-500" />;
+                            return <Facebook className="w-4 h-4 text-[#1877F2]" />;
                           case 'twitter':
-                            return <X className="w-4 h-4 text-slate-900" />;
+                            return <X className="w-4 h-4 text-[#000000]" />;
                           case 'instagram':
-                            return <Instagram className="w-4 h-4 text-pink-600" />;
+                            return <Instagram className="w-4 h-4 text-[#E1306C]" />;
                           case 'youtube':
-                            return <Youtube className="w-4 h-4 text-red-600" />;
+                            return <Youtube className="w-4 h-4 text-[#FF0000]" />;
                           case 'whatsapp':
-                            return <MessageCircle className="w-4 h-4 text-emerald-600" />;
+                            return <MessageCircle className="w-4 h-4 text-[#25D366]" />;
                           default:
                             return <Globe className="w-4 h-4 text-slate-600" />;
                         }
