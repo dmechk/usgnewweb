@@ -88,7 +88,7 @@ export default function App() {
     setCurrentLang(lang);
     try {
       localStorage.setItem('ubumwe_lang', lang);
-    } catch {}
+    } catch { }
   };
 
   // Router hooks for navigation syncing
@@ -514,7 +514,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_branches', JSON.stringify(branches));
-    } catch {}
+    } catch { }
 
     // Synchronize branchesCount across saccoInfo and all metrics whenever branches change
     setSaccoInfo((prev) => (prev.branchesCount !== branches.length ? { ...prev, branchesCount: branches.length } : prev));
@@ -563,43 +563,43 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_hero_content', JSON.stringify(heroContent));
-    } catch {}
+    } catch { }
   }, [heroContent]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_home_metrics', JSON.stringify(homeMetrics));
-    } catch {}
+    } catch { }
   }, [homeMetrics]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_about_content', JSON.stringify(aboutContent));
-    } catch {}
+    } catch { }
   }, [aboutContent]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_contact_inquiries', JSON.stringify(contactInquiries));
-    } catch {}
+    } catch { }
   }, [contactInquiries]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_manager_messages', JSON.stringify(managerMessages));
-    } catch {}
+    } catch { }
   }, [managerMessages]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_partners', JSON.stringify(partners));
-    } catch {}
+    } catch { }
   }, [partners]);
 
   useEffect(() => {
     try {
       localStorage.setItem('ubumwe_social_links', JSON.stringify(socialLinks));
-    } catch {}
+    } catch { }
   }, [socialLinks]);
 
   useEffect(() => {
@@ -607,7 +607,7 @@ export default function App() {
       localStorage.setItem('ubumwe_theme_color', currentTheme);
       document.documentElement.setAttribute('data-theme', currentTheme);
       document.body.setAttribute('data-theme', currentTheme);
-    } catch {}
+    } catch { }
   }, [currentTheme]);
 
   // Auth Handlers
@@ -617,7 +617,7 @@ export default function App() {
     try {
       localStorage.setItem('ubumwe_manager_session', 'true');
       localStorage.setItem('ubumwe_manager_name', user.name);
-    } catch {}
+    } catch { }
   };
 
   const handleManagerLogout = () => {
@@ -625,7 +625,7 @@ export default function App() {
     try {
       localStorage.removeItem('ubumwe_manager_session');
       localStorage.removeItem('ubumwe_manager_name');
-    } catch {}
+    } catch { }
   };
 
   const handleOpenAdminConsole = (tab?: string) => {
@@ -641,7 +641,7 @@ export default function App() {
       const next = { ...prev, ...updated };
       try {
         localStorage.setItem('ubumwe_sacco_info', JSON.stringify(next));
-      } catch {}
+      } catch { }
 
       // Cross-sync metrics if related stats changed (e.g. branchesCount, activeMembers)
       if (updated.branchesCount !== undefined || updated.activeMembers !== undefined) {
@@ -693,7 +693,7 @@ export default function App() {
       const next = { ...prev, [key]: url };
       try {
         localStorage.setItem('ubumwe_system_images', JSON.stringify(next));
-      } catch {}
+      } catch { }
       return next;
     });
 
@@ -1066,7 +1066,7 @@ export default function App() {
     setJobApplications(INITIAL_JOB_APPLICATIONS);
     try {
       localStorage.setItem('ubumwe_job_applications', JSON.stringify(INITIAL_JOB_APPLICATIONS));
-    } catch {}
+    } catch { }
   };
 
 
