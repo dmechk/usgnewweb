@@ -342,4 +342,33 @@ export interface StaffMember {
 
 export const INITIAL_STAFF: StaffMember[] = [];
 
+export interface PartnerItem {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl: string;
+  visible?: boolean;
+}
+
+export type SocialPlatform = 'linkedin' | 'facebook' | 'twitter' | 'instagram' | 'youtube' | 'whatsapp' | 'website' | 'other';
+
+export interface SocialMediaItem {
+  id: string;
+  platform: SocialPlatform;
+  label: string;
+  url: string;
+  visible?: boolean;
+}
+
+export interface ContactInquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  createdAt?: string;
+  date?: string;
+  recipientEmail?: string;
+}
 

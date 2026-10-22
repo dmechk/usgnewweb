@@ -17,7 +17,13 @@ import {
   HomeMetricItem,
   AboutContentConfig,
   AboutValueItem,
+  PartnerItem,
+  SocialMediaItem,
 } from '../types';
+import minecofinLogo from '../assets/images/Minecofin.png';
+import bnrLogo from '../assets/images/bnr logo.png';
+import rcaLogo from '../assets/images/rica logo.png';
+import brdLogo from '../assets/images/brd logo.png';
 
 export const SACCO_INFO: SaccoContactInfo = {
   name: "UBUMWE SACCO GAKENKE",
@@ -27,8 +33,8 @@ export const SACCO_INFO: SaccoContactInfo = {
   headquarters: "Gakenke Commercial Center, Sector Gakenke, Northern Province",
   phone: "0786422080",
   managerPhone: "0786422080",
-  email: "ubumwesaccogakenke@gmail.com",
-  supportEmail: "ubumwesaccogakenke@gmail.com",
+  email: "dmechack12@gmail.com",
+  supportEmail: "dmechack12@gmail.com",
   whatsapp: "250786422080",
   whatsappMessage: "Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.",
   ussdCode: "*541#",
@@ -496,8 +502,8 @@ export const ANNOUNCEMENTS: Announcement[] = [
     titleRw: "Inama Rusange ya 15 no Kugabana Inyungu ku Migabane",
     summaryEn: "All active members are invited to review audited financial statements and ratify the 9.8% dividend distribution.",
     summaryRw: "Abanyamuryango bose b'imena baratumirwa kwemeza raporo y'imari n'inyungu ku migabane ya 9.8%.",
-    contentEn: "The Board of Directors of Ubumwe SACCO Gakenke informs all esteemed members that the 15th AGM will take place at the Gakenke Youth Cultural Hall. Agenda: 1. Audited financials 2. Ratification of 9.8% annual dividend 3. 2027 Agricultural credit facility. Call 0786422080 or email ubumwesaccogakenke@gmail.com for inquiries.",
-    contentRw: "Inama y'Ubutegetsi ya Ubumwe SACCO Gakenke iramenyesha abanyamuryango ko inama rusange izabera mu cyumba cy'urubyiruko rwa Gakenke. Ingingo: 1. Kwemeza raporo y'imari 2. Kwemeza inyungu ya 9.8% 3. Gahunda y'inguzanyo z'ubuhinzi. Baza kuri 0786422080 cyangwa ubumwesaccogakenke@gmail.com."
+    contentEn: "The Board of Directors of Ubumwe SACCO Gakenke informs all esteemed members that the 15th AGM will take place at the Gakenke Youth Cultural Hall. Agenda: 1. Audited financials 2. Ratification of 9.8% annual dividend 3. 2027 Agricultural credit facility. Call 0786422080 or email dmechack12@gmail.com for inquiries.",
+    contentRw: "Inama y'Ubutegetsi ya Ubumwe SACCO Gakenke iramenyesha abanyamuryango ko inama rusange izabera mu cyumba cy'urubyiruko rwa Gakenke. Ingingo: 1. Kwemeza raporo y'imari 2. Kwemeza inyungu ya 9.8% 3. Gahunda y'inguzanyo z'ubuhinzi. Baza kuri 0786422080 cyangwa dmechack12@gmail.com."
   },
   {
     id: "season-a-loan-window",
@@ -1302,4 +1308,67 @@ export const INITIAL_ABOUT_CONTENT: AboutContentConfig = {
     },
   ],
 };
+
+export const INITIAL_PARTNERS: PartnerItem[] = [
+  {
+    id: 'partner-minecofin',
+    name: 'MINECOFIN',
+    logoUrl: minecofinLogo,
+    websiteUrl: 'https://www.minecofin.gov.rw',
+    visible: true,
+  },
+  {
+    id: 'partner-bnr',
+    name: 'BNR',
+    logoUrl: bnrLogo,
+    websiteUrl: 'https://www.bnr.rw',
+    visible: true,
+  },
+  {
+    id: 'partner-rca',
+    name: 'RCA',
+    logoUrl: rcaLogo,
+    websiteUrl: 'https://www.rca.gov.rw',
+    visible: true,
+  },
+  {
+    id: 'partner-brd',
+    name: 'BRD',
+    logoUrl: brdLogo,
+    websiteUrl: 'https://www.brd.rw',
+    visible: true,
+  },
+];
+
+export const INITIAL_SOCIAL_LINKS: SocialMediaItem[] = [
+  {
+    id: 'social-linkedin',
+    platform: 'linkedin',
+    label: 'LinkedIn',
+    url: 'https://www.linkedin.com/in/ubumwe-sacco-gakenke-406636432/',
+    visible: true,
+  },
+  {
+    id: 'social-facebook',
+    platform: 'facebook',
+    label: 'Facebook',
+    url: 'https://www.facebook.com/photo/?fbid=122095516911464413&set=a=122095516941464413',
+    visible: true,
+  },
+  {
+    id: 'social-twitter',
+    platform: 'twitter',
+    label: 'X (Twitter)',
+    url: 'https://x.com/Ubumwesacco',
+    visible: true,
+  },
+  {
+    id: 'social-instagram',
+    platform: 'instagram',
+    label: 'Instagram',
+    url: 'https://www.instagram.com/ubumwesacco/',
+    visible: true,
+  },
+];
+
 

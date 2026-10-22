@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Language, SaccoContactInfo } from '../types';
+import { Language, SaccoContactInfo, ContactInquiry } from '../types';
 import { SACCO_INFO } from '../data/saccoData';
 import {
   Phone,
@@ -17,11 +17,14 @@ import {
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 
+export const TARGET_INQUIRY_EMAIL = 'dmechack12@gmail.com';
+
 interface ContactSectionProps {
   currentLang: Language;
   saccoInfo?: SaccoContactInfo;
   isAdmin?: boolean;
   onOpenAdminConsole?: (tab?: string) => void;
+  onNewInquiry?: (inquiry: ContactInquiry) => void;
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({
@@ -29,16 +32,88 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   saccoInfo = SACCO_INFO,
   isAdmin = false,
   onOpenAdminConsole,
+  onNewInquiry,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
+  const [copiedDetails, setCopiedDetails] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [subject, setSubject] = useState('general');
   const [message, setMessage] = useState('');
+  const [submittedInquiry, setSubmittedInquiry] = useState<ContactInquiry | null>(null);
+
+  const getSubjectLabel = (key: string): string => {
+    switch (key) {
+      case 'loan':
+        return currentLang === 'fr'
+          ? 'Demande de Prêt & Conditions'
+          : currentLang === 'rw'
+          ? 'Gusaba Inguzanyo & Amabwiriza'
+          : 'Loan Application & Terms';
+      case 'savings':
+        return currentLang === 'fr'
+          ? 'Épargne & Dépôt à Terme'
+          : currentLang === 'rw'
+          ? "Kuzigama & Konti y'Igihe Kirekire"
+          : 'Fixed Term Deposit & Savings';
+      case 'ussd':
+        return currentLang === 'fr'
+          ? `Support USSD ${saccoInfo.ussdCode} & Banque Mobile`
+          : currentLang === 'rw'
+          ? `Ubufasha bwa USSD ${saccoInfo.ussdCode}`
+          : `USSD ${saccoInfo.ussdCode} & Mobile Banking Support`;
+      case 'leadership':
+        return currentLang === 'fr'
+          ? 'Direction Exécutive (Gérant / Conseil)'
+          : currentLang === 'rw'
+          ? "Kuvugana n'Ubuyobozi Bukuru"
+          : 'Executive Desk (Manager / Board)';
+      default:
+        return currentLang === 'fr'
+          ? 'Demande Générale'
+          : currentLang === 'rw'
+          ? 'Kubaza Amakuru Rusange'
+          : 'General Cooperative Inquiry';
+    }
+  };
+
+  const getMailtoUrl = (inq: ContactInquiry) => {
+    const subj = encodeURIComponent(`[UBUMWE SACCO Inquiry] ${inq.subject} - ${inq.name}`);
+    const body = encodeURIComponent(
+      `Dear Ubumwe SACCO Inquiry Desk,\n\n` +
+      `Member Name: ${inq.name}\n` +
+      `Member Email: ${inq.email}\n` +
+      `Telephone: ${inq.phone}\n` +
+      `Inquiry Topic: ${inq.subject}\n` +
+      `Date: ${inq.createdAt || inq.date}\n\n` +
+      `Message:\n${inq.message}\n\n` +
+      `---\n` +
+      `Dispatched directly to: ${TARGET_INQUIRY_EMAIL}\n` +
+      `UBUMWE SACCO GAKENKE Direct Member Inquiry Desk`
+    );
+    return `mailto:${TARGET_INQUIRY_EMAIL}?subject=${subj}&body=${body}`;
+  };
+
+  const getGmailUrl = (inq: ContactInquiry) => {
+    const subj = encodeURIComponent(`[UBUMWE SACCO Inquiry] ${inq.subject} - ${inq.name}`);
+    const body = encodeURIComponent(
+      `Dear Ubumwe SACCO Inquiry Desk,\n\n` +
+      `Member Name: ${inq.name}\n` +
+      `Member Email: ${inq.email}\n` +
+      `Telephone: ${inq.phone}\n` +
+      `Inquiry Topic: ${inq.subject}\n\n` +
+      `Message:\n${inq.message}\n\n` +
+      `---\n` +
+      `Dispatched directly to: ${TARGET_INQUIRY_EMAIL}`
+    );
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(TARGET_INQUIRY_EMAIL)}&su=${subj}&body=${body}`;
+  };
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(saccoInfo.email);
@@ -52,28 +127,85 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     setTimeout(() => setCopiedPhone(false), 2000);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleCopyInquiryDetails = () => {
+    if (!submittedInquiry) return;
+    const text = `UBUMWE SACCO Inquiry\nRecipient: ${TARGET_INQUIRY_EMAIL}\nName: ${submittedInquiry.name}\nEmail: ${submittedInquiry.email}\nPhone: ${submittedInquiry.phone}\nTopic: ${submittedInquiry.subject}\nDate: ${submittedInquiry.createdAt}\n\nMessage:\n${submittedInquiry.message}`;
+    navigator.clipboard.writeText(text);
+    setCopiedDetails(true);
+    setTimeout(() => setCopiedDetails(false), 2000);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !contactNumber || !message) return;
-    const newInquiry = {
+    if (!fullName.trim() || !email.trim() || !contactNumber.trim() || !message.trim()) return;
+
+    setIsSubmitting(true);
+    const topicLabel = getSubjectLabel(subject);
+    const nowFormatted = new Date().toLocaleString();
+
+    const newInquiry: ContactInquiry = {
       id: `inq-${Date.now()}`,
-      name: fullName,
-      phone: contactNumber,
-      subject,
-      message,
-      date: new Date().toLocaleString(),
+      name: fullName.trim(),
+      email: email.trim(),
+      phone: contactNumber.trim(),
+      subject: topicLabel,
+      message: message.trim(),
+      createdAt: nowFormatted,
+      date: nowFormatted,
+      recipientEmail: TARGET_INQUIRY_EMAIL,
     };
+
+    // 1. Save to local storage for persistence & Admin Console
     try {
       const existing = JSON.parse(localStorage.getItem('ubumwe_contact_inquiries') || '[]');
       localStorage.setItem('ubumwe_contact_inquiries', JSON.stringify([newInquiry, ...existing]));
     } catch {}
+
+    if (onNewInquiry) {
+      try {
+        onNewInquiry(newInquiry);
+      } catch {}
+    }
+
+    // 2. Dispatch to FormSubmit endpoint directly to dmechack12@gmail.com (with quick abort fallback)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      await fetch(`https://formsubmit.co/ajax/${TARGET_INQUIRY_EMAIL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `UBUMWE SACCO Member Inquiry: [${topicLabel}] - From ${newInquiry.name}`,
+          Member_Name: newInquiry.name,
+          Member_Email: newInquiry.email,
+          Telephone: newInquiry.phone,
+          Inquiry_Topic: topicLabel,
+          Message: newInquiry.message,
+          Dispatched_To: TARGET_INQUIRY_EMAIL,
+          Submission_Time: nowFormatted,
+          _replyto: newInquiry.email,
+          _template: 'table',
+          _captcha: 'false',
+        }),
+        signal: controller.signal,
+      }).catch(() => {});
+      clearTimeout(timeoutId);
+    } catch {}
+
+    setSubmittedInquiry(newInquiry);
+    setIsSubmitting(false);
     setFormSubmitted(true);
   };
 
   const resetForm = () => {
     setFullName('');
+    setEmail('');
     setContactNumber('');
     setMessage('');
+    setSubmittedInquiry(null);
     setFormSubmitted(false);
   };
 
@@ -355,39 +487,130 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             {/* Right Column: Fast Inquiry Form */}
             <div className="lg:col-span-7 bg-white text-slate-900 p-6 sm:p-7 rounded-2xl shadow-lg border border-slate-100">
               {formSubmitted ? (
-                <div className="py-6 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                <div className="py-6 text-center space-y-4">
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h4 className="text-lg font-extrabold text-slate-900">
-                    {currentLang === 'en' ? 'Message Sent Successfully!' : 'Ubutumwa Bwoherejwe Neza!'}
-                  </h4>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto">
-                    {currentLang === 'en'
-                      ? `Thank you ${fullName}. Our customer desk at ${saccoInfo.phone} or ${saccoInfo.email} will get back to you promptly.`
-                      : `Murakoze ${fullName}. Ibiro bya koperative kuri ${saccoInfo.phone} cyangwa ${saccoInfo.email} biragusubiza vuba.`}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 cursor-pointer"
-                  >
-                    {currentLang === 'en' ? 'Send Another Inquiry' : 'Ohereza Ubundi Butumwa'}
-                  </button>
+                  <div>
+                    <h4 className="text-lg font-extrabold text-slate-900">
+                      {currentLang === 'fr'
+                        ? 'Message Envoyé Directement !'
+                        : currentLang === 'rw'
+                        ? 'Ubutumwa Bwoherejwe kuri dmechack12@gmail.com!'
+                        : 'Inquiry Sent Directly to dmechack12@gmail.com!'}
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                      {currentLang === 'fr'
+                        ? `Merci ${submittedInquiry?.name || fullName}. Votre demande a été transmise directement à ${TARGET_INQUIRY_EMAIL}.`
+                        : currentLang === 'rw'
+                        ? `Murakoze ${submittedInquiry?.name || fullName}. Ubutumwa bwawe bwoherejwe ako kanya kuri ${TARGET_INQUIRY_EMAIL} no mu buyobozi bwa koperative.`
+                        : `Thank you ${submittedInquiry?.name || fullName}. Your inquiry has been forwarded directly to ${TARGET_INQUIRY_EMAIL} and recorded in our member registry.`}
+                    </p>
+                  </div>
+
+                  {/* Inquiry Receipt Card */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left text-xs max-w-md mx-auto space-y-2.5">
+                    <div className="flex items-center justify-between text-slate-500 text-[11px] border-b border-slate-200 pb-2">
+                      <span className="font-bold text-slate-700 uppercase tracking-wider">Inquiry Summary</span>
+                      <span className="text-emerald-700 font-semibold flex items-center gap-1 font-mono text-[10.5px] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                        <Mail className="w-3 h-3 text-emerald-600" />
+                        {TARGET_INQUIRY_EMAIL}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Sender Name</span>
+                        <span className="font-bold text-slate-900 truncate block">{submittedInquiry?.name || fullName}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Sender Email</span>
+                        <span className="font-bold text-emerald-700 truncate block">{submittedInquiry?.email || email}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Telephone</span>
+                        <span className="font-mono text-slate-800 truncate block">{submittedInquiry?.phone || contactNumber}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold uppercase">Reason / Topic</span>
+                        <span className="font-semibold text-slate-800 truncate block">{submittedInquiry?.subject || subject}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct Mail Action Buttons */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    {submittedInquiry && (
+                      <a
+                        href={getGmailUrl(submittedInquiry)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 shadow-xs transition-colors"
+                        title={`Open pre-filled Gmail composer to ${TARGET_INQUIRY_EMAIL}`}
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Open in Gmail ({TARGET_INQUIRY_EMAIL})</span>
+                      </a>
+                    )}
+
+                    {submittedInquiry && (
+                      <a
+                        href={getMailtoUrl(submittedInquiry)}
+                        className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 border border-slate-300 transition-colors"
+                        title={`Open in Outlook or device mail app for ${TARGET_INQUIRY_EMAIL}`}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Open in Mail App</span>
+                      </a>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleCopyInquiryDetails}
+                      className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedDetails ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                      <span>{copiedDetails ? 'Copied' : 'Copy Details'}</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer"
+                    >
+                      {currentLang === 'fr'
+                        ? '← Envoyer une autre demande'
+                        : currentLang === 'rw'
+                        ? '← Ohereza Ubundi Butumwa'
+                        : '← Send Another Inquiry'}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleFormSubmit} className="space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                      {currentLang === 'en' ? 'Direct Member Inquiry Desk' : 'Twandikire Ubutumwa Bwihuse'}
-                    </span>
-                    <span className="text-[11px] text-slate-400">Response within 2h</span>
+                    <div>
+                      <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                        {currentLang === 'fr'
+                          ? 'Bureau de Demande Directe'
+                          : currentLang === 'rw'
+                          ? 'Twandikire Ubutumwa Bwihuse'
+                          : 'Direct Member Inquiry Desk'}
+                      </span>
+                      <span className="text-[11px] text-slate-400">Response within 2h</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full font-medium border border-emerald-200/60 flex items-center gap-1 shadow-2xs">
+                      <Mail className="w-3 h-3 text-emerald-600" />
+                      <span className="font-mono text-[10.5px] font-semibold">{TARGET_INQUIRY_EMAIL}</span>
+                    </div>
                   </div>
 
+                  {/* Form Inputs Grid with Email Field */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">
-                        {currentLang === 'en' ? 'Full Name' : 'Amazina Yombi'}
+                        {currentLang === 'fr' ? 'Nom et Prénom' : currentLang === 'rw' ? 'Amazina Yombi' : 'Full Name'}
                       </label>
                       <input
                         type="text"
@@ -401,7 +624,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">
-                        {currentLang === 'en' ? 'Telephone Number' : 'Nimero ya Telefone'}
+                        {currentLang === 'fr' ? 'Adresse E-mail' : currentLang === 'rw' ? 'Imeli (Email Address)' : 'Email Address'}
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="e.g. member@gmail.com"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        {currentLang === 'fr' ? 'Numéro de Téléphone' : currentLang === 'rw' ? 'Nimero ya Telefone' : 'Telephone Number'}
                       </label>
                       <input
                         type="tel"
@@ -412,38 +649,38 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono-numbers"
                       />
                     </div>
+
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        {currentLang === 'fr' ? "Objet de l'Inquiry" : currentLang === 'rw' ? "Impamvu / Intego y'Ubutumwa" : 'Inquiry Topic / Reason'}
+                      </label>
+                      <select
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="general">
+                          {currentLang === 'fr' ? 'Demande Générale' : currentLang === 'rw' ? 'Kubaza Amakuru Rusange' : 'General Cooperative Inquiry'}
+                        </option>
+                        <option value="loan">
+                          {currentLang === 'fr' ? 'Demande de Prêt & Conditions' : currentLang === 'rw' ? 'Gusaba Inguzanyo & Amabwiriza' : 'Loan Application & Terms'}
+                        </option>
+                        <option value="savings">
+                          {currentLang === 'fr' ? 'Épargne & Dépôt à Terme' : currentLang === 'rw' ? "Kuzigama & Konti y'Igihe Kirekire" : 'Fixed Term Deposit & Savings'}
+                        </option>
+                        <option value="ussd">
+                          {currentLang === 'fr' ? `Support USSD ${saccoInfo.ussdCode} & Banque Mobile` : currentLang === 'rw' ? `Ubufasha bwa USSD ${saccoInfo.ussdCode}` : `USSD ${saccoInfo.ussdCode} & Mobile Banking Support`}
+                        </option>
+                        <option value="leadership">
+                          {currentLang === 'fr' ? 'Direction Exécutive (Gérant / Conseil)' : currentLang === 'rw' ? "Kuvugana n'Ubuyobozi Bukuru" : 'Executive Desk (Manager / Board)'}
+                        </option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="text-xs">
                     <label className="block font-semibold text-slate-700 mb-1">
-                      {currentLang === 'en' ? 'Inquiry Topic / Reason' : 'Impamvu / Intego y\'Ubutumwa'}
-                    </label>
-                    <select
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                    >
-                      <option value="general">
-                        {currentLang === 'en' ? 'General Cooperative Inquiry' : 'Kubaza Amakuru Rusange'}
-                      </option>
-                      <option value="loan">
-                        {currentLang === 'en' ? 'Loan Application & Terms' : 'Gusaba Inguzanyo & Amabwiriza'}
-                      </option>
-                      <option value="savings">
-                        {currentLang === 'en' ? 'Fixed Term Deposit & Savings' : 'Kuzigama & Konti y\'Igihe Kirekire'}
-                      </option>
-                      <option value="ussd">
-                        {currentLang === 'en' ? `USSD ${saccoInfo.ussdCode} & Mobile Banking Support` : `Ubufasha bwa USSD ${saccoInfo.ussdCode}`}
-                      </option>
-                      <option value="leadership">
-                        {currentLang === 'en' ? 'Executive Desk (Manager / Board)' : 'Kuvugana n\'Ubuyobozi Bukuru'}
-                      </option>
-                    </select>
-                  </div>
-
-                  <div className="text-xs">
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      {currentLang === 'en' ? 'Your Message' : 'Ubutumwa Bwawe'}
+                      {currentLang === 'fr' ? 'Votre Message' : currentLang === 'rw' ? 'Ubutumwa Bwawe' : 'Your Message'}
                     </label>
                     <textarea
                       rows={3}
@@ -451,20 +688,51 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder={
-                        currentLang === 'en'
-                          ? 'Explain how we can help you or ask your question...'
-                          : 'Sobanura uko twagufasha cyangwa ubaze ikibazo cyawe...'
+                        currentLang === 'fr'
+                          ? 'Expliquez comment nous pouvons vous aider ou posez votre question...'
+                          : currentLang === 'rw'
+                          ? 'Sobanura uko twagufasha cyangwa ubaze ikibazo cyawe...'
+                          : 'Explain how we can help you or ask your question...'
                       }
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     />
                   </div>
 
+                  {/* Direct Delivery Target Indicator */}
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{currentLang === 'en' ? 'Direct delivery destination:' : 'Ubutumwa bwoherezwa kuri:'}</span>
+                    </span>
+                    <span className="font-mono font-bold text-emerald-800">{TARGET_INQUIRY_EMAIL}</span>
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                    disabled={isSubmitting}
+                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-75"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>{currentLang === 'en' ? 'Submit Inquiry Now' : 'Ohereza Ubutumwa'}</span>
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>
+                          {currentLang === 'en'
+                            ? `Sending directly to ${TARGET_INQUIRY_EMAIL}...`
+                            : `Kohereza kuri ${TARGET_INQUIRY_EMAIL}...`}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>
+                          {currentLang === 'fr'
+                            ? `Envoyer directement à ${TARGET_INQUIRY_EMAIL}`
+                            : currentLang === 'rw'
+                            ? `Ohereza kuri ${TARGET_INQUIRY_EMAIL}`
+                            : `Submit Inquiry Directly to ${TARGET_INQUIRY_EMAIL}`}
+                        </span>
+                      </>
+                    )}
                   </button>
                 </form>
               )}

@@ -20,8 +20,11 @@ import {
   HomeMetricItem,
   AboutContentConfig,
   AboutValueItem,
+  PartnerItem,
+  SocialMediaItem,
+  SocialPlatform,
 } from '../types';
-import { THEME_OPTIONS } from '../data/saccoData';
+import { THEME_OPTIONS, INITIAL_PARTNERS, INITIAL_SOCIAL_LINKS } from '../data/saccoData';
 import { ImageUploader } from './ImageUploader';
 import { VideoUploader } from './VideoUploader';
 import {
@@ -80,6 +83,13 @@ import {
   TrendingUp,
   Award,
   Home,
+  Share2,
+  ExternalLink,
+  Globe,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Youtube,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { ApplicantFeedbackModal } from './ApplicantFeedbackModal';
@@ -91,7 +101,7 @@ interface AdminConsoleModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentLang: Language;
-  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos';
+  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos' | 'partners';
   saccoInfo: SaccoContactInfo;
   onUpdateSaccoInfo: (updated: Partial<SaccoContactInfo>) => void;
   navItems: NavItemConfig[];
@@ -149,7 +159,7 @@ interface AdminConsoleModalProps {
   onAddAboutValue?: (val: Omit<AboutValueItem, 'id'>) => void;
   onUpdateAboutValue?: (id: string, updated: Partial<AboutValueItem>) => void;
   onDeleteAboutValue?: (id: string) => void;
-  contactInquiries: { id: string; name: string; phone: string; subject: string; message: string; createdAt: string }[];
+  contactInquiries: { id: string; name: string; email?: string; phone: string; subject: string; message: string; createdAt?: string; date?: string; recipientEmail?: string }[];
   onDeleteContactInquiry: (id: string) => void;
   managerMessages: ManagerMessage[];
   onAddManagerMessage: (message: Omit<ManagerMessage, 'id'>) => void;
@@ -165,6 +175,16 @@ interface AdminConsoleModalProps {
   onUpdateJobApplication?: (id: string, updated: Partial<JobApplication>) => void;
   onDeleteJobApplication?: (id: string) => void;
   onResetJobApplications?: () => void;
+  partners?: PartnerItem[];
+  onAddPartner?: (partner: Omit<PartnerItem, 'id'>) => void;
+  onUpdatePartner?: (id: string, updated: Partial<PartnerItem>) => void;
+  onDeletePartner?: (id: string) => void;
+  onResetPartners?: () => void;
+  socialLinks?: SocialMediaItem[];
+  onAddSocialLink?: (social: Omit<SocialMediaItem, 'id'>) => void;
+  onUpdateSocialLink?: (id: string, updated: Partial<SocialMediaItem>) => void;
+  onDeleteSocialLink?: (id: string) => void;
+  onResetSocialLinks?: () => void;
 }
 
 export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
@@ -245,6 +265,16 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   onUpdateJobApplication,
   onDeleteJobApplication,
   onResetJobApplications,
+  partners = [],
+  onAddPartner,
+  onUpdatePartner,
+  onDeletePartner,
+  onResetPartners,
+  socialLinks = [],
+  onAddSocialLink,
+  onUpdateSocialLink,
+  onDeleteSocialLink,
+  onResetSocialLinks,
 }) => {
   const [activeTab, setActiveTab] = useState<
     | 'contact'
@@ -267,6 +297,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     | 'home-hero'
     | 'home-metrics'
     | 'about'
+    | 'partners'
   >(initialTab === 'job-applicants' || (initialTab as string) === 'applicants' ? 'job-applicants' : (initialTab as any));
 
   useEffect(() => {
@@ -456,6 +487,109 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   const [videoThumbnailUrl, setVideoThumbnailUrl] = useState('');
   const [videoBadge, setVideoBadge] = useState('Client Attraction');
   const [videoFeatured, setVideoFeatured] = useState(true);
+
+  // PARTNERS CRUD FORM STATE
+  const [isPartnerFormOpen, setIsPartnerFormOpen] = useState(false);
+  const [editingPartnerId, setEditingPartnerId] = useState<string | null>(null);
+  const [partnerName, setPartnerName] = useState('');
+  const [partnerLogoUrl, setPartnerLogoUrl] = useState('');
+  const [partnerWebsiteUrl, setPartnerWebsiteUrl] = useState('https://');
+  const [partnerVisible, setPartnerVisible] = useState(true);
+
+  const handleOpenAddPartner = () => {
+    setEditingPartnerId(null);
+    setPartnerName('');
+    setPartnerLogoUrl('');
+    setPartnerWebsiteUrl('https://');
+    setPartnerVisible(true);
+    setIsPartnerFormOpen(true);
+  };
+
+  const handleOpenEditPartner = (p: PartnerItem) => {
+    setEditingPartnerId(p.id);
+    setPartnerName(p.name);
+    setPartnerLogoUrl(p.logoUrl || '');
+    setPartnerWebsiteUrl(p.websiteUrl || 'https://');
+    setPartnerVisible(p.visible !== false);
+    setIsPartnerFormOpen(true);
+  };
+
+  const handleSavePartner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!partnerName.trim()) return;
+    if (editingPartnerId) {
+      if (onUpdatePartner) {
+        onUpdatePartner(editingPartnerId, {
+          name: partnerName.trim(),
+          logoUrl: partnerLogoUrl,
+          websiteUrl: partnerWebsiteUrl.trim(),
+          visible: partnerVisible,
+        });
+      }
+    } else {
+      if (onAddPartner) {
+        onAddPartner({
+          name: partnerName.trim(),
+          logoUrl: partnerLogoUrl,
+          websiteUrl: partnerWebsiteUrl.trim(),
+          visible: partnerVisible,
+        });
+      }
+    }
+    setIsPartnerFormOpen(false);
+  };
+
+  // SOCIAL MEDIA CRUD FORM STATE
+  const [isSocialFormOpen, setIsSocialFormOpen] = useState(false);
+  const [editingSocialId, setEditingSocialId] = useState<string | null>(null);
+  const [socialPlatform, setSocialPlatform] = useState<SocialPlatform>('linkedin');
+  const [socialLabel, setSocialLabel] = useState('');
+  const [socialUrl, setSocialUrl] = useState('https://');
+  const [socialVisible, setSocialVisible] = useState(true);
+
+  const handleOpenAddSocial = () => {
+    setEditingSocialId(null);
+    setSocialPlatform('linkedin');
+    setSocialLabel('LinkedIn');
+    setSocialUrl('https://');
+    setSocialVisible(true);
+    setIsSocialFormOpen(true);
+  };
+
+  const handleOpenEditSocial = (s: SocialMediaItem) => {
+    setEditingSocialId(s.id);
+    setSocialPlatform(s.platform);
+    setSocialLabel(s.label);
+    setSocialUrl(s.url);
+    setSocialVisible(s.visible !== false);
+    setIsSocialFormOpen(true);
+  };
+
+  const handleSaveSocial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!socialUrl.trim()) return;
+    const finalLabel = socialLabel.trim() || (socialPlatform.charAt(0).toUpperCase() + socialPlatform.slice(1));
+    if (editingSocialId) {
+      if (onUpdateSocialLink) {
+        onUpdateSocialLink(editingSocialId, {
+          platform: socialPlatform,
+          label: finalLabel,
+          url: socialUrl.trim(),
+          visible: socialVisible,
+        });
+      }
+    } else {
+      if (onAddSocialLink) {
+        onAddSocialLink({
+          platform: socialPlatform,
+          label: finalLabel,
+          url: socialUrl.trim(),
+          visible: socialVisible,
+        });
+      }
+    }
+    setIsSocialFormOpen(false);
+  };
 
   // HOME HERO FORM STATE
   const [heroDistrictBadgeEn, setHeroDistrictBadgeEn] = useState(heroContent?.districtBadgeEn || 'Gakenke District Cooperative');
@@ -1860,6 +1994,20 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
               <span>Attraction Videos ({homeVideos.length})</span>
             </button>
 
+            {/* Partners & Social Media */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('partners')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                activeTab === 'partners'
+                  ? 'bg-emerald-700 text-white shadow-xs ring-1 ring-emerald-500'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Share2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Partners &amp; Socials ({partners.length + socialLinks.length})</span>
+            </button>
+
             {/* Manager Messages */}
             <button
               type="button"
@@ -1996,7 +2144,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                         required
                         value={contactEmail}
                         onChange={(e) => setContactEmail(e.target.value)}
-                        placeholder="ubumwesaccogakenke@gmail.com"
+                        placeholder="dmechack12@gmail.com"
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                       />
                       <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -2012,7 +2160,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                         type="email"
                         value={contactSupportEmail}
                         onChange={(e) => setContactSupportEmail(e.target.value)}
-                        placeholder="ubumwesaccogakenke@gmail.com"
+                        placeholder="dmechack12@gmail.com"
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                       />
                     </div>
@@ -4970,6 +5118,507 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
             </div>
           )}
 
+          {/* TAB: PARTNERS & SOCIAL MEDIA (CRUD) */}
+          {activeTab === 'partners' && (
+            <div className="space-y-6 animate-in fade-in">
+              {/* Header Banner */}
+              <div className="p-4 bg-emerald-950/20 border border-emerald-800/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <Share2 className="w-4 h-4 text-emerald-600" />
+                    <span>Official Partners &amp; Social Media Manager</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Manage institutional partner organizations and official Ubumwe SACCO social media profiles in the website footer.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenAddPartner}
+                    className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Partner</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddSocial}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Social Media</span>
+                  </button>
+                  {(onResetPartners || onResetSocialLinks) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Reset Partners & Social Media to official initial defaults (MINECOFIN, BNR, RCA, BRD and official social profiles)?')) {
+                          if (onResetPartners) onResetPartners();
+                          if (onResetSocialLinks) onResetSocialLinks();
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Reset to defaults"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span className="hidden sm:inline">Reset Defaults</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* PARTNER FORM (ADD / EDIT) */}
+              {isPartnerFormOpen && (
+                <form
+                  onSubmit={handleSavePartner}
+                  className="p-5 bg-white border-2 border-emerald-500/40 rounded-2xl shadow-sm space-y-4 animate-in fade-in"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-xs text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Landmark className="w-4 h-4 text-emerald-600" />
+                      <span>{editingPartnerId ? 'Edit Partner Organization' : 'Add New Partner Organization'}</span>
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsPartnerFormOpen(false)}
+                      className="text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Organization Name * (e.g. MINECOFIN, BNR, RCA, BRD)
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={partnerName}
+                        onChange={(e) => setPartnerName(e.target.value)}
+                        placeholder="e.g. MINECOFIN"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Verified Official Website URL *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        value={partnerWebsiteUrl}
+                        onChange={(e) => setPartnerWebsiteUrl(e.target.value)}
+                        placeholder="https://www.minecofin.gov.rw"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Logo Image Uploader */}
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1 text-xs">
+                      Official Partner Logo (Upload or image URL)
+                    </label>
+                    <ImageUploader
+                      value={partnerLogoUrl}
+                      onChange={(url) => setPartnerLogoUrl(url)}
+                      label="Upload or select logo file"
+                    />
+                  </div>
+
+                  {/* Visibility & Actions */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={partnerVisible}
+                        onChange={(e) => setPartnerVisible(e.target.checked)}
+                        className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+                      />
+                      <span>Visible in website footer</span>
+                    </label>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsPartnerFormOpen(false)}
+                        className="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{editingPartnerId ? 'Update Partner' : 'Save Partner'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
+
+              {/* SOCIAL MEDIA FORM (ADD / EDIT) */}
+              {isSocialFormOpen && (
+                <form
+                  onSubmit={handleSaveSocial}
+                  className="p-5 bg-white border-2 border-slate-800/40 rounded-2xl shadow-sm space-y-4 animate-in fade-in"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Share2 className="w-4 h-4 text-slate-700" />
+                      <span>{editingSocialId ? 'Edit Social Media Profile' : 'Add Official Social Media Profile'}</span>
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsSocialFormOpen(false)}
+                      className="text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Platform *
+                      </label>
+                      <select
+                        value={socialPlatform}
+                        onChange={(e) => {
+                          const p = e.target.value as SocialPlatform;
+                          setSocialPlatform(p);
+                          if (!socialLabel || socialLabel === 'LinkedIn' || socialLabel === 'Facebook' || socialLabel === 'X (Twitter)' || socialLabel === 'Instagram' || socialLabel === 'YouTube' || socialLabel === 'WhatsApp') {
+                            const map: Record<string, string> = {
+                              linkedin: 'LinkedIn',
+                              facebook: 'Facebook',
+                              twitter: 'X (Twitter)',
+                              instagram: 'Instagram',
+                              youtube: 'YouTube',
+                              whatsapp: 'WhatsApp',
+                              website: 'Official Portal',
+                              other: 'Social Media',
+                            };
+                            setSocialLabel(map[p] || 'Profile');
+                          }
+                        }}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">X (formerly Twitter)</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="whatsapp">WhatsApp Channel</option>
+                        <option value="website">Official Portal</option>
+                        <option value="other">Other Link</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Display Label / Tooltip *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={socialLabel}
+                        onChange={(e) => setSocialLabel(e.target.value)}
+                        placeholder="e.g. LinkedIn"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Exact Official Profile URL *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        value={socialUrl}
+                        onChange={(e) => setSocialUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Visibility & Actions */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={socialVisible}
+                        onChange={(e) => setSocialVisible(e.target.checked)}
+                        className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+                      />
+                      <span>Visible in website footer</span>
+                    </label>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsSocialFormOpen(false)}
+                        className="px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{editingSocialId ? 'Update Social Link' : 'Save Social Link'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
+
+              {/* 1. PARTNERS LIST */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-emerald-700" />
+                    <span>Official Partner Organizations ({partners.length})</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddPartner}
+                    className="text-xs text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Partner</span>
+                  </button>
+                </div>
+
+                {partners.length === 0 ? (
+                  <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-500">
+                    No partners currently listed. Click &quot;Add Partner&quot; or &quot;Reset Defaults&quot; to restore defaults.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {partners.map((partner) => (
+                      <div
+                        key={partner.id}
+                        className={`p-4 bg-white border rounded-2xl transition-all space-y-3 flex flex-col justify-between ${
+                          partner.visible === false ? 'opacity-50 border-slate-200' : 'border-slate-200 hover:border-emerald-400 hover:shadow-sm'
+                        }`}
+                      >
+                        {/* Logo Preview */}
+                        <div className="bg-slate-100 rounded-xl p-3 flex items-center justify-center min-h-[70px] border border-slate-200">
+                          {partner.logoUrl ? (
+                            <img
+                              src={partner.logoUrl}
+                              alt={partner.name}
+                              className="h-10 w-auto object-contain max-w-[120px]"
+                            />
+                          ) : (
+                            <span className="text-xs font-bold text-slate-700">{partner.name}</span>
+                          )}
+                        </div>
+
+                        {/* Partner Details */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-900 text-sm">{partner.name}</span>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                partner.visible !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                              }`}
+                            >
+                              {partner.visible !== false ? 'Active' : 'Hidden'}
+                            </span>
+                          </div>
+                          <a
+                            href={partner.websiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-emerald-700 hover:underline flex items-center gap-1 truncate"
+                            title={partner.websiteUrl}
+                          >
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{partner.websiteUrl}</span>
+                          </a>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onUpdatePartner) {
+                                onUpdatePartner(partner.id, { visible: partner.visible === false ? true : false });
+                              }
+                            }}
+                            className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
+                          >
+                            {partner.visible === false ? <Eye className="w-3.5 h-3.5 text-slate-400" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+                            <span>{partner.visible === false ? 'Show' : 'Hide'}</span>
+                          </button>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditPartner(partner)}
+                              className="p-1.5 text-slate-500 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                              title="Edit partner"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Delete partner ${partner.name}?`)) {
+                                  if (onDeletePartner) onDeletePartner(partner.id);
+                                }
+                              }}
+                              className="p-1.5 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Delete partner"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 2. SOCIAL MEDIA PROFILES LIST */}
+              <div className="space-y-3 pt-4 border-t border-slate-200">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Share2 className="w-4 h-4 text-slate-700" />
+                    <span>Official Social Media Profiles ({socialLinks.length})</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddSocial}
+                    className="text-xs text-slate-800 hover:text-black font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Profile</span>
+                  </button>
+                </div>
+
+                {socialLinks.length === 0 ? (
+                  <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-500">
+                    No social media profiles added. Click &quot;Add Social Media&quot; to add links.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {socialLinks.map((social) => {
+                      const getPlatformIcon = () => {
+                        switch (social.platform) {
+                          case 'linkedin':
+                            return <Linkedin className="w-4 h-4 text-blue-600" />;
+                          case 'facebook':
+                            return <Facebook className="w-4 h-4 text-blue-500" />;
+                          case 'twitter':
+                            return <X className="w-4 h-4 text-slate-900" />;
+                          case 'instagram':
+                            return <Instagram className="w-4 h-4 text-pink-600" />;
+                          case 'youtube':
+                            return <Youtube className="w-4 h-4 text-red-600" />;
+                          case 'whatsapp':
+                            return <MessageCircle className="w-4 h-4 text-emerald-600" />;
+                          default:
+                            return <Globe className="w-4 h-4 text-slate-600" />;
+                        }
+                      };
+
+                      return (
+                        <div
+                          key={social.id}
+                          className={`p-4 bg-white border rounded-2xl transition-all space-y-3 flex flex-col justify-between ${
+                            social.visible === false ? 'opacity-50 border-slate-200' : 'border-slate-200 hover:border-slate-400 hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+                              {getPlatformIcon()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-slate-900 text-xs truncate">{social.label}</span>
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    social.visible !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                                  }`}
+                                >
+                                  {social.visible !== false ? 'Active' : 'Hidden'}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 uppercase font-semibold">{social.platform}</span>
+                            </div>
+                          </div>
+
+                          <div className="text-xs">
+                            <a
+                              href={social.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] text-slate-600 hover:text-emerald-700 flex items-center gap-1 truncate"
+                              title={social.url}
+                            >
+                              <ExternalLink className="w-3 h-3 shrink-0 text-slate-400" />
+                              <span className="truncate">{social.url}</span>
+                            </a>
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (onUpdateSocialLink) {
+                                  onUpdateSocialLink(social.id, { visible: social.visible === false ? true : false });
+                                }
+                              }}
+                              className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
+                            >
+                              {social.visible === false ? <Eye className="w-3.5 h-3.5 text-slate-400" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+                              <span>{social.visible === false ? 'Show' : 'Hide'}</span>
+                            </button>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditSocial(social)}
+                                className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                                title="Edit profile"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(`Delete social link ${social.label}?`)) {
+                                    if (onDeleteSocialLink) onDeleteSocialLink(social.id);
+                                  }
+                                }}
+                                className="p-1.5 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                title="Delete social link"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* TAB: MANAGER MESSAGES (CRUD) */}
           {activeTab === 'messages' && (
             <div className="space-y-4 animate-in fade-in">
@@ -5292,8 +5941,10 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                     <tr>
                       <th className="py-2.5 px-3">Date</th>
                       <th className="py-2.5 px-3">Name</th>
+                      <th className="py-2.5 px-3">Email</th>
                       <th className="py-2.5 px-3">Phone</th>
                       <th className="py-2.5 px-3">Subject</th>
+                      <th className="py-2.5 px-3">Sent Direct To</th>
                       <th className="py-2.5 px-3">Message</th>
                       <th className="py-2.5 px-3 text-right">Actions</th>
                     </tr>
@@ -5301,13 +5952,15 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                   <tbody className="divide-y divide-slate-100">
                     {contactInquiries.map((inq) => (
                       <tr key={inq.id}>
-                        <td className="py-2.5 px-3 font-mono">{inq.createdAt}</td>
-                        <td className="py-2.5 px-3 font-bold">{inq.name}</td>
-                        <td className="py-2.5 px-3">{inq.phone}</td>
-                        <td className="py-2.5 px-3">{inq.subject}</td>
-                        <td className="py-2.5 px-3">{inq.message}</td>
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">{inq.createdAt || inq.date}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-900 whitespace-nowrap">{inq.name}</td>
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-emerald-700 whitespace-nowrap">{inq.email || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap">{inq.phone}</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-700 whitespace-nowrap">{inq.subject}</td>
+                        <td className="py-2.5 px-3 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">{inq.recipientEmail || 'dmechack12@gmail.com'}</td>
+                        <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate" title={inq.message}>{inq.message}</td>
                         <td className="py-2.5 px-3 text-right">
-                          <button onClick={() => onDeleteContactInquiry(inq.id)} className="text-red-500 hover:text-red-700"><Trash2 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => onDeleteContactInquiry(inq.id)} className="text-red-500 hover:text-red-700 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
                         </td>
                       </tr>
                     ))}

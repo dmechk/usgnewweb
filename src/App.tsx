@@ -26,6 +26,8 @@ import {
   HomeMetricItem,
   AboutContentConfig,
   AboutValueItem,
+  PartnerItem,
+  SocialMediaItem,
 } from './types';
 import {
   SACCO_INFO,
@@ -44,6 +46,8 @@ import {
   INITIAL_HERO_CONTENT,
   INITIAL_HOME_METRICS,
   INITIAL_ABOUT_CONTENT,
+  INITIAL_PARTNERS,
+  INITIAL_SOCIAL_LINKS,
 } from './data/saccoData';
 import { BRANCHES_DATA } from './data/saccoData';
 import { Header } from './components/Header';
@@ -168,7 +172,17 @@ export default function App() {
   const [saccoInfo, setSaccoInfo] = useState<SaccoContactInfo>(() => {
     try {
       const saved = localStorage.getItem('ubumwe_sacco_info');
-      return saved ? JSON.parse(saved) : SACCO_INFO;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.email || parsed.email === 'ubumwesaccogakenke@gmail.com') {
+          parsed.email = 'dmechack12@gmail.com';
+        }
+        if (!parsed.supportEmail || parsed.supportEmail === 'ubumwesaccogakenke@gmail.com') {
+          parsed.supportEmail = 'dmechack12@gmail.com';
+        }
+        return { ...SACCO_INFO, ...parsed };
+      }
+      return SACCO_INFO;
     } catch {
       return SACCO_INFO;
     }
@@ -374,6 +388,36 @@ export default function App() {
     }
   });
 
+  // Dynamic Partners & Collaborators (CRUD)
+  const [partners, setPartners] = useState<PartnerItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('ubumwe_partners');
+      if (saved) {
+        const parsed: PartnerItem[] = JSON.parse(saved);
+        return parsed.map((item) => {
+          const def = INITIAL_PARTNERS.find((p) => p.id === item.id);
+          if (def && (!item.logoUrl || item.logoUrl.includes('broken'))) {
+            return { ...item, logoUrl: def.logoUrl };
+          }
+          return item;
+        });
+      }
+      return INITIAL_PARTNERS;
+    } catch {
+      return INITIAL_PARTNERS;
+    }
+  });
+
+  // Dynamic Social Media Profiles (CRUD)
+  const [socialLinks, setSocialLinks] = useState<SocialMediaItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('ubumwe_social_links');
+      return saved ? JSON.parse(saved) : INITIAL_SOCIAL_LINKS;
+    } catch {
+      return INITIAL_SOCIAL_LINKS;
+    }
+  });
+
   // Pre-fill loan calculator detail state
   const [prefillLoan, setPrefillLoan] = useState<{
     amount: number;
@@ -545,6 +589,18 @@ export default function App() {
       localStorage.setItem('ubumwe_manager_messages', JSON.stringify(managerMessages));
     } catch {}
   }, [managerMessages]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ubumwe_partners', JSON.stringify(partners));
+    } catch {}
+  }, [partners]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ubumwe_social_links', JSON.stringify(socialLinks));
+    } catch {}
+  }, [socialLinks]);
 
   useEffect(() => {
     try {
@@ -909,6 +965,52 @@ export default function App() {
     }));
   };
 
+  // Partners & Collaborators Handlers (CRUD)
+  const handleAddPartner = (partner: Omit<PartnerItem, 'id'>) => {
+    const newPartner: PartnerItem = {
+      ...partner,
+      id: `partner-${Date.now()}`,
+    };
+    setPartners((prev) => [...prev, newPartner]);
+  };
+
+  const handleUpdatePartner = (id: string, updated: Partial<PartnerItem>) => {
+    setPartners((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updated } : p))
+    );
+  };
+
+  const handleDeletePartner = (id: string) => {
+    setPartners((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleResetPartners = () => {
+    setPartners(INITIAL_PARTNERS);
+  };
+
+  // Social Media Profiles Handlers (CRUD)
+  const handleAddSocialLink = (social: Omit<SocialMediaItem, 'id'>) => {
+    const newSocial: SocialMediaItem = {
+      ...social,
+      id: `social-${Date.now()}`,
+    };
+    setSocialLinks((prev) => [...prev, newSocial]);
+  };
+
+  const handleUpdateSocialLink = (id: string, updated: Partial<SocialMediaItem>) => {
+    setSocialLinks((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, ...updated } : s))
+    );
+  };
+
+  const handleDeleteSocialLink = (id: string) => {
+    setSocialLinks((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const handleResetSocialLinks = () => {
+    setSocialLinks(INITIAL_SOCIAL_LINKS);
+  };
+
   const homeManagerMessage = managerMessages.find((m) => m.active && m.showOnHome);
   const aboutManagerMessage = managerMessages.find((m) => m.active && m.showOnAbout);
 
@@ -1229,6 +1331,7 @@ export default function App() {
             saccoInfo={saccoInfo}
             isAdmin={isManagerLoggedIn}
             onOpenAdminConsole={handleOpenAdminConsole}
+            onNewInquiry={(inq) => setContactInquiries((prev) => [inq, ...prev])}
           />
         )}
       </main>
@@ -1247,6 +1350,8 @@ export default function App() {
         onThemeChange={setCurrentTheme}
         saccoInfo={saccoInfo}
         navItems={navItems}
+        partners={partners}
+        socialLinks={socialLinks}
       />
 
       {/* Online Membership & Credit Application Modal */}
@@ -1347,6 +1452,16 @@ export default function App() {
         onUpdateJobApplication={handleUpdateJobApplication}
         onDeleteJobApplication={handleDeleteJobApplication}
         onResetJobApplications={handleResetJobApplications}
+        partners={partners}
+        onAddPartner={handleAddPartner}
+        onUpdatePartner={handleUpdatePartner}
+        onDeletePartner={handleDeletePartner}
+        onResetPartners={handleResetPartners}
+        socialLinks={socialLinks}
+        onAddSocialLink={handleAddSocialLink}
+        onUpdateSocialLink={handleUpdateSocialLink}
+        onDeleteSocialLink={handleDeleteSocialLink}
+        onResetSocialLinks={handleResetSocialLinks}
       />
 
       {/* Persistent Floating WhatsApp Quick-Action Widget */}

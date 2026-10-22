@@ -23,6 +23,7 @@ import {
   Users,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
+import { TailwindClasses } from '../constants/tailwindClasses';
 
 interface HeaderProps {
   currentLang: Language;
@@ -355,7 +356,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Zone 2: Navigation Links in Header (Excluding Contact Us so only one button exists) */}
-        <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm xl:text-base font-extrabold text-black flex-wrap justify-center">
+        <nav className={TailwindClasses.HEADER_NAV}>
           {headerNavs.map((item) => {
             const isActive =
               activeSection === item.targetSection ||

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Language, ThemeColor, SaccoContactInfo, NavItemConfig } from '../types';
+import { Language, ThemeColor, SaccoContactInfo, NavItemConfig, PartnerItem, SocialMediaItem, SocialPlatform } from '../types';
 import { TRANSLATIONS } from '../i18n/translations';
-import { SACCO_INFO, THEME_OPTIONS, INITIAL_NAV_ITEMS } from '../data/saccoData';
+import { SACCO_INFO, THEME_OPTIONS, INITIAL_NAV_ITEMS, INITIAL_PARTNERS, INITIAL_SOCIAL_LINKS } from '../data/saccoData';
 import {
   Landmark,
   Phone,
@@ -19,8 +19,19 @@ import {
   KeyRound,
   ImageIcon,
   Compass,
+  Linkedin,
+  Facebook,
+  X,
+  Instagram,
+  Youtube,
+  Globe,
+  MessageCircle,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
+import minecofinLogo from '../assets/images/Minecofin.png';
+import bnrLogo from '../assets/images/bnr logo.png';
+import rcaLogo from '../assets/images/rica logo.png';
+import brdLogo from '../assets/images/brd logo.png';
 interface FooterProps {
   currentLang: Language;
   onNavigateToSection: (sectionId: string) => void;
@@ -35,6 +46,8 @@ interface FooterProps {
   onThemeChange: (theme: ThemeColor) => void;
   saccoInfo?: SaccoContactInfo;
   navItems?: NavItemConfig[];
+  partners?: PartnerItem[];
+  socialLinks?: SocialMediaItem[];
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -51,6 +64,8 @@ export const Footer: React.FC<FooterProps> = ({
   onThemeChange,
   saccoInfo = SACCO_INFO,
   navItems = INITIAL_NAV_ITEMS,
+  partners = INITIAL_PARTNERS,
+  socialLinks = INITIAL_SOCIAL_LINKS,
 }) => {
   const t = TRANSLATIONS[currentLang];
 
@@ -185,85 +200,140 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
           </div>
         </div>
-
-        {/* Dedicated Leadership Sign In & Portal Theme Controls Box */}
-        <div className="p-6 bg-slate-900/90 border border-slate-800 rounded-3xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left: Leadership & Manager Authentication Access */}
-          <div className="lg:col-span-7 space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800">
-                <Lock className="w-4 h-4" />
-              </span>
-              <h4 className="text-sm font-bold text-white tracking-tight">
-                {currentLang === 'en'
-                  ? 'Official Staff & Board Login'
-                  : 'Kwinjira kw\'Abakozi & Inama y\'Ubutegetsi'}
-              </h4>
-            </div>
-
-            <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
-              {currentLang === 'en'
-                ? 'Authorized portal for Management (Mbitsemunda Phocas), Board Directors (Wellarse, Bartazal), and cooperative staff. Manage website contents, contacts, working hours, and media.'
-                : 'Uyu mwanya wagenewe gusa Abakozi ba SACCO, Ubuyobozi Bukuru bw\'Imirimo (Mbitsemunda Phocas), n\'Inama y\'Ubutegetsi (Wellarse, Bartazal).'}
-            </p>
-
-            {/* Default Official Credentials Note */}
-            {!isManagerLoggedIn && (
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 font-mono">
-                <KeyRound className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>
-                  Staff Login: <strong className="text-amber-300 font-sans">{saccoInfo.email}</strong> | PIN: <strong className="text-amber-300">gakenke2026</strong>
-                </span>
+        {/* Partners & Social Media */}
+        {((partners && partners.filter((p) => p.visible !== false).length > 0) ||
+          (socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0)) && (
+          <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* OUR PARTNERS */}
+            {partners && partners.filter((p) => p.visible !== false).length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
+                  {currentLang === 'rw' ? 'Abafatanyabikorwa' : currentLang === 'fr' ? 'Nos Partenaires' : 'Our Partners'}
+                </h4>
+                <div className="flex flex-wrap items-center gap-4">
+                  {partners
+                    .filter((p) => p.visible !== false)
+                    .map((partner) => (
+                      <a
+                        key={partner.id}
+                        href={partner.websiteUrl || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={partner.name}
+                        title={partner.name}
+                        className="group"
+                      >
+                        <div className="bg-white rounded-lg p-2 transition-all duration-200 group-hover:shadow-lg group-hover:shadow-emerald-500/20 group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-emerald-400 flex items-center justify-center min-h-[48px]">
+                          {partner.logoUrl ? (
+                            <img
+                              src={partner.logoUrl}
+                              alt={`${partner.name} logo`}
+                              className="h-10 w-auto object-contain max-w-[130px]"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent && !parent.querySelector('.partner-fallback-text')) {
+                                  const span = document.createElement('span');
+                                  span.className = 'partner-fallback-text text-xs font-bold text-slate-800 px-2';
+                                  span.textContent = partner.name;
+                                  parent.appendChild(span);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span className="text-xs font-bold text-slate-800 px-2">{partner.name}</span>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                </div>
+              </div>
+            )}
+            {/* OUR SOCIAL MEDIA */}
+            {socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
+                  {currentLang === 'rw' ? 'Dukurikire' : currentLang === 'fr' ? 'Suivez-nous' : 'Follow Us'}
+                </h4>
+                <div className="flex flex-wrap items-center gap-3">
+                  {socialLinks
+                    .filter((s) => s.visible !== false)
+                    .map((social) => {
+                      const getIcon = () => {
+                        switch (social.platform) {
+                          case 'linkedin':
+                            return <Linkedin size={20} />;
+                          case 'facebook':
+                            return <Facebook size={20} />;
+                          case 'twitter':
+                            return <X size={20} />;
+                          case 'instagram':
+                            return <Instagram size={20} />;
+                          case 'youtube':
+                            return <Youtube size={20} />;
+                          case 'whatsapp':
+                            return <MessageCircle size={20} />;
+                          default:
+                            return <Globe size={20} />;
+                        }
+                      };
+                      return (
+                        <a
+                          key={social.id}
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={social.label}
+                          title={social.label}
+                          className="p-2.5 rounded-lg bg-slate-800 text-slate-400 hover:bg-emerald-600 hover:text-white transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-400 inline-flex items-center justify-center"
+                        >
+                          {getIcon()}
+                        </a>
+                      );
+                    })}
+                </div>
               </div>
             )}
           </div>
-
-          {/* Right: Auth Action Buttons & Status */}
-          <div className="lg:col-span-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
-            {isManagerLoggedIn ? (
-              <div className="w-full sm:w-auto flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1.5 rounded-xl">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="truncate">
-                    Staff Active: <strong>{managerName || saccoInfo.email}</strong>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onOpenAdminConsole()}
-                    className="flex-1 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                    <span>Admin Hub</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onManagerLogout}
-                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs flex items-center justify-center gap-1 transition-all cursor-pointer border border-slate-700"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Log Out</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
+        )}
+        {/* Staff Login Button */}
+        <div className="mt-6 flex items-center justify-end">
+          {isManagerLoggedIn ? (
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={onOpenManagerLogin}
-                className="w-full sm:w-auto px-5 py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer"
+                onClick={() => onOpenAdminConsole()}
+                className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
               >
-                <Lock className="w-3.5 h-3.5 text-emerald-200" />
-                <span>
-                  {currentLang === 'fr'
-                    ? 'Connexion Staff'
-                    : currentLang === 'rw'
-                    ? "Kwinjira kw'Abakozi"
-                    : 'Staff Login'}
-                </span>
+                <Settings className="w-3.5 h-3.5" />
+                <span>Admin Hub</span>
               </button>
-            )}
-          </div>
+              <button
+                type="button"
+                onClick={onManagerLogout}
+                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs flex items-center gap-1 transition-all cursor-pointer border border-slate-700"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenManagerLogin}
+              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5 text-emerald-200" />
+              <span>
+                {currentLang === 'fr'
+                  ? 'Connexion Staff'
+                  : currentLang === 'rw'
+                  ? "Kwinjira kw'Abakozi"
+                  : 'Staff Login'}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Bottom Imigongo Skeleton Trim */}
