@@ -138,7 +138,11 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
                   filterCategory === 'all' ? 'bg-emerald-800 text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                All ({leaders.length})
+                {currentLang === 'fr'
+                  ? `Tous (${leaders.length})`
+                  : currentLang === 'rw'
+                  ? `Bose (${leaders.length})`
+                  : `All (${leaders.length})`}
               </button>
               <button
                 type="button"
@@ -147,7 +151,11 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
                   filterCategory === 'board' ? 'bg-emerald-800 text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Board of Directors
+                {currentLang === 'fr'
+                  ? "Conseil d'Administration"
+                  : currentLang === 'rw'
+                  ? "Inama y'Ubutegetsi"
+                  : 'Board of Directors'}
               </button>
               <button
                 type="button"
@@ -156,7 +164,11 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
                   filterCategory === 'manager' ? 'bg-emerald-800 text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Management Team
+                {currentLang === 'fr'
+                  ? 'Équipe de Direction'
+                  : currentLang === 'rw'
+                  ? "Abayobozi b'Imirimo"
+                  : 'Management Team'}
               </button>
             </div>
 
@@ -167,7 +179,13 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
                 className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Leader / Manager</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Ajouter un Dirigeant'
+                    : currentLang === 'rw'
+                    ? 'Ongeraho Umuyobozi'
+                    : 'Add Leader / Manager'}
+                </span>
               </button>
             )}
           </div>
@@ -176,6 +194,27 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
         {/* Leaders Grid with Photos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {filteredLeaders.map((leader) => {
+            const roleText =
+              currentLang === 'rw'
+                ? leader.roleRw || leader.roleEn
+                : leader.roleEn;
+            const qualText =
+              currentLang === 'rw'
+                ? leader.qualificationRw || leader.qualificationEn
+                : leader.qualificationEn;
+            const categoryBadge =
+              leader.category === 'board'
+                ? currentLang === 'fr'
+                  ? "Conseil d'Administration"
+                  : currentLang === 'rw'
+                  ? "Inama y'Ubutegetsi"
+                  : 'Board of Directors'
+                : currentLang === 'fr'
+                ? 'Direction Exécutive'
+                : currentLang === 'rw'
+                ? "Ubuyobozi b'Imirimo"
+                : 'Executive Management';
+
             return (
               <div
                 key={leader.id}
@@ -199,7 +238,7 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
 
                     {/* Category Tag (unboxed clean tag) */}
                     <div className="absolute bottom-2 left-2 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded border border-slate-700">
-                      {leader.category === 'board' ? 'Board of Directors' : 'Executive Management'}
+                      {categoryBadge}
                     </div>
 
                     {/* Admin Action Buttons on Photo */}
@@ -233,10 +272,10 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
                       {leader.name}
                     </h3>
                     <div className="text-xs font-bold text-emerald-800">
-                      {currentLang === 'en' ? leader.roleEn : leader.roleRw}
+                      {roleText}
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed pt-1">
-                      {currentLang === 'en' ? leader.qualificationEn : leader.qualificationRw}
+                      {qualText}
                     </p>
                   </div>
                 </div>

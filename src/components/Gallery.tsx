@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Language, InstitutionMoment } from '../types';
 import { SACCO_INFO, SACCO_PHOTO_ALBUM } from '../data/saccoData';
 import {
@@ -87,6 +88,7 @@ export const Gallery: React.FC<GalleryProps> = ({
   onOpenManagerLogin,
   onOpenAdminConsole,
 }) => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // Multi-photo Lightbox state
@@ -151,9 +153,8 @@ export const Gallery: React.FC<GalleryProps> = ({
   };
 
   const handleOpenMomentPhotos = (moment: InstitutionMoment) => {
-    setActiveMomentDetail(moment);
-    setActivePhotoIndex(0);
-    setIsAddingLightboxPhoto(false);
+    navigate(`/photos/${moment.id}`);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -258,37 +259,67 @@ export const Gallery: React.FC<GalleryProps> = ({
       case 'award':
         return {
           icon: <Trophy className="w-3.5 h-3.5 text-amber-500" />,
-          label: currentLang === 'en' ? 'Excellence Award' : 'Igihembo cy\'Indashyikirwa',
+          label:
+            currentLang === 'fr'
+              ? 'Prix d\'Excellence'
+              : currentLang === 'rw'
+              ? 'Igihembo cy\'Indashyikirwa'
+              : 'Excellence Award',
           bg: 'bg-amber-50 text-amber-800 border-amber-200',
         };
       case 'agm_dividend':
         return {
           icon: <PiggyBank className="w-3.5 h-3.5 text-emerald-600" />,
-          label: currentLang === 'en' ? 'Dividends & AGM' : 'Inyungu & Inama Rusange',
+          label:
+            currentLang === 'fr'
+              ? 'Dividendes & Assemblée'
+              : currentLang === 'rw'
+              ? 'Inyungu & Inama Rusange'
+              : 'Dividends & AGM',
           bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
         };
       case 'branch_opening':
         return {
           icon: <Building2 className="w-3.5 h-3.5 text-blue-600" />,
-          label: currentLang === 'en' ? 'Branch & Digital Launch' : 'Gufungura Amashami',
+          label:
+            currentLang === 'fr'
+              ? 'Agence & Lancement Digital'
+              : currentLang === 'rw'
+              ? 'Gufungura Amashami'
+              : 'Branch & Digital Launch',
           bg: 'bg-blue-50 text-blue-800 border-blue-200',
         };
       case 'community':
         return {
           icon: <Users className="w-3.5 h-3.5 text-purple-600" />,
-          label: currentLang === 'en' ? 'Farmer & Community Payout' : 'Abahinzi & Umuryango',
+          label:
+            currentLang === 'fr'
+              ? 'Agriculteurs & Communauté'
+              : currentLang === 'rw'
+              ? 'Abahinzi & Umuryango'
+              : 'Farmer & Community Payout',
           bg: 'bg-purple-50 text-purple-800 border-purple-200',
         };
       case 'training':
         return {
           icon: <GraduationCap className="w-3.5 h-3.5 text-teal-600" />,
-          label: currentLang === 'en' ? 'Training & Graduation' : 'Amahugurwa',
+          label:
+            currentLang === 'fr'
+              ? 'Formation & Remise des Diplômes'
+              : currentLang === 'rw'
+              ? 'Amahugurwa'
+              : 'Training & Graduation',
           bg: 'bg-teal-50 text-teal-800 border-teal-200',
         };
       default:
         return {
           icon: <Sparkles className="w-3.5 h-3.5 text-slate-600" />,
-          label: currentLang === 'en' ? 'Cooperative Moment' : 'Ibihe Byiza',
+          label:
+            currentLang === 'fr'
+              ? 'Moment Coopératif'
+              : currentLang === 'rw'
+              ? 'Ibihe Byiza'
+              : 'Cooperative Moment',
           bg: 'bg-slate-50 text-slate-800 border-slate-200',
         };
     }
@@ -437,7 +468,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            All Milestones ({moments.length})
+            {currentLang === 'fr'
+              ? `Tous les Moments (${moments.length})`
+              : currentLang === 'rw'
+              ? `Ibyiza Byose (${moments.length})`
+              : `All Milestones (${moments.length})`}
           </button>
           <button
             type="button"
@@ -448,7 +483,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Dividends &amp; AGM
+            {currentLang === 'fr'
+              ? 'Dividendes & Assemblée'
+              : currentLang === 'rw'
+              ? 'Inyungu & Inama Rusange'
+              : 'Dividends & AGM'}
           </button>
           <button
             type="button"
@@ -459,7 +498,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Awards &amp; Recognition
+            {currentLang === 'fr'
+              ? 'Prix & Distinctions'
+              : currentLang === 'rw'
+              ? "Ibihembo n'Indashyikirwa"
+              : 'Awards & Recognition'}
           </button>
           <button
             type="button"
@@ -470,7 +513,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Banking Hall &amp; Tech
+            {currentLang === 'fr'
+              ? 'Agences & Technologies'
+              : currentLang === 'rw'
+              ? 'Ibiro & Ikoranabuhanga'
+              : 'Banking Hall & Tech'}
           </button>
           <button
             type="button"
@@ -481,7 +528,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Farmers &amp; Community
+            {currentLang === 'fr'
+              ? 'Agriculteurs & Communauté'
+              : currentLang === 'rw'
+              ? "Abahinzi n'Abaturage"
+              : 'Farmers & Community'}
           </button>
           <button
             type="button"
@@ -492,7 +543,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Training &amp; Empowerment
+            {currentLang === 'fr'
+              ? 'Formation & Capacités'
+              : currentLang === 'rw'
+              ? 'Amahugurwa & Ubushobozi'
+              : 'Training & Empowerment'}
           </button>
         </div>
 
@@ -501,6 +556,14 @@ export const Gallery: React.FC<GalleryProps> = ({
           {filteredMoments.map((moment) => {
             const badge = getCategoryBadge(moment.category);
             const momentPhotos = getCurrentMomentPhotos(moment);
+            const momentTitle =
+              currentLang === 'rw'
+                ? moment.titleRw || moment.titleEn
+                : moment.titleEn;
+            const momentCaption =
+              currentLang === 'rw'
+                ? moment.captionRw || moment.captionEn
+                : moment.captionEn;
 
             return (
               <div
@@ -586,11 +649,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-extrabold text-slate-950 leading-snug group-hover:text-emerald-900 transition-colors">
-                      {currentLang === 'en' ? moment.titleEn : moment.titleRw}
+                      {momentTitle}
                     </h3>
 
                     <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                      {currentLang === 'en' ? moment.captionEn : moment.captionRw}
+                      {momentCaption}
                     </p>
                   </div>
                 </div>
@@ -605,8 +668,8 @@ export const Gallery: React.FC<GalleryProps> = ({
                     <Eye className="w-4 h-4" />
                     <span>
                       {momentPhotos.length > 1
-                        ? `Inspect All ${momentPhotos.length} Photos & Read Words`
-                        : (currentLang === 'en' ? 'Enlarge Picture & Read Words' : 'Reba Ifoto Neza n\'Amagambo Yanditseho')}
+                        ? (currentLang === 'en' ? 'View Photos' : currentLang === 'fr' ? 'Voir les Photos' : 'Reba Amafoto')
+                        : (currentLang === 'en' ? 'View Photo' : currentLang === 'fr' ? 'Voir la Photo' : 'Reba Ifoto')}
                     </span>
                   </button>
                 </div>
@@ -1126,7 +1189,7 @@ export const Gallery: React.FC<GalleryProps> = ({
                         <span>{item.date}</span>
                         <span className="text-emerald-700 font-bold flex items-center gap-0.5">
                           <Eye className="w-3 h-3" />
-                          <span>Inspect</span>
+                          <span>View</span>
                         </span>
                       </div>
                     </div>
@@ -1136,7 +1199,7 @@ export const Gallery: React.FC<GalleryProps> = ({
             </div>
 
             <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
-              <span className="font-medium text-slate-700">Click any photo card to inspect in full resolution and read all written context.</span>
+              <span className="font-medium text-slate-700">Click any photo card to view in full resolution.</span>
               <button
                 type="button"
                 onClick={() => setIsAlbumModalOpen(false)}

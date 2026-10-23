@@ -77,7 +77,12 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
     onApplyWithCalculation({
       amount,
       tenureMonths,
-      loanType: currentLang === 'en' ? 'Standard Annuity Credit' : 'Inguzanyo Isanzwe ya Annuité',
+      loanType:
+        currentLang === 'fr'
+          ? 'Crédit Standard Annuité'
+          : currentLang === 'rw'
+          ? 'Inguzanyo Isanzwe ya Annuité'
+          : 'Standard Annuity Credit',
       monthlyPayment: monthlyInstallment,
     });
   };
@@ -96,9 +101,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
       <div className="relative max-w-3xl mx-auto">
         {/* Intro description */}
         <p className="text-center text-slate-700 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-8 font-normal" style={{ textWrap: 'balance' }}>
-          {currentLang === 'en'
-            ? 'Estimate your monthly repayment using the annuity method (equal monthly payments over the loan term). This is an estimate only, not a formal loan offer - contact us for exact terms.'
-            : 'Mugereranye amafaranga muzajya mwishyura buri kwezi hakoreshejwe uburyo bwa annuité (kwishyura angana buri kwezi). Iki ni igipimo cy\'agateganyo gusa, si amasezerano ya nyuma - twandikire ku bisobanuro birambuye.'}
+          {currentLang === 'fr'
+            ? 'Estimez vos remboursements mensuels selon la méthode d\'annuité (versements mensuels constants pendant la durée du prêt). Ceci est une estimation indicative, contactez-nous pour les conditions définitives.'
+            : currentLang === 'rw'
+            ? "Mugereranye amafaranga muzajya mwishyura buri kwezi hakoreshejwe uburyo bwa annuité (kwishyura angana buri kwezi). Iki ni igipimo cy'agateganyo gusa, si amasezerano ya nyuma - twandikire ku bisobanuro birambuye."
+            : 'Estimate your monthly repayment using the annuity method (equal monthly payments over the loan term). This is an estimate only, not a formal loan offer - contact us for exact terms.'}
         </p>
 
         {/* White Card matching the requested UI */}
@@ -107,7 +114,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
             {/* 1. Loan Amount */}
             <div>
               <label htmlFor={amountInputId} className="block text-sm font-semibold text-slate-800 mb-2">
-                {currentLang === 'en' ? 'Loan Amount (RWF)' : 'Amafaranga Yifuzwa (RWF)'}
+                {currentLang === 'fr'
+                  ? 'Montant du Prêt (RWF)'
+                  : currentLang === 'rw'
+                  ? 'Amafaranga Yifuzwa (RWF)'
+                  : 'Loan Amount (RWF)'}
               </label>
               <input
                 id={amountInputId}
@@ -124,7 +135,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
             {/* 2. Loan Term */}
             <div>
               <label htmlFor={tenureInputId} className="block text-sm font-semibold text-slate-800 mb-2">
-                {currentLang === 'en' ? 'Loan Term (months)' : 'Igihe cyo Kwishyura (amezi)'}
+                {currentLang === 'fr'
+                  ? 'Durée du Prêt (mois)'
+                  : currentLang === 'rw'
+                  ? 'Igihe cyo Kwishyura (amezi)'
+                  : 'Loan Term (months)'}
               </label>
               <input
                 id={tenureInputId}
@@ -141,7 +156,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
             {/* 3. Annual Interest Rate */}
             <div>
               <label htmlFor={rateInputId} className="block text-sm font-semibold text-slate-800 mb-2">
-                {currentLang === 'en' ? 'Annual Interest Rate (%)' : 'Inyungu ku Mwaka (%)'}
+                {currentLang === 'fr'
+                  ? "Taux d'Intérêt Annuel (%)"
+                  : currentLang === 'rw'
+                  ? 'Inyungu ku Mwaka (%)'
+                  : 'Annual Interest Rate (%)'}
               </label>
               <input
                 id={rateInputId}
@@ -160,7 +179,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
               type="submit"
               className="w-full py-3.5 px-4 bg-[#1b3a27] hover:bg-[#132c1c] active:bg-[#0e2115] text-white text-base font-bold rounded-lg shadow-sm transition-all duration-150 cursor-pointer flex items-center justify-center tracking-wide"
             >
-              {currentLang === 'en' ? 'Calculate' : 'Kubara (Calculate)'}
+              {currentLang === 'fr'
+                ? 'Calculer la Mensualité'
+                : currentLang === 'rw'
+                ? 'Kubara Inguzanyo'
+                : 'Calculate Repayment'}
             </button>
           </form>
 
@@ -169,7 +192,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
             <div className="mt-6 pt-6 border-t border-slate-100 space-y-4 animate-in fade-in duration-300">
               <div className="bg-[#F5F0FF]/80 border border-[#DCCCFF] rounded-xl p-4 text-center">
                 <span className="text-xs uppercase font-bold tracking-wider text-slate-600 block mb-1">
-                  {currentLang === 'en' ? 'Estimated Monthly Payment' : 'Ayishyurwa Buri Kwezi'}
+                  {currentLang === 'fr'
+                    ? 'Mensualité Estimée'
+                    : currentLang === 'rw'
+                    ? 'Ayishyurwa Buri Kwezi'
+                    : 'Estimated Monthly Payment'}
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#1b3a27] font-mono-numbers">
                   {monthlyInstallment.toLocaleString()} <span className="text-sm font-semibold text-slate-600">RWF</span>
@@ -179,7 +206,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
               <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
                 <div className="bg-slate-50 border border-slate-200/70 rounded-lg p-3">
                   <span className="text-slate-500 block text-xs">
-                    {currentLang === 'en' ? 'Total Interest' : 'Inyungu Yose'}
+                    {currentLang === 'fr'
+                      ? 'Total des Intérêts'
+                      : currentLang === 'rw'
+                      ? 'Inyungu Yose'
+                      : 'Total Interest'}
                   </span>
                   <span className="font-bold text-slate-800 font-mono-numbers text-sm">
                     {totalInterest.toLocaleString()} RWF
@@ -187,7 +218,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
                 </div>
                 <div className="bg-slate-50 border border-slate-200/70 rounded-lg p-3">
                   <span className="text-slate-500 block text-xs">
-                    {currentLang === 'en' ? 'Total Repayable' : 'Ayose Azishyurwa'}
+                    {currentLang === 'fr'
+                      ? 'Total à Rembourser'
+                      : currentLang === 'rw'
+                      ? 'Ayose Azishyurwa'
+                      : 'Total Repayable'}
                   </span>
                   <span className="font-bold text-slate-900 font-mono-numbers text-sm">
                     {totalRepayable.toLocaleString()} RWF
@@ -204,8 +239,16 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
                 <Table className="w-3.5 h-3.5 text-slate-500" />
                 <span>
                   {showSchedule
-                    ? (currentLang === 'en' ? 'Hide Amortization Schedule' : 'Hisha Imbonerahamwe')
-                    : (currentLang === 'en' ? 'View Amortization Schedule' : 'Reba Imbonerahamwe y\'Uko Wishyura')}
+                    ? currentLang === 'fr'
+                      ? 'Masquer l\'Échéancier'
+                      : currentLang === 'rw'
+                      ? 'Hisha Imbonerahamwe'
+                      : 'Hide Amortization Schedule'
+                    : currentLang === 'fr'
+                    ? 'Afficher l\'Échéancier de Remboursement'
+                    : currentLang === 'rw'
+                    ? "Reba Imbonerahamwe y'Uko Wishyura"
+                    : 'View Amortization Schedule'}
                 </span>
                 {showSchedule ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
@@ -219,9 +262,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
               onClick={handleApply}
               className="text-[#1e6091] hover:text-[#0f3d61] hover:underline text-sm sm:text-base font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
             >
-              {currentLang === 'en'
-                ? 'Talk to us about a real loan application →'
-                : 'Twandikire kugira ngo usabe inguzanyo nyayo →'}
+              {currentLang === 'fr'
+                ? 'Contactez-nous pour une demande de prêt formelle →'
+                : currentLang === 'rw'
+                ? 'Twandikire kugira ngo usabe inguzanyo nyayo →'
+                : 'Talk to us about a real loan application →'}
             </button>
           </div>
         </div>
@@ -232,7 +277,11 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
             <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                  {currentLang === 'en' ? 'Monthly Repayment Schedule' : 'Imbonerahamwe yo Kwishyura'}
+                  {currentLang === 'fr'
+                    ? 'Échéancier Mensuel de Remboursement'
+                    : currentLang === 'rw'
+                    ? 'Imbonerahamwe yo Kwishyura'
+                    : 'Monthly Repayment Schedule'}
                 </h4>
                 <p className="text-xs text-slate-500 font-mono-numbers">
                   {amount.toLocaleString()} RWF @ {annualRate}% / year ({tenureMonths} mos)
@@ -246,10 +295,18 @@ export const LoanCalculator: React.FC<LoanCalculatorProps> = ({
                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 sticky top-0">
                   <tr>
                     <th className="py-2 px-3">#</th>
-                    <th className="py-2 px-3 text-right">Payment</th>
-                    <th className="py-2 px-3 text-right">Principal</th>
-                    <th className="py-2 px-3 text-right">Interest</th>
-                    <th className="py-2 px-3 text-right">Balance</th>
+                    <th className="py-2 px-3 text-right">
+                      {currentLang === 'fr' ? 'Paiement' : currentLang === 'rw' ? 'Kwishyura' : 'Payment'}
+                    </th>
+                    <th className="py-2 px-3 text-right">
+                      {currentLang === 'fr' ? 'Principal' : currentLang === 'rw' ? 'Igishoro' : 'Principal'}
+                    </th>
+                    <th className="py-2 px-3 text-right">
+                      {currentLang === 'fr' ? 'Intérêts' : currentLang === 'rw' ? 'Inyungu' : 'Interest'}
+                    </th>
+                    <th className="py-2 px-3 text-right">
+                      {currentLang === 'fr' ? 'Solde Restant' : currentLang === 'rw' ? 'Amafaranga Asigaye' : 'Balance'}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-mono-numbers">

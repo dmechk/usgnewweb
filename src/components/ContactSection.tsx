@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 
-export const TARGET_INQUIRY_EMAIL = 'dmechack12@gmail.com';
+export const TARGET_INQUIRY_EMAIL = 'ubumwesaccogakenke@gmail.com';
 
 interface ContactSectionProps {
   currentLang: Language;
@@ -167,7 +167,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       } catch {}
     }
 
-    // 2. Dispatch to FormSubmit endpoint directly to dmechack12@gmail.com
+    // 2. Dispatch to FormSubmit endpoint directly to TARGET_INQUIRY_EMAIL (ubumwesaccogakenke@gmail.com)
     // _replyto = member's email → hitting "Reply" in Gmail goes directly to the member
     try {
       const controller = new AbortController();
@@ -287,18 +287,24 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  {currentLang === 'en' ? 'Fast WhatsApp' : 'Kuri WhatsApp'}
+                  {currentLang === 'fr' ? 'WhatsApp Rapide' : currentLang === 'rw' ? 'Kuri WhatsApp' : 'Fast WhatsApp'}
                 </span>
               </div>
 
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  {currentLang === 'en' ? 'WhatsApp Direct Chat' : 'Twandikire kuri WhatsApp'}
+                  {currentLang === 'fr'
+                    ? 'Chat Direct WhatsApp'
+                    : currentLang === 'rw'
+                    ? 'Twandikire kuri WhatsApp'
+                    : 'WhatsApp Direct Chat'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  {currentLang === 'en'
-                    ? 'Instant text chat, loan guidance, USSD assistance, and account questions.'
-                    : 'Kwandikirana ako kanya, kubaza ku nguzanyo no gufashwa gukoresha *541#.'}
+                  {currentLang === 'fr'
+                    ? 'Discussion instantanée, conseils sur les prêts, support USSD et questions relatives aux comptes.'
+                    : currentLang === 'rw'
+                    ? 'Kwandikirana ako kanya, kubaza ku nguzanyo no gufashwa gukoresha *541#.'
+                    : 'Instant text chat, loan guidance, USSD assistance, and account questions.'}
                 </p>
               </div>
 
@@ -316,7 +322,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98 group-hover:bg-emerald-700"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>{currentLang === 'en' ? 'Open WhatsApp Chat' : 'Fungura WhatsApp'}</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Ouvrir WhatsApp Chat'
+                    : currentLang === 'rw'
+                    ? 'Fungura WhatsApp'
+                    : 'Open WhatsApp Chat'}
+                </span>
                 <ExternalLink className="w-3.5 h-3.5 opacity-80" />
               </a>
             </div>
@@ -335,18 +347,24 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
                   <Clock className="w-3 h-3" />
-                  {currentLang === 'en' ? 'Direct Line' : 'Telefone'}
+                  {currentLang === 'fr' ? 'Ligne Directe' : currentLang === 'rw' ? 'Telefone' : 'Direct Line'}
                 </span>
               </div>
 
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  {currentLang === 'en' ? 'Telephone Helpline' : 'Guhamagara kuri Telefone'}
+                  {currentLang === 'fr'
+                    ? 'Assistance Téléphonique'
+                    : currentLang === 'rw'
+                    ? 'Guhamagara kuri Telefone'
+                    : 'Telephone Helpline'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  {currentLang === 'en'
-                    ? 'Speak directly with our central customer desk and loan advisors.'
-                    : 'Vugana n\'abakozi bacu mu biro bikuru bya Ubumwe SACCO Gakenke.'}
+                  {currentLang === 'fr'
+                    ? 'Parlez directement avec nos conseillers client et experts en crédit.'
+                    : currentLang === 'rw'
+                    ? "Vugana n'abakozi bacu mu biro bikuru bya Ubumwe SACCO Gakenke."
+                    : 'Speak directly with our central customer desk and loan advisors.'}
                 </p>
               </div>
 
@@ -358,7 +376,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   className="text-xs text-slate-500 hover:text-emerald-700 flex items-center gap-1 font-sans font-medium cursor-pointer"
                 >
                   {copiedPhone ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedPhone ? 'Copied' : 'Copy'}</span>
+                  <span>{copiedPhone ? (currentLang === 'fr' ? 'Copié' : currentLang === 'rw' ? 'Byakopijwe' : 'Copied') : (currentLang === 'fr' ? 'Copier' : currentLang === 'rw' ? 'Kopera' : 'Copy')}</span>
                 </button>
               </div>
             </div>
@@ -369,7 +387,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98"
               >
                 <Phone className="w-4 h-4 text-emerald-400" />
-                <span>{currentLang === 'en' ? 'Call Now' : 'Hamagara Ako Kanya'}</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Appeler Maintenant'
+                    : currentLang === 'rw'
+                    ? 'Hamagara Ako Kanya'
+                    : 'Call Now'}
+                </span>
               </a>
             </div>
           </div>
@@ -387,18 +411,28 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                   <ShieldCheck className="w-3 h-3" />
-                  {currentLang === 'en' ? 'Official Inquiries' : 'Imeri ya Koperative'}
+                  {currentLang === 'fr'
+                    ? 'Demandes Officielles'
+                    : currentLang === 'rw'
+                    ? 'Imeri ya Koperative'
+                    : 'Official Inquiries'}
                 </span>
               </div>
 
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  {currentLang === 'en' ? 'Email Correspondence' : 'Kwandikira Imeri'}
+                  {currentLang === 'fr'
+                    ? 'Correspondance par E-mail'
+                    : currentLang === 'rw'
+                    ? 'Kwandikira Imeri'
+                    : 'Email Correspondence'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  {currentLang === 'en'
-                    ? 'Formal cooperative inquiries, partnerships, audit requests, and management notices.'
-                    : 'Ubusabe bwa dosiye, amabaruwa yemewe n\'itumanaho ry\'ubuyobozi.'}
+                  {currentLang === 'fr'
+                    ? 'Demandes institutionnelles, partenariats, audits et notifications de gestion.'
+                    : currentLang === 'rw'
+                    ? "Ubusabe bwa dosiye, amabaruwa yemewe n'itumanaho ry'ubuyobozi."
+                    : 'Formal cooperative inquiries, partnerships, audit requests, and management notices.'}
                 </p>
               </div>
 
@@ -410,7 +444,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   className="text-xs text-slate-500 hover:text-emerald-700 flex items-center gap-1 font-sans font-medium shrink-0 ml-2 cursor-pointer"
                 >
                   {copiedEmail ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedEmail ? 'Copied' : 'Copy'}</span>
+                  <span>{copiedEmail ? (currentLang === 'fr' ? 'Copié' : currentLang === 'rw' ? 'Byakopijwe' : 'Copied') : (currentLang === 'fr' ? 'Copier' : currentLang === 'rw' ? 'Kopera' : 'Copy')}</span>
                 </button>
               </div>
             </div>
@@ -421,7 +455,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 className="w-full py-3 px-4 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98"
               >
                 <Mail className="w-4 h-4" />
-                <span>{currentLang === 'en' ? 'Send Official Email' : 'Ohereza Imeri'}</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Envoyer un E-mail Officiel'
+                    : currentLang === 'rw'
+                    ? 'Ohereza Imeri'
+                    : 'Send Official Email'}
+                </span>
               </a>
             </div>
           </div>
@@ -434,7 +474,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             <div className="lg:col-span-5 space-y-4">
               <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-4 h-4" />
-                {currentLang === 'en' ? 'Headquarters & Working Hours' : 'Ibiro Bikuru n\'Amasaha'}
+                {currentLang === 'fr'
+                  ? 'Siège Social & Horaires de Travail'
+                  : currentLang === 'rw'
+                  ? "Ibiro Bikuru n'Amasaha"
+                  : 'Headquarters & Working Hours'}
               </span>
 
               <h3 className="text-2xl font-extrabold text-white">
@@ -450,18 +494,22 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="flex items-start gap-2.5">
                   <Clock className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>
-                    {currentLang === 'en'
-                      ? (saccoInfo.operatingHoursEn || 'Monday – Friday: 8:00 AM – 5:00 PM | Saturday: 8:00 AM – 1:00 PM')
-                      : (saccoInfo.operatingHoursRw || 'Kuwa Mbere – Kuwa Gatanu: 8:00 – 17:00 | Kuwa Gatandatu: 8:00 – 13:00')}
+                    {currentLang === 'fr'
+                      ? 'Lundi – Vendredi : 8h00 – 17h00 | Samedi : 8h00 – 13h00'
+                      : currentLang === 'rw'
+                      ? (saccoInfo.operatingHoursRw || 'Kuwa Mbere – Kuwa Gatanu: 8:00 – 17:00 | Kuwa Gatandatu: 8:00 – 13:00')
+                      : (saccoInfo.operatingHoursEn || 'Monday – Friday: 8:00 AM – 5:00 PM | Saturday: 8:00 AM – 1:00 PM')}
                   </span>
                 </div>
 
                 <div className="flex items-start gap-2.5">
                   <Smartphone className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>
-                    {currentLang === 'en'
-                      ? `USSD Mobile Banking: Dial ${saccoInfo.ussdCode} (Active 24 Hours / 7 Days a Week)`
-                      : `Koresha USSD: Kanda ${saccoInfo.ussdCode} (Amasaha 24/7 Ku Munsi)`}
+                    {currentLang === 'fr'
+                      ? `Services Mobiles USSD : Composez ${saccoInfo.ussdCode} (Actif 24h/24 et 7j/7)`
+                      : currentLang === 'rw'
+                      ? `Koresha USSD: Kanda ${saccoInfo.ussdCode} (Amasaha 24/7 Ku Munsi)`
+                      : `USSD Mobile Banking: Dial ${saccoInfo.ussdCode} (Active 24 Hours / 7 Days a Week)`}
                   </span>
                 </div>
               </div>
@@ -483,7 +531,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-98"
                 >
                   <MapPin className="w-4 h-4 text-emerald-200" />
-                  <span>{currentLang === 'en' ? 'Open in Google Maps (Directions)' : 'Reba Aho Duherereye kuri Google Maps'}</span>
+                  <span>
+                    {currentLang === 'fr'
+                      ? 'Ouvrir dans Google Maps (Itinéraire)'
+                      : currentLang === 'rw'
+                      ? 'Reba Aho Duherereye kuri Google Maps'
+                      : 'Open in Google Maps (Directions)'}
+                  </span>
                   <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
                 </a>
               </div>
@@ -501,8 +555,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       {currentLang === 'fr'
                         ? 'Message Envoyé Directement !'
                         : currentLang === 'rw'
-                        ? 'Ubutumwa Bwoherejwe kuri dmechack12@gmail.com!'
-                        : 'Inquiry Sent Directly to dmechack12@gmail.com!'}
+                        ? `Ubutumwa Bwoherejwe kuri ${TARGET_INQUIRY_EMAIL}!`
+                        : `Inquiry Sent Directly to ${TARGET_INQUIRY_EMAIL}!`}
                     </h4>
                     <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
                       {currentLang === 'fr'
@@ -707,7 +761,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div className="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2">
                     <span className="flex items-center gap-1.5 font-medium">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{currentLang === 'en' ? 'Direct delivery destination:' : 'Ubutumwa bwoherezwa kuri:'}</span>
+                      <span>
+                        {currentLang === 'fr'
+                          ? 'Destination de livraison directe :'
+                          : currentLang === 'rw'
+                          ? 'Ubutumwa bwoherezwa kuri:'
+                          : 'Direct delivery destination:'}
+                      </span>
                     </span>
                     <span className="font-mono font-bold text-emerald-800">{TARGET_INQUIRY_EMAIL}</span>
                   </div>
@@ -721,9 +781,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         <span>
-                          {currentLang === 'en'
-                            ? `Sending directly to ${TARGET_INQUIRY_EMAIL}...`
-                            : `Kohereza kuri ${TARGET_INQUIRY_EMAIL}...`}
+                          {currentLang === 'fr'
+                            ? `Envoi directement à ${TARGET_INQUIRY_EMAIL}...`
+                            : currentLang === 'rw'
+                            ? `Kohereza kuri ${TARGET_INQUIRY_EMAIL}...`
+                            : `Sending directly to ${TARGET_INQUIRY_EMAIL}...`}
                         </span>
                       </>
                     ) : (

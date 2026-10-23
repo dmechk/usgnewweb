@@ -159,14 +159,14 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
                 <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between">
                   <blockquote className="text-sm sm:text-base text-slate-700 leading-relaxed italic">
-                    "{currentLang === 'en' ? item.quoteEn : item.quoteRw}"
+                    "{currentLang === 'rw' ? item.quoteRw || item.quoteEn : item.quoteEn}"
                   </blockquote>
 
                   <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-bold text-slate-900">{item.name}</h4>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        {currentLang === 'en' ? item.roleEn : item.roleRw}
+                        {currentLang === 'rw' ? item.roleRw || item.roleEn : item.roleEn}
                       </p>
                     </div>
                     <UserCheck className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -243,7 +243,7 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                   {ann.imageUrl ? (
                     <img
                       src={ann.imageUrl}
-                      alt={currentLang === 'en' ? ann.titleEn : ann.titleRw}
+                      alt={currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
@@ -286,10 +286,10 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                     <span>{ann.date}</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-snug mb-2">
-                    {currentLang === 'en' ? ann.titleEn : ann.titleRw}
+                    {currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
                   </h4>
                   <p className="text-xs text-slate-600 line-clamp-3 flex-1">
-                    {currentLang === 'en' ? ann.summaryEn : ann.summaryRw}
+                    {currentLang === 'rw' ? ann.summaryRw || ann.summaryEn : ann.summaryEn}
                   </p>
                   <div className="mt-4 pt-4 border-t border-slate-100">
                     <button
@@ -362,11 +362,20 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-bold border border-emerald-300 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>OFFICIAL SACCO NOTICE</span>
+                  <span>
+                    {currentLang === 'fr'
+                      ? 'AVIS OFFICIEL SACCO'
+                      : currentLang === 'rw'
+                      ? 'ITANGAZO RYEMEWE RYA SACCO'
+                      : 'OFFICIAL SACCO NOTICE'}
+                  </span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-slate-500 font-medium">
                   <Calendar className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Published: <strong>{selectedAnnouncement.date}</strong></span>
+                  <span>
+                    {currentLang === 'fr' ? 'Publié :' : currentLang === 'rw' ? 'Yashyizweho :' : 'Published:'}{' '}
+                    <strong>{selectedAnnouncement.date}</strong>
+                  </span>
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="text-slate-500">Gakenke District, Northern Province, Rwanda</span>
@@ -374,7 +383,9 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
               {/* Massive Full Article Headline */}
               <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight sm:leading-tight">
-                {currentLang === 'en' ? selectedAnnouncement.titleEn : selectedAnnouncement.titleRw}
+                {currentLang === 'rw'
+                  ? selectedAnnouncement.titleRw || selectedAnnouncement.titleEn
+                  : selectedAnnouncement.titleEn}
               </h1>
 
               {/* Full-Width Featured Photograph */}
@@ -382,7 +393,7 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                 <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-lg bg-slate-950 max-h-[500px]">
                   <img
                     src={selectedAnnouncement.imageUrl}
-                    alt={currentLang === 'en' ? selectedAnnouncement.titleEn : selectedAnnouncement.titleRw}
+                    alt={currentLang === 'rw' ? selectedAnnouncement.titleRw || selectedAnnouncement.titleEn : selectedAnnouncement.titleEn}
                     className="w-full h-full object-cover"
                   />
                   <div className="p-3 bg-slate-900/90 text-slate-300 text-xs flex items-center justify-between">
@@ -394,13 +405,17 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
               {/* Lead Summary Callout */}
               <div className="p-5 sm:p-6 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-700 border-y border-r border-emerald-200 text-slate-900 text-sm sm:text-base font-semibold leading-relaxed shadow-2xs">
-                {currentLang === 'en' ? selectedAnnouncement.summaryEn : selectedAnnouncement.summaryRw}
+                {currentLang === 'rw'
+                  ? selectedAnnouncement.summaryRw || selectedAnnouncement.summaryEn
+                  : selectedAnnouncement.summaryEn}
               </div>
 
               {/* Full Detailed Body Content */}
               <div className="text-sm sm:text-base lg:text-lg text-slate-800 leading-loose space-y-6">
                 <div className="whitespace-pre-line leading-relaxed">
-                  {currentLang === 'en' ? selectedAnnouncement.contentEn : selectedAnnouncement.contentRw}
+                  {currentLang === 'rw'
+                    ? selectedAnnouncement.contentRw || selectedAnnouncement.contentEn
+                    : selectedAnnouncement.contentEn}
                 </div>
               </div>
 

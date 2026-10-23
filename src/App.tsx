@@ -28,6 +28,9 @@ import {
   AboutValueItem,
   PartnerItem,
   SocialMediaItem,
+  ContactInquiry,
+  EmploymentTypeItem,
+  QualificationItem,
 } from './types';
 import {
   SACCO_INFO,
@@ -48,6 +51,9 @@ import {
   INITIAL_ABOUT_CONTENT,
   INITIAL_PARTNERS,
   INITIAL_SOCIAL_LINKS,
+  INITIAL_CONTACT_INQUIRIES,
+  INITIAL_EMPLOYMENT_TYPES,
+  INITIAL_QUALIFICATIONS,
 } from './data/saccoData';
 import { BRANCHES_DATA } from './data/saccoData';
 import { Header } from './components/Header';
@@ -60,6 +66,7 @@ import { HomeVideoSection } from './components/HomeVideoSection';
 
 import { BoardAndManagers } from './components/BoardAndManagers';
 import { Gallery } from './components/Gallery';
+import { PhotoDetailPage } from './components/PhotoDetailPage';
 import { CareersSection } from './components/CareersSection';
 import { BranchLocator } from './components/BranchLocator';
 import { GovernanceAndNews } from './components/GovernanceAndNews';
@@ -174,11 +181,11 @@ export default function App() {
       const saved = localStorage.getItem('ubumwe_sacco_info');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (!parsed.email || parsed.email === 'ubumwesaccogakenke@gmail.com') {
-          parsed.email = 'dmechack12@gmail.com';
+        if (!parsed.email || parsed.email !== 'ubumwesaccogakenke@gmail.com') {
+          parsed.email = 'ubumwesaccogakenke@gmail.com';
         }
-        if (!parsed.supportEmail || parsed.supportEmail === 'ubumwesaccogakenke@gmail.com') {
-          parsed.supportEmail = 'dmechack12@gmail.com';
+        if (!parsed.supportEmail || parsed.supportEmail !== 'ubumwesaccogakenke@gmail.com') {
+          parsed.supportEmail = 'ubumwesaccogakenke@gmail.com';
         }
         return { ...SACCO_INFO, ...parsed };
       }
@@ -275,6 +282,14 @@ export default function App() {
     }
   });
 
+  // Dedicated photo page route detection: /photos/:id or /photo/:id
+  const isPhotoRoute = activeView.startsWith('photos/') || activeView.startsWith('photo/');
+  const currentPhotoMomentId = isPhotoRoute ? activeView.replace(/^photos?\//, '') : null;
+  const currentPhotoMoment = currentPhotoMomentId
+    ? moments.find((m) => m.id === currentPhotoMomentId) || null
+    : null;
+
+
   const [applications, setApplications] = useState<ApplicationRecord[]>(() => {
     try {
       const saved = localStorage.getItem('ubumwe_applications');
@@ -284,21 +299,34 @@ export default function App() {
     }
   });
 
-  const [branches, setBranches] = useState<any[]>(() => {
+  const [branches, setBranches] = useState<BranchOutpost[]>(() => {
     try {
+      const version = localStorage.getItem('ubumwe_branches_version');
       const saved = localStorage.getItem('ubumwe_branches');
-      return saved ? JSON.parse(saved) : BRANCHES_DATA;
+      if (version === 'v19_3' && saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 19) {
+          return parsed;
+        }
+      }
+      localStorage.setItem('ubumwe_branches_version', 'v19_3');
+      localStorage.setItem('ubumwe_branches', JSON.stringify(BRANCHES_DATA));
+      return BRANCHES_DATA;
     } catch {
       return BRANCHES_DATA;
     }
   });
 
-  const [contactInquiries, setContactInquiries] = useState<any[]>(() => {
+  const [contactInquiries, setContactInquiries] = useState<ContactInquiry[]>(() => {
     try {
       const saved = localStorage.getItem('ubumwe_contact_inquiries');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed: ContactInquiry[] = JSON.parse(saved);
+        if (parsed && parsed.length > 0) return parsed;
+      }
+      return INITIAL_CONTACT_INQUIRIES;
     } catch {
-      return [];
+      return INITIAL_CONTACT_INQUIRIES;
     }
   });
 
@@ -309,6 +337,26 @@ export default function App() {
       return saved ? JSON.parse(saved) : INITIAL_MANAGER_MESSAGES;
     } catch {
       return INITIAL_MANAGER_MESSAGES;
+    }
+  });
+
+  // Dynamic Employment Types (CRUD by Admin)
+  const [employmentTypes, setEmploymentTypes] = useState<EmploymentTypeItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('ubumwe_employment_types');
+      return saved ? JSON.parse(saved) : INITIAL_EMPLOYMENT_TYPES;
+    } catch {
+      return INITIAL_EMPLOYMENT_TYPES;
+    }
+  });
+
+  // Dynamic Qualifications (CRUD by Admin)
+  const [qualifications, setQualifications] = useState<QualificationItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('ubumwe_qualifications');
+      return saved ? JSON.parse(saved) : INITIAL_QUALIFICATIONS;
+    } catch {
+      return INITIAL_QUALIFICATIONS;
     }
   });
 
@@ -516,17 +564,44 @@ export default function App() {
       localStorage.setItem('ubumwe_branches', JSON.stringify(branches));
     } catch { }
 
-    // Synchronize branchesCount across saccoInfo and all metrics whenever branches change
-    setSaccoInfo((prev) => (prev.branchesCount !== branches.length ? { ...prev, branchesCount: branches.length } : prev));
+    const subCount = branches.reduce((acc, b) => acc + (b.subBranches ? b.subBranches.length : 0), 0);
+    // Synchronize branchesCount & subBranchesCount across saccoInfo and all metrics whenever branches change
+    setSaccoInfo((prev) => ({
+      ...prev,
+      branchesCount: branches.length,
+      subBranchesCount: subCount,
+      sectorsCovered: 19
+    }));
     setHomeMetrics((prevMetrics) =>
       prevMetrics.map((m) => {
         if (m.id === 'metric-4' || m.labelEn.toLowerCase().includes('branch') || m.labelEn.toLowerCase().includes('outpost')) {
-          return { ...m, value: `${branches.length} Branches` };
+          return {
+            ...m,
+            value: `${branches.length} Branches & ${subCount} Sub-Branches`,
+            labelEn: `${branches.length} Branches & ${subCount} Sub-Branches`,
+            detailEn: `Covering all 19 Gakenke Sectors with ${subCount} Sub-Branches`
+          };
         }
         return m;
       })
     );
   }, [branches]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ubumwe_employment_types', JSON.stringify(employmentTypes));
+    } catch (e) {
+      console.warn('Unable to save employment types', e);
+    }
+  }, [employmentTypes]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ubumwe_qualifications', JSON.stringify(qualifications));
+    } catch (e) {
+      console.warn('Unable to save qualifications', e);
+    }
+  }, [qualifications]);
 
   useEffect(() => {
     try {
@@ -741,7 +816,81 @@ export default function App() {
   };
 
   const handleUpdateLeader = (id: string, updated: Partial<LeaderMember>) => {
-    setLeaders((prev) => prev.map((l) => (l.id === id ? { ...l, ...updated } : l)));
+    let targetLeader: LeaderMember | undefined;
+    setLeaders((prev) =>
+      prev.map((l) => {
+        if (l.id === id) {
+          targetLeader = { ...l, ...updated };
+          return targetLeader;
+        }
+        return l;
+      })
+    );
+
+    // Auto-update to whole similar profile items across the application
+    const leader = targetLeader || leaders.find((l) => l.id === id);
+    const isMD =
+      leader?.category === 'manager' ||
+      leader?.roleEn.toLowerCase().includes('manager') ||
+      leader?.name.toLowerCase().includes('mbitsemunda');
+
+    const isChair =
+      leader?.name.toLowerCase().includes('wellarse') ||
+      leader?.roleEn.toLowerCase().includes('chair');
+
+    const isBartazal = leader?.name.toLowerCase().includes('bartazal');
+
+    if (isMD) {
+      if (updated.imageUrl) {
+        // Auto-update manager system image
+        setSystemImages((prev) => ({
+          ...prev,
+          managerPortrait: updated.imageUrl!,
+        }));
+        // Auto-update all messages authored by the manager on Home and About pages
+        setManagerMessages((prev) =>
+          prev.map((m) =>
+            m.authorName.toLowerCase().includes('mbitsemunda') ||
+            m.authorRole.toLowerCase().includes('manager')
+              ? {
+                  ...m,
+                  imageUrl: updated.imageUrl!,
+                  ...(updated.name ? { authorName: updated.name } : {}),
+                }
+              : m
+          )
+        );
+      }
+      if (updated.phone) {
+        setSaccoInfo((prev) => ({ ...prev, managerPhone: updated.phone! }));
+      }
+    } else if (isChair) {
+      if (updated.imageUrl) {
+        setSystemImages((prev) => ({
+          ...prev,
+          boardChairPortrait: updated.imageUrl!,
+        }));
+        setManagerMessages((prev) =>
+          prev.map((m) =>
+            m.authorName.toLowerCase().includes('wellarse') ||
+            m.authorRole.toLowerCase().includes('chair')
+              ? {
+                  ...m,
+                  imageUrl: updated.imageUrl!,
+                  ...(updated.name ? { authorName: updated.name } : {}),
+                }
+              : m
+          )
+        );
+      }
+    } else if (isBartazal) {
+      if (updated.imageUrl) {
+        setSystemImages((prev) => ({
+          ...prev,
+          bartazalPortrait: updated.imageUrl!,
+        }));
+      }
+    }
   };
 
   const handleDeleteLeader = (id: string) => {
@@ -860,8 +1009,80 @@ export default function App() {
     );
   };
 
+  const handleUpdateSubBranch = (
+    branchId: string,
+    subId: string,
+    updated: Partial<{ name: string; sector: string; managerName: string; phone: string }>
+  ) => {
+    setBranches((prev) =>
+      prev.map((b) => {
+        if (b.id === branchId) {
+          const updatedSubs = (b.subBranches || []).map((s: { id: string }) =>
+            s.id === subId ? { ...s, ...updated } : s
+          );
+          return { ...b, subBranches: updatedSubs };
+        }
+        return b;
+      })
+    );
+  };
+
+  // Employment Types CRUD Handlers
+  const handleAddEmploymentType = (emp: Omit<EmploymentTypeItem, 'id'>) => {
+    const newEmp: EmploymentTypeItem = {
+      ...emp,
+      id: `emp-${Date.now()}`
+    };
+    setEmploymentTypes((prev) => [newEmp, ...prev]);
+  };
+
+  const handleUpdateEmploymentType = (id: string, updated: Partial<EmploymentTypeItem>) => {
+    setEmploymentTypes((prev) => prev.map((e) => (e.id === id ? { ...e, ...updated } : e)));
+  };
+
+  const handleDeleteEmploymentType = (id: string) => {
+    setEmploymentTypes((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  // Qualifications CRUD Handlers
+  const handleAddQualification = (qual: Omit<QualificationItem, 'id'>) => {
+    const newQual: QualificationItem = {
+      ...qual,
+      id: `qual-${Date.now()}`
+    };
+    setQualifications((prev) => [newQual, ...prev]);
+  };
+
+  const handleUpdateQualification = (id: string, updated: Partial<QualificationItem>) => {
+    setQualifications((prev) => prev.map((q) => (q.id === id ? { ...q, ...updated } : q)));
+  };
+
+  const handleDeleteQualification = (id: string) => {
+    setQualifications((prev) => prev.filter((q) => q.id !== id));
+  };
+
+  // Contact Inquiries CRUD Handlers
+  const handleAddContactInquiry = (inq: Omit<ContactInquiry, 'id'>) => {
+    const newInquiry: ContactInquiry = {
+      ...inq,
+      id: `inq-${Date.now()}`,
+      createdAt: inq.createdAt || new Date().toLocaleString(),
+      date: inq.date || new Date().toLocaleString(),
+      status: inq.status || 'pending',
+    };
+    setContactInquiries((prev) => [newInquiry, ...prev]);
+  };
+
+  const handleUpdateContactInquiry = (id: string, updated: Partial<ContactInquiry>) => {
+    setContactInquiries((prev) => prev.map((i) => (i.id === id ? { ...i, ...updated } : i)));
+  };
+
   const handleDeleteContactInquiry = (id: string) => {
     setContactInquiries((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  const handleResetContactInquiries = () => {
+    setContactInquiries(INITIAL_CONTACT_INQUIRIES);
   };
 
   // Community Impact Stories Handlers (CRUD)
@@ -893,6 +1114,56 @@ export default function App() {
     setManagerMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, ...updated } : m))
     );
+
+    // Auto-update to all similar places throughout the application
+    if (updated.imageUrl) {
+      const msg = managerMessages.find((m) => m.id === id);
+      const isMD =
+        msg?.authorName.toLowerCase().includes('mbitsemunda') ||
+        msg?.authorRole.toLowerCase().includes('manager') ||
+        updated.authorName?.toLowerCase().includes('mbitsemunda');
+
+      const isChair =
+        msg?.authorName.toLowerCase().includes('wellarse') ||
+        msg?.authorRole.toLowerCase().includes('chair') ||
+        updated.authorName?.toLowerCase().includes('wellarse');
+
+      if (isMD) {
+        setSystemImages((prev) => ({
+          ...prev,
+          managerPortrait: updated.imageUrl!,
+        }));
+        setLeaders((prev) =>
+          prev.map((l) =>
+            l.category === 'manager' ||
+            l.name.toLowerCase().includes('mbitsemunda') ||
+            l.roleEn.toLowerCase().includes('manager')
+              ? {
+                  ...l,
+                  imageUrl: updated.imageUrl!,
+                  ...(updated.authorName ? { name: updated.authorName } : {}),
+                }
+              : l
+          )
+        );
+      } else if (isChair) {
+        setSystemImages((prev) => ({
+          ...prev,
+          boardChairPortrait: updated.imageUrl!,
+        }));
+        setLeaders((prev) =>
+          prev.map((l) =>
+            l.name.toLowerCase().includes('wellarse')
+              ? {
+                  ...l,
+                  imageUrl: updated.imageUrl!,
+                  ...(updated.authorName ? { name: updated.authorName } : {}),
+                }
+              : l
+          )
+        );
+      }
+    }
   };
 
   const handleDeleteManagerMessage = (id: string) => {
@@ -1099,27 +1370,59 @@ export default function App() {
     switch (viewKey) {
       case 'hero':
       case 'home':
-        return currentLang === 'en' ? 'Home & Welcome' : 'Ahabanza';
+        return currentLang === 'fr' ? 'Accueil & Bienvenue' : currentLang === 'rw' ? 'Ahabanza' : 'Home & Welcome';
       case 'about':
-        return currentLang === 'en' ? 'About Us · Cooperative Governance' : 'Abo Turibo · Amateka n\'Imiyoborere';
+        return currentLang === 'fr'
+          ? 'À Propos · Gouvernance Coopérative'
+          : currentLang === 'rw'
+          ? "Abo Turibo · Amateka n'Imiyoborere"
+          : 'About Us · Cooperative Governance';
       case 'products':
       case 'calculator':
-        return currentLang === 'en' ? 'Our Services & Loan Calculator' : 'Serivisi Zacu n\'Imibare y\'Inguzanyo';
+        return currentLang === 'fr'
+          ? 'Nos Services & Simulateur de Prêt'
+          : currentLang === 'rw'
+          ? "Serivisi Zacu n'Imibare y'Inguzanyo"
+          : 'Our Services & Loan Calculator';
       case 'leadership':
-        return currentLang === 'en' ? 'Board of Directors & Management' : 'Abayobozi n\'Abakozi';
+        return currentLang === 'fr'
+          ? "Conseil d'Administration & Direction"
+          : currentLang === 'rw'
+          ? "Abayobozi n'Abakozi"
+          : 'Board of Directors & Management';
       case 'announcements':
       case 'news':
-        return currentLang === 'en' ? 'Official News & Press Bulletins' : 'Amakuru n\'Amatangazo';
+        return currentLang === 'fr'
+          ? 'Bulletins Officiels & Presse'
+          : currentLang === 'rw'
+          ? "Amakuru n'Amatangazo"
+          : 'Official News & Press Bulletins';
       case 'gallery':
-        return currentLang === 'en' ? 'Gallery & Memorable Milestones' : 'Amafoto y\'Ikigo n\'Ibihe Byiza';
+        return currentLang === 'fr'
+          ? 'Galerie & Moments Mémorables'
+          : currentLang === 'rw'
+          ? "Amafoto y'Ikigo n'Ibihe Byiza"
+          : 'Gallery & Memorable Milestones';
       case 'careers':
-        return currentLang === 'en' ? 'Careers & Employment Vacancies' : 'Imirimo n\'Amahirwe y\'Akazi';
+        return currentLang === 'fr'
+          ? 'Carrières & Postes Disponibles'
+          : currentLang === 'rw'
+          ? "Imirimo n'Amahirwe y'Akazi"
+          : 'Careers & Employment Vacancies';
       case 'branches':
-        return currentLang === 'en' ? 'Branch Locator & Service Outposts' : 'Amashami n\'Ibiro by\'Imari';
+        return currentLang === 'fr'
+          ? 'Nos Agences & Points de Service'
+          : currentLang === 'rw'
+          ? "Amashami n'Ibiro by'Imari"
+          : 'Branch Locator & Service Outposts';
       case 'contact':
-        return currentLang === 'en' ? 'Contact Us & Headquarter Map' : 'Twandikire & Ikarita y\'Ibiro';
+        return currentLang === 'fr'
+          ? 'Contactez-nous & Carte des Agences'
+          : currentLang === 'rw'
+          ? "Twandikire & Ikarita y'Ibiro"
+          : 'Contact Us & Headquarter Map';
       default:
-        return currentLang === 'en' ? 'All Sections' : 'Ibice Byose';
+        return currentLang === 'fr' ? 'Toutes les Sections' : currentLang === 'rw' ? 'Ibice Byose' : 'All Sections';
     }
   };
 
@@ -1173,9 +1476,29 @@ export default function App() {
 
       {/* Main Content Area: Selective Rendering according to clicked navigation item */}
       <main className="flex-1">
-        {/* 1. Home / Hero Section */}
-        {(activeView === 'all' || activeView === 'hero') && (
+        {isPhotoRoute ? (
+          <PhotoDetailPage
+            moment={currentPhotoMoment}
+            allMoments={moments}
+            currentLang={currentLang}
+            isAdmin={isManagerLoggedIn}
+            onBack={() => {
+              navigate('/gallery');
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            }}
+            onNavigateMoment={(momentId) => {
+              navigate(`/photos/${momentId}`);
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            }}
+            onUpdateMoment={handleUpdateMoment}
+            onDeleteMoment={handleDeleteMoment}
+            onOpenAdminConsole={handleOpenAdminConsole}
+          />
+        ) : (
           <>
+            {/* 1. Home / Hero Section */}
+            {(activeView === 'all' || activeView === 'hero') && (
+              <>
             <Hero
               currentLang={currentLang}
               onOpenMembershipModal={handleOpenMembershipModal}
@@ -1300,6 +1623,7 @@ export default function App() {
             currentLang={currentLang}
             jobPostings={jobPostings}
             jobApplications={jobApplications}
+            employmentTypes={employmentTypes}
             isAdmin={isManagerLoggedIn}
             onOpenAdminConsole={handleOpenAdminConsole}
             onAddJobPosting={handleAddJobPosting}
@@ -1334,7 +1658,9 @@ export default function App() {
             onNewInquiry={(inq) => setContactInquiries((prev) => [inq, ...prev])}
           />
         )}
-      </main>
+      </>
+    )}
+  </main>
 
       {/* Footer with Imigongo Framing, Credentials, Manager Sign In, & Theme Customizer */}
       <Footer
@@ -1415,7 +1741,16 @@ export default function App() {
         onUpdateBranch={handleUpdateBranch}
         onDeleteBranch={handleDeleteBranch}
         onAddSubBranch={handleAddSubBranch}
+        onUpdateSubBranch={handleUpdateSubBranch}
         onDeleteSubBranch={handleDeleteSubBranch}
+        employmentTypes={employmentTypes}
+        onAddEmploymentType={handleAddEmploymentType}
+        onUpdateEmploymentType={handleUpdateEmploymentType}
+        onDeleteEmploymentType={handleDeleteEmploymentType}
+        qualifications={qualifications}
+        onAddQualification={handleAddQualification}
+        onUpdateQualification={handleUpdateQualification}
+        onDeleteQualification={handleDeleteQualification}
         communityStories={communityStories}
         onAddCommunityStory={handleAddCommunityStory}
         onUpdateCommunityStory={handleUpdateCommunityStory}
@@ -1437,7 +1772,10 @@ export default function App() {
         onUpdateAboutValue={handleUpdateAboutValue}
         onDeleteAboutValue={handleDeleteAboutValue}
         contactInquiries={contactInquiries}
+        onAddContactInquiry={handleAddContactInquiry}
+        onUpdateContactInquiry={handleUpdateContactInquiry}
         onDeleteContactInquiry={handleDeleteContactInquiry}
+        onResetContactInquiries={handleResetContactInquiries}
         managerMessages={managerMessages}
         onAddManagerMessage={handleAddManagerMessage}
         onUpdateManagerMessage={handleUpdateManagerMessage}

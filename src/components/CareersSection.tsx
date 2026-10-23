@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Language, JobPosting, JobApplication } from '../types';
+import { Language, JobPosting, JobApplication, EmploymentTypeItem } from '../types';
 import { SACCO_INFO, INITIAL_JOB_APPLICATIONS } from '../data/saccoData';
 import {
   Briefcase,
@@ -31,6 +31,9 @@ import {
   Mail,
   RotateCcw,
   UserCheck,
+  Upload,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { JobApplicationModal } from './JobApplicationModal';
@@ -53,6 +56,7 @@ interface CareersSectionProps {
   onUpdateJobApplication?: (id: string, updated: Partial<JobApplication>) => void;
   onDeleteJobApplication?: (id: string) => void;
   onResetJobApplications?: () => void;
+  employmentTypes?: EmploymentTypeItem[];
 }
 
 export const CareersSection: React.FC<CareersSectionProps> = ({
@@ -70,6 +74,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   onUpdateJobApplication,
   onDeleteJobApplication,
   onResetJobApplications,
+  employmentTypes = [],
 }) => {
   // Primary view switcher within Careers: 'vacancies' or 'applicants'
   const [careersTab, setCareersTab] = useState<'vacancies' | 'applicants'>('vacancies');
@@ -80,11 +85,29 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
 
-  // Application Modal state (General member applying)
-  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  // In-page Application Form States (NO POPUP - IN-PAGE WORKFLOW)
+  const [isInPageApplyOpen, setIsInPageApplyOpen] = useState(false);
   const [activeApplyingJob, setActiveApplyingJob] = useState<JobPosting | null>(null);
+  const [applySelectedJobId, setApplySelectedJobId] = useState<string>(jobPostings[0]?.id || '');
+  const [applyFullName, setApplyFullName] = useState('');
+  const [applyEmail, setApplyEmail] = useState('');
+  const [applyPhone, setApplyPhone] = useState('');
+  const [applyNationalId, setApplyNationalId] = useState('');
+  const [applyResidenceSector, setApplyResidenceSector] = useState('Gakenke');
+  const [applyEducationLevel, setApplyEducationLevel] = useState("Bachelor's Degree (A0) in Finance & Banking");
+  const [applyYearsExperience, setApplyYearsExperience] = useState<number>(1);
+  const [applyCoverLetter, setApplyCoverLetter] = useState('');
+  const [applyCvFileName, setApplyCvFileName] = useState('');
+  const [applyCvFileData, setApplyCvFileData] = useState('');
+  const [applyMotivationFileName, setApplyMotivationFileName] = useState('');
+  const [applyMotivationFileData, setApplyMotivationFileData] = useState('');
+  const [applySubmittedRef, setApplySubmittedRef] = useState<string | null>(null);
+  const [applyErrorMsg, setApplyErrorMsg] = useState('');
 
-  // Admin Job Vacancy Edit / Create Modal state
+  // Fallback modal state (disabled in favor of in-page)
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+
+  // Admin Job Vacancy Edit / Create Form state (In-page display)
   const [isJobFormOpen, setIsJobFormOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobPosting | null>(null);
   const [formTitleEn, setFormTitleEn] = useState('');
@@ -113,7 +136,13 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   const [dossierApp, setDossierApp] = useState<JobApplication | null>(null);
   const [isAddApplicantOpen, setIsAddApplicantOpen] = useState(false);
 
-  // Manual Applicant Form States
+  // In-Page Review Drawer States
+  const [inPageReviewAppId, setInPageReviewAppId] = useState<string | null>(null);
+  const [feedbackSubject, setFeedbackSubject] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackSuccessMsg, setFeedbackSuccessMsg] = useState('');
+
+  // Manual Applicant Form States (with Motivation Letter upload)
   const [newAppName, setNewAppName] = useState('');
   const [newAppEmail, setNewAppEmail] = useState('');
   const [newAppPhone, setNewAppPhone] = useState('');
@@ -125,20 +154,123 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   const [newAppStatus, setNewAppStatus] = useState<JobApplication['status']>('pending');
   const [newAppCover, setNewAppCover] = useState('');
   const [newAppComment, setNewAppComment] = useState('');
+  const [newAppMotivationFileName, setNewAppMotivationFileName] = useState('');
+  const [newAppMotivationFileData, setNewAppMotivationFileData] = useState('');
 
-  // Handle open apply modal
-  const handleOpenApplyModal = (job: JobPosting | null) => {
+  // Handlers for In-Page Application Form
+  const handleOpenInPageApply = (job: JobPosting | null) => {
     setActiveApplyingJob(job);
-    setIsApplyModalOpen(true);
+    if (job) {
+      setApplySelectedJobId(job.id);
+    } else if (jobPostings.length > 0) {
+      setApplySelectedJobId(jobPostings[0].id);
+    }
+    setIsInPageApplyOpen(true);
+    setApplySubmittedRef(null);
+    setApplyErrorMsg('');
+    setTimeout(() => {
+      const el = document.getElementById('inpage-application-form');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
-  // Handle vacancy creation/edit
-  const openCreateModal = () => {
+  const handleOpenApplyModal = (job: JobPosting | null) => {
+    handleOpenInPageApply(job);
+  };
+
+  const handleApplyCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setApplyErrorMsg('CV file must be under 5MB.');
+      return;
+    }
+    setApplyCvFileName(file.name);
+    setApplyErrorMsg('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setApplyCvFileData(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleApplyMotivationUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setApplyErrorMsg('Motivation letter must be under 10MB.');
+      return;
+    }
+    setApplyMotivationFileName(file.name);
+    setApplyErrorMsg('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setApplyMotivationFileData(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleInPageApplySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applyFullName.trim() || !applyPhone.trim()) {
+      setApplyErrorMsg('Please fill in candidate full name and phone number.');
+      return;
+    }
+    if (applyNationalId.replace(/\D/g, '').length !== 16) {
+      setApplyErrorMsg('Rwandan National ID must be exactly 16 digits.');
+      return;
+    }
+
+    const matchedJob = jobPostings.find((j) => j.id === applySelectedJobId);
+    const resolvedTitle = matchedJob
+      ? currentLang === 'en'
+        ? matchedJob.titleEn
+        : matchedJob.titleRw
+      : 'General Employment Application';
+
+    const refCode = `UBUMWE-${Date.now().toString().slice(-6)}`;
+
+    onSubmitJobApplication({
+      jobId: applySelectedJobId || (jobPostings[0]?.id ?? 'job-general'),
+      jobTitle: resolvedTitle,
+      fullName: applyFullName.trim(),
+      email: applyEmail.trim() || `${applyPhone.replace(/\D/g, '')}@applicant.sacco`,
+      phone: applyPhone.trim(),
+      nationalId: applyNationalId.trim(),
+      residenceSector: applyResidenceSector || 'Gakenke',
+      educationLevel: applyEducationLevel,
+      yearsExperience: Number(applyYearsExperience) || 0,
+      coverLetter: applyCoverLetter.trim() || 'Candidate submitted directly via online career application portal.',
+      cvFileName: applyCvFileName || 'Resume_Document.pdf',
+      cvFileData: applyCvFileData || undefined,
+      motivationLetterFileName: applyMotivationFileName || undefined,
+      motivationLetterFileData: applyMotivationFileData || undefined,
+    });
+
+    setApplySubmittedRef(refCode);
+    setApplyErrorMsg('');
+    setApplyFullName('');
+    setApplyEmail('');
+    setApplyPhone('');
+    setApplyNationalId('');
+    setApplyCoverLetter('');
+    setApplyCvFileName('');
+    setApplyCvFileData('');
+    setApplyMotivationFileName('');
+    setApplyMotivationFileData('');
+
+    if (isAdmin) {
+      setCareersTab('applicants');
+    }
+  };
+
+  // Handlers for in-page Job Vacancy creation/edit
+  const openCreateInPage = () => {
     setEditingJob(null);
     setFormTitleEn('');
     setFormTitleRw('');
-    setFormDepartmentEn('Credit & Operations');
-    setFormDepartmentRw('Inguzanyo');
+    setFormDepartmentEn('Credit & Financial Operations');
+    setFormDepartmentRw('Inguzanyo n\'Imari');
     setFormLocation('Gakenke Head Office');
     setFormType('full_time');
     setFormSalary('Competitive SACCO Scale');
@@ -151,9 +283,17 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
     setFormRespEn('');
     setFormRespRw('');
     setIsJobFormOpen(true);
+    setTimeout(() => {
+      const el = document.getElementById('inpage-vacancy-form');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
-  const openEditModal = (job: JobPosting) => {
+  const openCreateModal = () => {
+    openCreateInPage();
+  };
+
+  const openEditInPage = (job: JobPosting) => {
     setEditingJob(job);
     setFormTitleEn(job.titleEn);
     setFormTitleRw(job.titleRw);
@@ -171,6 +311,22 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
     setFormRespEn(job.responsibilitiesEn.join('\n'));
     setFormRespRw(job.responsibilitiesRw.join('\n'));
     setIsJobFormOpen(true);
+    setTimeout(() => {
+      const el = document.getElementById('inpage-vacancy-form');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const openEditModal = (job: JobPosting) => {
+    openEditInPage(job);
+  };
+
+  const openAddApplicantInPage = () => {
+    setIsAddApplicantOpen(true);
+    setTimeout(() => {
+      const el = document.getElementById('inpage-applicant-form');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleSaveJob = (e: React.FormEvent) => {
@@ -239,6 +395,38 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
     setEditingCommentAppId(null);
   };
 
+  // Inline Quick edit qualifications
+  const handleQuickEditQualifications = (app: JobApplication) => {
+    const updatedEdu = window.prompt('Edit Candidate Education & Qualifications:', app.educationLevel);
+    if (updatedEdu !== null && updatedEdu.trim() && onUpdateJobApplication) {
+      onUpdateJobApplication(app.id, { educationLevel: updatedEdu.trim() });
+    }
+  };
+
+  // Rating change handler
+  const handleRatingChange = (appId: string, rating: number) => {
+    if (onUpdateJobApplication) {
+      onUpdateJobApplication(appId, { rating });
+    }
+  };
+
+  // In-page feedback dispatcher
+  const handleSendInPageFeedback = (app: JobApplication) => {
+    if (!feedbackSubject.trim() || !feedbackMessage.trim()) return;
+    if (onUpdateJobApplication) {
+      onUpdateJobApplication(app.id, {
+        emailFeedbackSent: true,
+        lastFeedbackDate: new Date().toISOString().split('T')[0],
+        lastFeedbackSubject: feedbackSubject,
+        lastFeedbackMessage: feedbackMessage,
+      });
+    }
+    setFeedbackSuccessMsg('Feedback dispatched and logged to candidate dossier!');
+    setTimeout(() => {
+      setFeedbackSuccessMsg('');
+    }, 4000);
+  };
+
   // Create manual applicant
   const handleCreateApplicant = (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,6 +450,8 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
       comment: newAppComment.trim(),
       verified: true,
       rating: 4,
+      motivationLetterFileName: newAppMotivationFileName || undefined,
+      motivationLetterFileData: newAppMotivationFileData || undefined,
     };
 
     if (onAddJobApplication) {
@@ -274,6 +464,8 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
     setNewAppNid('');
     setNewAppCover('');
     setNewAppComment('');
+    setNewAppMotivationFileName('');
+    setNewAppMotivationFileData('');
   };
 
   // Filtered Vacancies
@@ -333,25 +525,61 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   const waitlistedCount = jobApplications.filter((a) => a.status === 'waitlisted').length;
 
   const getEmploymentBadge = (type: JobPosting['employmentType']) => {
+    // First try to match from admin-managed employment types
+    if (employmentTypes.length > 0) {
+      const match = employmentTypes.find((et) => et.key === type);
+      if (match) {
+        const colorMap: Record<string, string> = {
+          emerald: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          blue: 'bg-blue-50 text-blue-800 border-blue-200',
+          purple: 'bg-purple-50 text-purple-800 border-purple-200',
+          amber: 'bg-amber-50 text-amber-800 border-amber-200',
+          rose: 'bg-rose-50 text-rose-800 border-rose-200',
+          teal: 'bg-teal-50 text-teal-800 border-teal-200',
+          orange: 'bg-orange-50 text-orange-800 border-orange-200',
+          slate: 'bg-slate-50 text-slate-800 border-slate-200',
+        };
+        return {
+          label: currentLang === 'rw' ? (match.labelRw || match.labelEn) : currentLang === 'fr' ? (match.labelFr || match.labelEn) : match.labelEn,
+          bg: colorMap[match.badgeColor || 'emerald'] || 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        };
+      }
+    }
+    // Fallback defaults
     switch (type) {
       case 'full_time':
         return {
-          label: currentLang === 'en' ? 'Full-Time Position' : 'Umukozi Uhoraho',
+          label:
+            currentLang === 'fr'
+              ? 'Poste à Temps Plein'
+              : currentLang === 'rw'
+              ? 'Umukozi Uhoraho'
+              : 'Full-Time Position',
           bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
         };
       case 'contract':
         return {
-          label: currentLang === 'en' ? 'Fixed-Term Contract' : 'Amasezerano y\'Igihe',
+          label:
+            currentLang === 'fr'
+              ? 'Contrat à Durée Déterminée'
+              : currentLang === 'rw'
+              ? "Amasezerano y'Igihe"
+              : 'Fixed-Term Contract',
           bg: 'bg-blue-50 text-blue-800 border-blue-200',
         };
       case 'internship':
         return {
-          label: currentLang === 'en' ? 'Paid Internship' : 'Kumenyereza (Internship)',
+          label:
+            currentLang === 'fr'
+              ? 'Stage Rémunéré'
+              : currentLang === 'rw'
+              ? 'Kumenyereza (Internship)'
+              : 'Paid Internship',
           bg: 'bg-purple-50 text-purple-800 border-purple-200',
         };
       default:
         return {
-          label: 'Position',
+          label: type || 'Position',
           bg: 'bg-slate-50 text-slate-800 border-slate-200',
         };
     }
@@ -365,15 +593,27 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 tracking-wider uppercase mb-2">
               <Briefcase className="w-4 h-4 text-emerald-700" />
-              <span>Career Opportunities · UBUMWE SACCO GAKENKE</span>
+              <span>
+                {currentLang === 'fr'
+                  ? 'Opportunités de Carrière · UBUMWE SACCO GAKENKE'
+                  : currentLang === 'rw'
+                  ? "Amahirwe y'Akazi · UBUMWE SACCO GAKENKE"
+                  : 'Career Opportunities · UBUMWE SACCO GAKENKE'}
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
-              {currentLang === 'en' ? 'Work With Us & Build Gakenke' : 'Kazi n\'Amahirwe muri Koperative Yacu'}
+              {currentLang === 'fr'
+                ? 'Travaillez avec Nous & Bâtissez Gakenke'
+                : currentLang === 'rw'
+                ? "Kazi n'Amahirwe muri Koperative Yacu"
+                : 'Work With Us & Build Gakenke'}
             </h2>
             <p className="text-slate-600 mt-2 text-sm sm:text-base max-w-3xl">
-              {currentLang === 'en'
-                ? 'Join our dedicated team of professionals serving over 18,600 cooperative members across Gakenke District. We offer meaningful work, fair compensation, and community impact.'
-                : 'Fatanya natwe mu guteza imbere abanyamuryango basaga 18,600 bo mu Mirenge 19 ya Gakenke. Dutanga umushahara uboneye, amahugurwa n\'agaciro k\'umukozi.'}
+              {currentLang === 'fr'
+                ? 'Rejoignez notre équipe dévouée au service de plus de 18 600 membres coopérateurs dans le district de Gakenke. Nous offrons un travail valorisant et une rémunération équitable.'
+                : currentLang === 'rw'
+                ? "Fatanya natwe mu guteza imbere abanyamuryango basaga 18,600 bo mu Mirenge 19 ya Gakenke. Dutanga umushahara uboneye, amahugurwa n'agaciro k'umukozi."
+                : 'Join our dedicated team of professionals serving over 18,600 cooperative members across Gakenke District. We offer meaningful work, fair compensation, and community impact.'}
             </p>
           </div>
 
@@ -431,7 +671,14 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                 }`}
               >
                 <Briefcase className="w-4 h-4" />
-                <span>{currentLang === 'en' ? 'Job Vacancies' : 'Imirimo Ifunguye'} ({jobPostings.length})</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? "Offres d'Emploi"
+                    : currentLang === 'rw'
+                    ? 'Imirimo Ifunguye'
+                    : 'Job Vacancies'}{' '}
+                  ({jobPostings.length})
+                </span>
               </button>
 
               <button
@@ -444,7 +691,13 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                 }`}
               >
                 <Users className="w-4 h-4 text-emerald-500" />
-                <span>{currentLang === 'en' ? 'Candidate Applications (CRUD)' : 'Abasabye Akazi'}</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Candidatures Reçues (CRUD)'
+                    : currentLang === 'rw'
+                    ? 'Abasabye Akazi'
+                    : 'Candidate Applications (CRUD)'}
+                </span>
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-600 text-white shadow-xs">
                   {jobApplications.length}
                 </span>
@@ -493,6 +746,482 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                 </span>
               )}
             </div>
+          </div>
+        )}
+
+        {/* IN-PAGE JOB APPLICATION FORM (NO POPUP - DISPLAYED DIRECTLY IN PAGE) */}
+        {isInPageApplyOpen && (
+          <div
+            id="inpage-application-form"
+            className="bg-white rounded-3xl border-2 border-emerald-500 shadow-xl overflow-hidden p-6 sm:p-8 space-y-6 animate-in fade-in"
+          >
+            <ImigongoRibbon height={8} variant="light" bordered={false} />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                    Online Candidate Application
+                  </span>
+                  <span className="text-xs text-slate-400">Direct In-Page Submission</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">
+                  {activeApplyingJob
+                    ? `${currentLang === 'en' ? 'Apply for' : 'Gusaba Umwanya wa'} ${currentLang === 'en' ? activeApplyingJob.titleEn : activeApplyingJob.titleRw}`
+                    : currentLang === 'en'
+                    ? 'General Job Application'
+                    : 'Gusaba Akazi Muri UBUMWE SACCO'}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Complete your candidate application profile directly on this page. No popup modal required.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsInPageApplyOpen(false);
+                  setActiveApplyingJob(null);
+                  setApplySubmittedRef(null);
+                }}
+                className="self-start sm:self-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+                <span>Close Form</span>
+              </button>
+            </div>
+
+            {applySubmittedRef ? (
+              <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-3">
+                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto shadow-md">
+                  <Check className="w-6 h-6" />
+                </div>
+                <h4 className="text-lg font-bold text-emerald-950">Application Submitted Successfully!</h4>
+                <p className="text-xs text-emerald-800 max-w-md mx-auto">
+                  Your candidate application has been registered with reference{' '}
+                  <strong className="font-mono text-emerald-900 font-bold px-2 py-0.5 bg-emerald-100 rounded-md">
+                    {applySubmittedRef}
+                  </strong>
+                  . The recruitment committee will evaluate your dossier and reach out.
+                </p>
+                <div className="pt-2 flex justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setApplySubmittedRef(null);
+                      setIsInPageApplyOpen(false);
+                    }}
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  >
+                    Done
+                  </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCareersTab('applicants');
+                        setIsInPageApplyOpen(false);
+                      }}
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      View in Candidates Table →
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleInPageApplySubmit} className="space-y-4 text-xs">
+                {applyErrorMsg && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-xs">
+                    {applyErrorMsg}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-800 mb-1">Target Vacancy Position *</label>
+                    <select
+                      value={applySelectedJobId}
+                      onChange={(e) => {
+                        setApplySelectedJobId(e.target.value);
+                        const found = jobPostings.find((j) => j.id === e.target.value);
+                        if (found) setActiveApplyingJob(found);
+                      }}
+                      required
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium focus:bg-white focus:outline-hidden cursor-pointer"
+                    >
+                      {jobPostings.map((j) => (
+                        <option key={j.id} value={j.id}>
+                          {currentLang === 'en' ? j.titleEn : j.titleRw} ({currentLang === 'en' ? j.departmentEn : j.departmentRw}) - {j.location}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Full Legal Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={applyFullName}
+                      onChange={(e) => setApplyFullName(e.target.value)}
+                      placeholder="e.g. Marie Claire Mukamana"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Rwandan National ID (16 digits) *</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={16}
+                      value={applyNationalId}
+                      onChange={(e) => setApplyNationalId(e.target.value.replace(/\D/g, ''))}
+                      placeholder="1199..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Phone Number (MTN / Airtel) *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={applyPhone}
+                      onChange={(e) => setApplyPhone(e.target.value)}
+                      placeholder="078..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      value={applyEmail}
+                      onChange={(e) => setApplyEmail(e.target.value)}
+                      placeholder="applicant@gmail.com"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Residence Sector (Gakenke District)</label>
+                    <input
+                      type="text"
+                      value={applyResidenceSector}
+                      onChange={(e) => setApplyResidenceSector(e.target.value)}
+                      placeholder="e.g. Gakenke, Rushashi, Nemba, Busengo"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Highest Education Level &amp; Qualifications *</label>
+                    <input
+                      type="text"
+                      required
+                      value={applyEducationLevel}
+                      onChange={(e) => setApplyEducationLevel(e.target.value)}
+                      placeholder="e.g. Bachelor's Degree (A0) in Finance & Banking"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Years of Relevant Experience</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={40}
+                      value={applyYearsExperience}
+                      onChange={(e) => setApplyYearsExperience(Number(e.target.value) || 0)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-800 mb-1">Brief Motivation Statement / Cover Summary</label>
+                    <textarea
+                      rows={3}
+                      value={applyCoverLetter}
+                      onChange={(e) => setApplyCoverLetter(e.target.value)}
+                      placeholder="Tell us why you are interested in working at UBUMWE SACCO GAKENKE and your key qualifications..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
+                    />
+                  </div>
+
+                  {/* CV / Resume Upload */}
+                  <div className="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5 text-emerald-700" />
+                        Upload CV / Resume (PDF, DOCX, Image)
+                      </span>
+                      {applyCvFileName && (
+                        <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          ✓ File Attached
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="cursor-pointer px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold shadow-xs flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Select CV</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                          onChange={handleApplyCvUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-[11px] text-slate-500 truncate max-w-xs">
+                        {applyCvFileName || 'No file selected (Max 5MB)'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Motivation Letter Upload (Any Format) */}
+                  <div className="p-3 bg-emerald-50/70 border border-dashed border-emerald-300 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-emerald-700" />
+                        Attach Motivation Letter (Any Format — PDF, Word, Image)
+                      </span>
+                      {applyMotivationFileName && (
+                        <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                          ✓ Letter Attached
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-emerald-700">
+                      Upload your formal motivation letter in any format: PDF, Word, image scan (max 10MB).
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <label className="cursor-pointer px-3 py-1.5 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl font-bold shadow-xs flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Select Letter</span>
+                        <input
+                          type="file"
+                          accept="*"
+                          onChange={handleApplyMotivationUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-[11px] text-slate-500 truncate max-w-xs">
+                        {applyMotivationFileName || 'No file selected (Any format)'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsInPageApplyOpen(false);
+                      setActiveApplyingJob(null);
+                    }}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Submit Application Now</span>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* IN-PAGE JOB VACANCY CREATION & EDIT FORM (NO POPUP - EMBEDDED IN PAGE) */}
+        {isAdmin && isJobFormOpen && (
+          <div
+            id="inpage-vacancy-form"
+            className="bg-white rounded-3xl border-2 border-emerald-600 shadow-xl overflow-hidden p-6 sm:p-8 space-y-6 animate-in fade-in"
+          >
+            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+              <div>
+                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                  {editingJob ? 'Edit Employment Vacancy (Admin CRUD)' : 'Post New Employment Vacancy (Admin CRUD)'}
+                </span>
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  {editingJob ? editingJob.titleEn : 'Publish Vacancy for Gakenke'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsJobFormOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveJob} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Title (English) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formTitleEn}
+                    onChange={(e) => setFormTitleEn(e.target.value)}
+                    placeholder="e.g. Senior Credit Officer"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Title (Kinyarwanda)</label>
+                  <input
+                    type="text"
+                    value={formTitleRw}
+                    onChange={(e) => setFormTitleRw(e.target.value)}
+                    placeholder="e.g. Umukozi Ushinzwe Inguzanyo"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Department</label>
+                  <input
+                    type="text"
+                    value={formDepartmentEn}
+                    onChange={(e) => setFormDepartmentEn(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Employment Type</label>
+                  <select
+                    value={formType}
+                    onChange={(e) => setFormType(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm cursor-pointer"
+                  >
+                    {employmentTypes.length > 0 ? (
+                      employmentTypes.map((et) => (
+                        <option key={et.id} value={et.key}>{et.labelEn}</option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="full_time">Full-Time</option>
+                        <option value="part_time">Part-Time</option>
+                        <option value="contract">Fixed Contract</option>
+                        <option value="internship">Internship</option>
+                        <option value="volunteer">Volunteer</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Vacancy Status</label>
+                  <select
+                    value={formStatus}
+                    onChange={(e) => setFormStatus(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold cursor-pointer"
+                  >
+                    <option value="open">Open (Accepting Applications)</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Work Location</label>
+                  <input
+                    type="text"
+                    value={formLocation}
+                    onChange={(e) => setFormLocation(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Compensation / Salary</label>
+                  <input
+                    type="text"
+                    value={formSalary}
+                    onChange={(e) => setFormSalary(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Application Deadline</label>
+                  <input
+                    type="date"
+                    value={formDeadline}
+                    onChange={(e) => setFormDeadline(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Job Description (English) *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={formDescEn}
+                  onChange={(e) => setFormDescEn(e.target.value)}
+                  placeholder="Summary of the role..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Requirements (1 per line)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={formReqsEn}
+                    onChange={(e) => setFormReqsEn(e.target.value)}
+                    placeholder="Degree in Accounting or Finance&#10;2+ years experience&#10;Motorcycle license"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Key Responsibilities (1 per line)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={formRespEn}
+                    onChange={(e) => setFormRespEn(e.target.value)}
+                    placeholder="Conduct field appraisals&#10;Present files to committee&#10;Monitor repayments"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setIsJobFormOpen(false)}
+                  className="px-4 py-2 font-bold text-slate-600 hover:text-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{editingJob ? 'Update Vacancy' : 'Publish Vacancy'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         )}
 
@@ -585,9 +1314,18 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                   className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-hidden"
                 >
                   <option value="all">All Types</option>
-                  <option value="full_time">Full-Time</option>
-                  <option value="contract">Contract</option>
-                  <option value="internship">Internship</option>
+                  {employmentTypes.length > 0 ? (
+                    employmentTypes.map((et) => (
+                      <option key={et.id} value={et.key}>{et.labelEn}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="full_time">Full-Time</option>
+                      <option value="part_time">Part-Time</option>
+                      <option value="contract">Contract</option>
+                      <option value="internship">Internship</option>
+                    </>
+                  )}
                 </select>
 
                 <select
@@ -718,10 +1456,10 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                       {/* Job Title & Summary */}
                       <div>
                         <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                          {currentLang === 'en' ? job.titleEn : job.titleRw}
+                          {currentLang === 'rw' ? job.titleRw || job.titleEn : job.titleEn}
                         </h3>
                         <p className="text-slate-600 mt-2 text-sm leading-relaxed">
-                          {currentLang === 'en' ? job.descriptionEn : job.descriptionRw}
+                          {currentLang === 'rw' ? job.descriptionRw || job.descriptionEn : job.descriptionEn}
                         </p>
                       </div>
 
@@ -751,7 +1489,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                                 <span>Requirements &amp; Profile</span>
                               </h4>
                               <ul className="space-y-2 text-xs text-slate-700">
-                                {(currentLang === 'en' ? job.requirementsEn : job.requirementsRw).map((req, idx) => (
+                                {(currentLang === 'rw' ? job.requirementsRw || job.requirementsEn : job.requirementsEn).map((req, idx) => (
                                   <li key={idx} className="flex items-start gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
                                     <span>{req}</span>
@@ -766,7 +1504,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                                 <span>Key Responsibilities</span>
                               </h4>
                               <ul className="space-y-2 text-xs text-slate-700">
-                                {(currentLang === 'en' ? job.responsibilitiesEn : job.responsibilitiesRw).map((resp, idx) => (
+                                {(currentLang === 'rw' ? job.responsibilitiesRw || job.responsibilitiesEn : job.responsibilitiesEn).map((resp, idx) => (
                                   <li key={idx} className="flex items-start gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
                                     <span>{resp}</span>
@@ -849,7 +1587,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsAddApplicantOpen(true)}
+                  onClick={openAddApplicantInPage}
                   className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
@@ -870,6 +1608,214 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* IN-PAGE CANDIDATE REGISTRATION FORM (NO POPUP - DISPLAYED IN PAGE) */}
+            {isAdmin && isAddApplicantOpen && (
+              <div
+                id="inpage-applicant-form"
+                className="bg-white rounded-3xl border-2 border-emerald-600 shadow-xl overflow-hidden p-6 sm:p-8 space-y-4 animate-in fade-in"
+              >
+                <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                      <UserPlus className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Register New Candidate Application (Admin CRUD)</h4>
+                      <p className="text-[11px] text-slate-500">Record a candidate file directly for evaluation</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddApplicantOpen(false)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateApplicant} className="space-y-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Candidate Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAppName}
+                        onChange={(e) => setNewAppName(e.target.value)}
+                        placeholder="e.g. Jean Damascene Uwiringiyimana"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Rwandan National ID (16 digits) *</label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={16}
+                        value={newAppNid}
+                        onChange={(e) => setNewAppNid(e.target.value.replace(/\D/g, ''))}
+                        placeholder="1199..."
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        value={newAppEmail}
+                        onChange={(e) => setNewAppEmail(e.target.value)}
+                        placeholder="candidate@gmail.com"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Phone Number (MTN / Airtel) *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={newAppPhone}
+                        onChange={(e) => setNewAppPhone(e.target.value)}
+                        placeholder="078..."
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Position Applied For *</label>
+                      <select
+                        value={newAppJobId}
+                        onChange={(e) => setNewAppJobId(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl cursor-pointer"
+                      >
+                        {jobPostings.map((j) => (
+                          <option key={j.id} value={j.id}>
+                            {currentLang === 'en' ? j.titleEn : j.titleRw} ({currentLang === 'en' ? j.departmentEn : j.departmentRw})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Residence Sector (Gakenke) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAppSector}
+                        onChange={(e) => setNewAppSector(e.target.value)}
+                        placeholder="e.g. Gakenke, Rushashi, Nemba"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Highest Education Level *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAppEdu}
+                        onChange={(e) => setNewAppEdu(e.target.value)}
+                        placeholder="e.g. Bachelor's in Accounting (A0)"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Years of Relevant Experience *</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={30}
+                        value={newAppExp}
+                        onChange={(e) => setNewAppExp(Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Initial Status *</label>
+                      <select
+                        value={newAppStatus}
+                        onChange={(e) => setNewAppStatus(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold cursor-pointer"
+                      >
+                        <option value="pending">⏳ Pending Review</option>
+                        <option value="shortlisted">⭐ Shortlisted</option>
+                        <option value="not_shortlisted">❌ Not Shortlisted</option>
+                        <option value="interview">📅 Interview Scheduled</option>
+                        <option value="accepted">🎉 Hired / Accepted</option>
+                        <option value="waitlisted">📋 Waitlisted / Reserve</option>
+                        <option value="rejected">🚫 Regret / Rejected</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Motivation Letter (Any Format)</label>
+                      <div className="flex items-center gap-2">
+                        <label className="cursor-pointer px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold flex items-center gap-1.5 shadow-xs">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Attach Letter</span>
+                          <input
+                            type="file"
+                            accept="*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              setNewAppMotivationFileName(f.name);
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (typeof reader.result === 'string') setNewAppMotivationFileData(reader.result);
+                              };
+                              reader.readAsDataURL(f);
+                            }}
+                          />
+                        </label>
+                        <span className="text-[11px] text-slate-500 truncate max-w-[150px]">
+                          {newAppMotivationFileName || 'No file selected'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Committee Comments &amp; Deliberation Remarks</label>
+                    <textarea
+                      rows={2}
+                      value={newAppComment}
+                      onChange={(e) => setNewAppComment(e.target.value)}
+                      placeholder="Record interview notes, recommendation, or scoring rationale..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddApplicantOpen(false)}
+                      className="px-4 py-2 text-slate-600 hover:text-slate-800 font-bold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Save Candidate</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
 
             {/* Clickable Status Filter Pills */}
             <div className="flex flex-wrap items-center gap-1.5 p-2 bg-white rounded-2xl border border-slate-200 text-xs shadow-xs">
@@ -1074,7 +2020,8 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                       const currentComment = app.comment || app.notes || '';
 
                       return (
-                        <tr key={app.id} className="hover:bg-slate-50/80 transition-colors">
+                        <React.Fragment key={app.id}>
+                          <tr className="hover:bg-slate-50/80 transition-colors">
                           {/* 1. Candidate Details */}
                           <td className="py-3 px-3">
                             <div className="font-bold text-slate-900 flex items-center gap-1.5">
@@ -1139,9 +2086,23 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                             {app.cvFileName && (
                               <div className="text-[11px] text-emerald-800 font-bold mt-1 flex items-center gap-1">
                                 <FileText className="w-3 h-3" />
-                                <span className="truncate max-w-[120px]">{app.cvFileName}</span>
+                                <span className="truncate max-w-[120px]" title={app.cvFileName}>{app.cvFileName}</span>
                               </div>
                             )}
+                            {app.motivationLetterFileName && (
+                              <div className="text-[11px] text-blue-700 font-bold mt-0.5 flex items-center gap-1" title={app.motivationLetterFileName}>
+                                <FileText className="w-3 h-3 text-blue-500" />
+                                <span className="truncate max-w-[120px]">{app.motivationLetterFileName}</span>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleQuickEditQualifications(app)}
+                              className="mt-1 text-[10px] text-slate-400 hover:text-emerald-700 flex items-center gap-1 cursor-pointer font-semibold"
+                              title="Edit qualifications directly"
+                            >
+                              <Edit2 className="w-2.5 h-2.5" /> Edit Qualifications
+                            </button>
                           </td>
 
                           {/* 5. Status (CRUD) */}
@@ -1232,12 +2193,28 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 type="button"
-                                onClick={() => setFeedbackApp(app)}
-                                className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-colors cursor-pointer"
-                                title="Review Application Dossier & Send Email Notification"
+                                onClick={() => {
+                                  if (inPageReviewAppId === app.id) {
+                                    setInPageReviewAppId(null);
+                                  } else {
+                                    setInPageReviewAppId(app.id);
+                                    setReviewCommentDraft(app.comment || app.notes || '');
+                                    setFeedbackSubject(`Application Update: ${app.jobTitle} - UBUMWE SACCO`);
+                                    setFeedbackMessage(
+                                      `Dear ${app.fullName},\n\nWe would like to update you on your application for ${app.jobTitle} at UBUMWE SACCO GAKENKE.\n\nYour application status is: ${app.status.toUpperCase()}.\n\nBest regards,\nRecruitment Committee\nUBUMWE SACCO GAKENKE`
+                                    );
+                                  }
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs transition-colors cursor-pointer ${
+                                  inPageReviewAppId === app.id
+                                    ? 'bg-slate-900 text-white'
+                                    : 'bg-emerald-700 hover:bg-emerald-600 text-white'
+                                }`}
+                                title="Review Application Dossier Directly In Page"
                               >
                                 <Mail className="w-3 h-3" />
-                                <span>Review</span>
+                                <span>{inPageReviewAppId === app.id ? 'Close' : 'Review'}</span>
+                                {inPageReviewAppId === app.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                               </button>
                               <button
                                 type="button"
@@ -1264,6 +2241,252 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                             </div>
                           </td>
                         </tr>
+
+                        {/* IN-PAGE CANDIDATE REVIEW & EVALUATION DRAWER (NO POPUP - EMBEDDED IN ROW) */}
+                        {inPageReviewAppId === app.id && (
+                          <tr className="bg-slate-50 border-y-2 border-emerald-500/40 animate-in fade-in">
+                            <td colSpan={7} className="p-4 sm:p-6 space-y-4">
+                              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                                        Candidate Deliberation File (In-Page Review)
+                                      </span>
+                                      <span className="text-xs text-slate-400 font-mono">ID: {app.nationalId}</span>
+                                    </div>
+                                    <h4 className="text-base font-extrabold text-slate-900 mt-0.5">{app.fullName}</h4>
+                                    <p className="text-xs text-slate-500">
+                                      Applied for <strong>{app.jobTitle}</strong> on {app.appliedDate} · Phone: {app.phone} · Sector: {app.residenceSector}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setDossierApp(app)}
+                                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                                      title="Open Official Printable Dossier"
+                                    >
+                                      <Printer className="w-3.5 h-3.5" />
+                                      <span>Print Dossier</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setInPageReviewAppId(null)}
+                                      className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                  {/* Col 1: Qualifications & Files */}
+                                  <div className="space-y-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
+                                      Candidate Profile &amp; Documents
+                                    </span>
+                                    <div>
+                                      <span className="text-slate-500 block text-[10px]">Education Level &amp; Degree:</span>
+                                      <span className="font-bold text-slate-800">{app.educationLevel}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 block text-[10px]">Experience:</span>
+                                      <span className="font-bold text-slate-800">{app.yearsExperience} Years</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 block text-[10px]">HR Committee Rating:</span>
+                                      <div className="flex items-center gap-1 mt-1">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                          <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => handleRatingChange(app.id, star)}
+                                            className="cursor-pointer"
+                                            title={`Rate ${star} star`}
+                                          >
+                                            <Star
+                                              className={`w-4 h-4 ${
+                                                star <= (app.rating ?? 0)
+                                                  ? 'text-amber-400 fill-amber-400'
+                                                  : 'text-slate-200'
+                                              }`}
+                                            />
+                                          </button>
+                                        ))}
+                                        <span className="text-xs font-bold text-slate-600 ml-1">
+                                          {app.rating ?? 0}/5
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Files */}
+                                    <div className="pt-2 border-t border-slate-200 space-y-1.5">
+                                      <span className="text-slate-500 block text-[10px] font-bold">Attached Files:</span>
+                                      {app.cvFileName ? (
+                                        <div className="flex items-center justify-between text-xs bg-white p-2 rounded-lg border border-slate-200">
+                                          <div className="flex items-center gap-1.5 truncate max-w-[150px]">
+                                            <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                            <span className="truncate text-slate-700 font-medium">{app.cvFileName}</span>
+                                          </div>
+                                          {app.cvFileData && (
+                                            <a
+                                              href={app.cvFileData}
+                                              download={app.cvFileName}
+                                              className="text-[10px] text-emerald-700 hover:underline font-bold shrink-0 ml-1"
+                                            >
+                                              Download
+                                            </a>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <span className="text-slate-400 italic text-[11px]">No CV uploaded</span>
+                                      )}
+
+                                      {app.motivationLetterFileName ? (
+                                        <div className="flex items-center justify-between text-xs bg-blue-50 p-2 rounded-lg border border-blue-200">
+                                          <div className="flex items-center gap-1.5 truncate max-w-[150px]">
+                                            <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                            <span className="truncate text-blue-900 font-medium">{app.motivationLetterFileName}</span>
+                                          </div>
+                                          {app.motivationLetterFileData && (
+                                            <a
+                                              href={app.motivationLetterFileData}
+                                              download={app.motivationLetterFileName}
+                                              className="text-[10px] text-blue-700 hover:underline font-bold shrink-0 ml-1"
+                                            >
+                                              Download
+                                            </a>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <span className="text-slate-400 italic text-[11px] block">No Motivation Letter attached</span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Col 2: Committee Comments & Deliberations */}
+                                  <div className="space-y-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
+                                      Committee Deliberations &amp; Remarks
+                                    </span>
+                                    <textarea
+                                      rows={4}
+                                      value={reviewCommentDraft}
+                                      onChange={(e) => setReviewCommentDraft(e.target.value)}
+                                      placeholder="Enter recruitment committee observations, evaluation score, interview notes..."
+                                      className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-hidden"
+                                    />
+                                    <div className="flex items-center justify-between">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if (onUpdateJobApplication) {
+                                            onUpdateJobApplication(app.id, {
+                                              comment: reviewCommentDraft,
+                                              notes: reviewCommentDraft,
+                                            });
+                                          }
+                                        }}
+                                        className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Save className="w-3 h-3" />
+                                        <span>Save Remarks</span>
+                                      </button>
+                                      <span className="text-[10px] text-slate-400">Auto-saved to record</span>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-slate-200">
+                                      <span className="text-slate-500 block text-[10px] font-bold mb-1">Quick Status Update:</span>
+                                      <div className="grid grid-cols-2 gap-1.5">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStatusChange(app.id, 'shortlisted')}
+                                          className={`px-2 py-1 rounded text-[10px] font-bold cursor-pointer ${
+                                            app.status === 'shortlisted' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'
+                                          }`}
+                                        >
+                                          ⭐ Shortlist
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStatusChange(app.id, 'interview')}
+                                          className={`px-2 py-1 rounded text-[10px] font-bold cursor-pointer ${
+                                            app.status === 'interview' ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-800'
+                                          }`}
+                                        >
+                                          📅 Interview
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStatusChange(app.id, 'accepted')}
+                                          className={`px-2 py-1 rounded text-[10px] font-bold cursor-pointer ${
+                                            app.status === 'accepted' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-800'
+                                          }`}
+                                        >
+                                          🎉 Hire Candidate
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStatusChange(app.id, 'not_shortlisted')}
+                                          className={`px-2 py-1 rounded text-[10px] font-bold cursor-pointer ${
+                                            app.status === 'not_shortlisted' ? 'bg-rose-600 text-white' : 'bg-rose-100 text-rose-800'
+                                          }`}
+                                        >
+                                          ❌ Not Shortlisted
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Col 3: Direct Email Feedback Composer */}
+                                  <div className="space-y-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block flex items-center justify-between">
+                                      <span>Dispatch Email Feedback</span>
+                                      <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                                    </span>
+
+                                    {feedbackSuccessMsg && (
+                                      <div className="p-2 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-lg text-[11px] font-bold">
+                                        ✓ {feedbackSuccessMsg}
+                                      </div>
+                                    )}
+
+                                    <div>
+                                      <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Subject</label>
+                                      <input
+                                        type="text"
+                                        value={feedbackSubject}
+                                        onChange={(e) => setFeedbackSubject(e.target.value)}
+                                        className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label className="text-[10px] font-bold text-slate-600 block mb-0.5">Message</label>
+                                      <textarea
+                                        rows={3}
+                                        value={feedbackMessage}
+                                        onChange={(e) => setFeedbackMessage(e.target.value)}
+                                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                                      />
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSendInPageFeedback(app)}
+                                      className="w-full py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                    >
+                                      <Send className="w-3 h-3" />
+                                      <span>Send Feedback Email to Candidate</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
@@ -1274,48 +2497,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
         )}
       </div>
 
-      {/* MODAL 1: GENERAL JOB APPLICATION MODAL (FOR CANDIDATES APPLYING) */}
-      <JobApplicationModal
-        isOpen={isApplyModalOpen}
-        onClose={() => {
-          setIsApplyModalOpen(false);
-          setActiveApplyingJob(null);
-        }}
-        currentLang={currentLang}
-        job={activeApplyingJob}
-        allJobs={jobPostings}
-        onSubmitApplication={(app) => {
-          onSubmitJobApplication(app);
-          setIsApplyModalOpen(false);
-          setActiveApplyingJob(null);
-          // Automatically switch to applicants tab so they see their submission!
-          setCareersTab('applicants');
-        }}
-      />
-
-      {/* MODAL 2: APPLICANT FEEDBACK & EMAIL DISPATCH MODAL */}
-      {feedbackApp && (
-        <ApplicantFeedbackModal
-          isOpen={true}
-          onClose={() => setFeedbackApp(null)}
-          currentLang={currentLang}
-          applicant={feedbackApp}
-          onUpdateApplicant={(appId, updated) => {
-            if (onUpdateJobApplication) {
-              onUpdateJobApplication(appId, updated);
-            } else if (updated.status && onUpdateJobApplicationStatus) {
-              onUpdateJobApplicationStatus(appId, updated.status);
-            }
-            setFeedbackApp(null);
-          }}
-          onOpenDossier={(app) => {
-            setFeedbackApp(null);
-            setDossierApp(app);
-          }}
-        />
-      )}
-
-      {/* MODAL 3: CANDIDATE DOSSIER & PDF PRINT MODAL */}
+      {/* CANDIDATE DOSSIER & PDF PRINT MODAL (Official Printable Multi-Page Document) */}
       {dossierApp && (
         <ApplicantDossierModal
           isOpen={true}
@@ -1323,358 +2505,6 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
           currentLang={currentLang}
           applicant={dossierApp}
         />
-      )}
-
-      {/* MODAL 4: MANUAL CANDIDATE REGISTRATION (+ REGISTER APPLICANT) */}
-      {isAddApplicantOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                  <UserPlus className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900">Register New Candidate Application</h4>
-                  <p className="text-[11px] text-slate-500">Record a candidate file directly for evaluation</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAddApplicantOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateApplicant} className="space-y-3 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Candidate Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newAppName}
-                    onChange={(e) => setNewAppName(e.target.value)}
-                    placeholder="e.g. Jean Damascene Uwiringiyimana"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Rwandan National ID (16 digits) *</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={16}
-                    value={newAppNid}
-                    onChange={(e) => setNewAppNid(e.target.value)}
-                    placeholder="1199..."
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Email Address *</label>
-                  <input
-                    type="email"
-                    required
-                    value={newAppEmail}
-                    onChange={(e) => setNewAppEmail(e.target.value)}
-                    placeholder="candidate@gmail.com"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Phone Number (MTN / Airtel) *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={newAppPhone}
-                    onChange={(e) => setNewAppPhone(e.target.value)}
-                    placeholder="078..."
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Position Applied For *</label>
-                  <select
-                    value={newAppJobId}
-                    onChange={(e) => setNewAppJobId(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  >
-                    {jobPostings.map((j) => (
-                      <option key={j.id} value={j.id}>
-                        {j.titleEn}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Residence Sector (Gakenke) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newAppSector}
-                    onChange={(e) => setNewAppSector(e.target.value)}
-                    placeholder="e.g. Gakenke, Rushashi, Nemba"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Highest Education Level *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newAppEdu}
-                    onChange={(e) => setNewAppEdu(e.target.value)}
-                    placeholder="e.g. Bachelor's in Accounting (A0)"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Years of Relevant Experience *</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={newAppExp}
-                    onChange={(e) => setNewAppExp(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Initial Status *</label>
-                  <select
-                    value={newAppStatus}
-                    onChange={(e) => setNewAppStatus(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold"
-                  >
-                    <option value="pending">⏳ Pending Review</option>
-                    <option value="shortlisted">⭐ Shortlisted</option>
-                    <option value="not_shortlisted">❌ Not Shortlisted</option>
-                    <option value="interview">📅 Interview Scheduled</option>
-                    <option value="accepted">🎉 Hired / Accepted</option>
-                    <option value="waitlisted">📋 Waitlisted / Reserve</option>
-                    <option value="rejected">🚫 Regret / Rejected</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Committee Comments &amp; Deliberation Remarks</label>
-                <textarea
-                  rows={2}
-                  value={newAppComment}
-                  onChange={(e) => setNewAppComment(e.target.value)}
-                  placeholder="Record interview notes, recommendation, or scoring rationale..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setIsAddApplicantOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800 font-bold cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Save Candidate</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 5: ADMIN JOB VACANCY POST / EDIT FORM */}
-      {isJobFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
-              <div>
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                  {editingJob ? 'Edit Vacancy' : 'New Employment Vacancy'}
-                </span>
-                <h3 className="text-lg font-bold text-slate-900">
-                  {editingJob ? editingJob.titleEn : 'Publish Vacancy for Gakenke'}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsJobFormOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveJob} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Title (English) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formTitleEn}
-                    onChange={(e) => setFormTitleEn(e.target.value)}
-                    placeholder="e.g. Senior Credit Officer"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Title (Kinyarwanda)</label>
-                  <input
-                    type="text"
-                    value={formTitleRw}
-                    onChange={(e) => setFormTitleRw(e.target.value)}
-                    placeholder="e.g. Umukozi Ushinzwe Inguzanyo"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Department</label>
-                  <input
-                    type="text"
-                    value={formDepartmentEn}
-                    onChange={(e) => setFormDepartmentEn(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Employment Type</label>
-                  <select
-                    value={formType}
-                    onChange={(e) => setFormType(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  >
-                    <option value="full_time">Full-Time</option>
-                    <option value="contract">Fixed Contract</option>
-                    <option value="internship">Internship</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Status</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold"
-                  >
-                    <option value="open">Open (Accepting Applications)</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Work Location</label>
-                  <input
-                    type="text"
-                    value={formLocation}
-                    onChange={(e) => setFormLocation(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Compensation / Salary</label>
-                  <input
-                    type="text"
-                    value={formSalary}
-                    onChange={(e) => setFormSalary(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Application Deadline</label>
-                  <input
-                    type="date"
-                    value={formDeadline}
-                    onChange={(e) => setFormDeadline(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Job Description (English) *</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={formDescEn}
-                  onChange={(e) => setFormDescEn(e.target.value)}
-                  placeholder="Summary of the role..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Requirements (1 per line)
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={formReqsEn}
-                    onChange={(e) => setFormReqsEn(e.target.value)}
-                    placeholder="Degree in Accounting or Finance&#10;2+ years experience&#10;Motorcycle license"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Key Responsibilities (1 per line)
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={formRespEn}
-                    onChange={(e) => setFormRespEn(e.target.value)}
-                    placeholder="Conduct field appraisals&#10;Present files to committee&#10;Monitor repayments"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setIsJobFormOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>{editingJob ? 'Update Vacancy' : 'Publish Vacancy'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </section>
   );

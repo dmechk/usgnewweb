@@ -70,7 +70,7 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
 
     // 2. Verified Local SACCO Executive, Board, and Operations Credentials
     if (
-      (cleanEmail === 'dmechack12@gmail.com' || cleanEmail === 'ubumwesaccogakenke@gmail.com' || cleanEmail === 'manager@ubumwesacco.rw' || cleanEmail === 'phocas@ubumwesacco.rw') &&
+      (cleanEmail === 'ubumwesaccogakenke@gmail.com' || cleanEmail === 'ubumwesaccogakenke@gmaill.com' || cleanEmail === 'manager@ubumwesacco.rw' || cleanEmail === 'phocas@ubumwesacco.rw') &&
       (cleanPassword === 'gakenke2026' || cleanPassword === 'admin2026' || cleanPassword === 'admin123')
     ) {
       onLoginSuccess({
@@ -168,12 +168,12 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                setEmail('dmechack12@gmail.com');
+                setEmail('ubumwesaccogakenke@gmail.com');
                 setPassword('gakenke2026');
                 setError('');
               }}
               className="text-left px-2 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-[10px] font-bold text-slate-800 truncate cursor-pointer transition-colors shadow-2xs"
-              title="Manager: Mbitsemunda Phocas (dmechack12@gmail.com)"
+              title="Manager: Mbitsemunda Phocas (ubumwesaccogakenke@gmail.com)"
             >
               👑 Manager: Mbitsemunda
             </button>
@@ -238,7 +238,7 @@ export const ManagerLoginModal: React.FC<ManagerLoginModalProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
-              placeholder="dmechack12@gmail.com"
+              placeholder="ubumwesaccogakenke@gmail.com"
             />
           </div>
 

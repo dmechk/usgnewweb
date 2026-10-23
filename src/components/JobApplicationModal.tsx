@@ -46,6 +46,8 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
   const [coverLetter, setCoverLetter] = useState('');
   const [cvFileName, setCvFileName] = useState('');
   const [cvFileData, setCvFileData] = useState('');
+  const [motivationLetterFileName, setMotivationLetterFileName] = useState('');
+  const [motivationLetterFileData, setMotivationLetterFileData] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [appReference, setAppReference] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -79,6 +81,27 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
     reader.onload = () => {
       if (typeof reader.result === 'string') {
         setCvFileData(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleMotivationLetterUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Motivation letter file must be under 10MB.');
+      return;
+    }
+
+    setMotivationLetterFileName(file.name);
+    setErrorMsg('');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setMotivationLetterFileData(reader.result);
       }
     };
     reader.readAsDataURL(file);
@@ -120,6 +143,8 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
       coverLetter: coverLetter.trim(),
       cvFileName: cvFileName || 'Resume_Document.pdf',
       cvFileData: cvFileData || undefined,
+      motivationLetterFileName: motivationLetterFileName || undefined,
+      motivationLetterFileData: motivationLetterFileData || undefined,
     });
 
     setIsSubmitted(true);
@@ -134,6 +159,8 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
     setCoverLetter('');
     setCvFileName('');
     setCvFileData('');
+    setMotivationLetterFileName('');
+    setMotivationLetterFileData('');
     setErrorMsg('');
     onClose();
   };
@@ -405,6 +432,40 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
                   </label>
                   <span className="text-xs text-slate-500 truncate max-w-xs">
                     {cvFileName || 'No file selected (Max 5MB)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Motivation Letter Upload */}
+              <div className="p-4 bg-emerald-50/60 border border-dashed border-emerald-300 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-emerald-700" />
+                    <span>Motivation Letter (Any Format — Optional)</span>
+                  </span>
+                  {motivationLetterFileName && (
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                      ✓ Letter Attached
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-emerald-700">
+                  You may upload your formal motivation letter in any format: PDF, Word (.doc/.docx), OpenDocument (.odt), image scan (.jpg/.png), or any other document format.
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-2">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Attach Motivation Letter</span>
+                    <input
+                      type="file"
+                      accept="*"
+                      onChange={handleMotivationLetterUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-xs text-slate-500 truncate max-w-xs">
+                    {motivationLetterFileName || 'No file selected (Max 10MB, any format)'}
                   </span>
                 </div>
               </div>

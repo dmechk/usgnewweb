@@ -23,10 +23,14 @@ import {
   PartnerItem,
   SocialMediaItem,
   SocialPlatform,
+  ContactInquiry,
+  EmploymentTypeItem,
+  QualificationItem,
 } from '../types';
 import { THEME_OPTIONS, INITIAL_PARTNERS, INITIAL_SOCIAL_LINKS } from '../data/saccoData';
 import { ImageUploader } from './ImageUploader';
 import { VideoUploader } from './VideoUploader';
+import { InquiriesDashboard } from './InquiriesDashboard';
 import {
   X,
   Layers,
@@ -90,6 +94,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Upload,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { ApplicantFeedbackModal } from './ApplicantFeedbackModal';
@@ -101,7 +106,7 @@ interface AdminConsoleModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentLang: Language;
-  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos' | 'partners';
+  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos' | 'partners' | 'employment-types' | 'qualifications';
   saccoInfo: SaccoContactInfo;
   onUpdateSaccoInfo: (updated: Partial<SaccoContactInfo>) => void;
   navItems: NavItemConfig[];
@@ -138,7 +143,16 @@ interface AdminConsoleModalProps {
   onUpdateBranch: (id: string, updated: Partial<BranchOutpost>) => void;
   onDeleteBranch: (id: string) => void;
   onAddSubBranch: (branchId: string, sub: { name: string; sector: string; managerName: string; phone: string }) => void;
+  onUpdateSubBranch?: (branchId: string, subId: string, updated: Partial<{ name: string; sector: string; managerName: string; phone: string }>) => void;
   onDeleteSubBranch: (branchId: string, subId: string) => void;
+  employmentTypes?: EmploymentTypeItem[];
+  onAddEmploymentType?: (emp: Omit<EmploymentTypeItem, 'id'>) => void;
+  onUpdateEmploymentType?: (id: string, updated: Partial<EmploymentTypeItem>) => void;
+  onDeleteEmploymentType?: (id: string) => void;
+  qualifications?: QualificationItem[];
+  onAddQualification?: (qual: Omit<QualificationItem, 'id'>) => void;
+  onUpdateQualification?: (id: string, updated: Partial<QualificationItem>) => void;
+  onDeleteQualification?: (id: string) => void;
   communityStories?: CommunityImpactStory[];
   onAddCommunityStory?: (story: Omit<CommunityImpactStory, 'id'>) => void;
   onUpdateCommunityStory?: (id: string, updated: Partial<CommunityImpactStory>) => void;
@@ -159,8 +173,11 @@ interface AdminConsoleModalProps {
   onAddAboutValue?: (val: Omit<AboutValueItem, 'id'>) => void;
   onUpdateAboutValue?: (id: string, updated: Partial<AboutValueItem>) => void;
   onDeleteAboutValue?: (id: string) => void;
-  contactInquiries: { id: string; name: string; email?: string; phone: string; subject: string; message: string; createdAt?: string; date?: string; recipientEmail?: string }[];
+  contactInquiries: ContactInquiry[];
+  onAddContactInquiry?: (inq: Omit<ContactInquiry, 'id'>) => void;
+  onUpdateContactInquiry?: (id: string, updated: Partial<ContactInquiry>) => void;
   onDeleteContactInquiry: (id: string) => void;
+  onResetContactInquiries?: () => void;
   managerMessages: ManagerMessage[];
   onAddManagerMessage: (message: Omit<ManagerMessage, 'id'>) => void;
   onUpdateManagerMessage: (id: string, updated: Partial<ManagerMessage>) => void;
@@ -228,7 +245,16 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   onUpdateBranch,
   onDeleteBranch,
   onAddSubBranch,
+  onUpdateSubBranch,
   onDeleteSubBranch,
+  employmentTypes = [],
+  onAddEmploymentType,
+  onUpdateEmploymentType,
+  onDeleteEmploymentType,
+  qualifications = [],
+  onAddQualification,
+  onUpdateQualification,
+  onDeleteQualification,
   communityStories = [],
   onAddCommunityStory,
   onUpdateCommunityStory,
@@ -250,7 +276,10 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   onUpdateAboutValue,
   onDeleteAboutValue,
   contactInquiries,
+  onAddContactInquiry,
+  onUpdateContactInquiry,
   onDeleteContactInquiry,
+  onResetContactInquiries,
   managerMessages = [],
   onAddManagerMessage,
   onUpdateManagerMessage,
@@ -298,6 +327,8 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     | 'home-metrics'
     | 'about'
     | 'partners'
+    | 'employment-types'
+    | 'qualifications'
   >(initialTab === 'job-applicants' || (initialTab as string) === 'applicants' ? 'job-applicants' : (initialTab as any));
 
   useEffect(() => {
@@ -451,11 +482,16 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   const [leaderRoleEn, setLeaderRoleEn] = useState('');
   const [leaderRoleRw, setLeaderRoleRw] = useState('');
   const [leaderCategory, setLeaderCategory] = useState<string>('board');
+  const [leaderCategoryCustom, setLeaderCategoryCustom] = useState<string>('');
   const [leaderQualEn, setLeaderQualEn] = useState('');
   const [leaderQualRw, setLeaderQualRw] = useState('');
   const [leaderImg, setLeaderImg] = useState('/src/assets/images/portrait_director_wellars_1791994899049.jpg');
   const [leaderPhone, setLeaderPhone] = useState('0786422080');
   const [leaderSearch, setLeaderSearch] = useState('');
+  const [leaderCategoryFilter, setLeaderCategoryFilter] = useState<string>('all');
+
+  // Derive all unique leader categories for filtering
+  const allLeaderCategories = Array.from(new Set(leaders.map((l) => l.category).filter(Boolean)));
 
   // Branch form state
   const [isBranchFormOpen, setIsBranchFormOpen] = useState(false);
@@ -464,6 +500,26 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   const [branchSector, setBranchSector] = useState('');
   const [branchManager, setBranchManager] = useState('');
   const [branchPhone, setBranchPhone] = useState('');
+
+  // Employment Type form state
+  const [isEmpTypeFormOpen, setIsEmpTypeFormOpen] = useState(false);
+  const [editingEmpTypeId, setEditingEmpTypeId] = useState<string | null>(null);
+  const [empTypeKey, setEmpTypeKey] = useState('');
+  const [empTypeLabelEn, setEmpTypeLabelEn] = useState('');
+  const [empTypeLabelRw, setEmpTypeLabelRw] = useState('');
+  const [empTypeLabelFr, setEmpTypeLabelFr] = useState('');
+  const [empTypeDescription, setEmpTypeDescription] = useState('');
+  const [empTypeBadgeColor, setEmpTypeBadgeColor] = useState('emerald');
+
+  // Qualification form state
+  const [isQualFormOpen, setIsQualFormOpen] = useState(false);
+  const [editingQualId, setEditingQualId] = useState<string | null>(null);
+  const [qualCode, setQualCode] = useState('');
+  const [qualTitleEn, setQualTitleEn] = useState('');
+  const [qualTitleRw, setQualTitleRw] = useState('');
+  const [qualTitleFr, setQualTitleFr] = useState('');
+  const [qualCategory, setQualCategory] = useState<'degree' | 'diploma' | 'certificate' | 'professional' | 'other'>('degree');
+  const [qualMinYears, setQualMinYears] = useState(1);
 
   // Community Stories form state
   const [isStoryFormOpen, setIsStoryFormOpen] = useState(false);
@@ -941,6 +997,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     setLeaderRoleEn('Board Director');
     setLeaderRoleRw("Umuyobozi w'Inama y'Ubutegetsi");
     setLeaderCategory('board');
+    setLeaderCategoryCustom('');
     setLeaderQualEn('Senior Financial Administrator');
     setLeaderQualRw("Impuguke mu by'Imari n'Amakoperative");
     setLeaderImg('/src/assets/images/portrait_director_wellars_1791994899049.jpg');
@@ -954,6 +1011,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     setLeaderRoleEn(leader.roleEn);
     setLeaderRoleRw(leader.roleRw);
     setLeaderCategory(leader.category);
+    setLeaderCategoryCustom('');
     setLeaderQualEn(leader.qualificationEn);
     setLeaderQualRw(leader.qualificationRw);
     setLeaderImg(leader.imageUrl);
@@ -965,12 +1023,15 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     e.preventDefault();
     if (!leaderName) return;
 
+    // Resolve final category: use custom if provided, else preset
+    const finalCategory = leaderCategoryCustom.trim() || leaderCategory;
+
     if (editingLeaderId) {
       onUpdateLeader(editingLeaderId, {
         name: leaderName,
         roleEn: leaderRoleEn,
         roleRw: leaderRoleRw || leaderRoleEn,
-        category: leaderCategory,
+        category: finalCategory,
         qualificationEn: leaderQualEn,
         qualificationRw: leaderQualRw || leaderQualEn,
         imageUrl: leaderImg,
@@ -981,7 +1042,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
         name: leaderName,
         roleEn: leaderRoleEn,
         roleRw: leaderRoleRw || leaderRoleEn,
-        category: leaderCategory,
+        category: finalCategory,
         qualificationEn: leaderQualEn,
         qualificationRw: leaderQualRw || leaderQualEn,
         imageUrl: leaderImg,
@@ -992,6 +1053,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   };
 
   const filteredLeaders = leaders.filter((l) => {
+    if (leaderCategoryFilter !== 'all' && l.category !== leaderCategoryFilter) return false;
     if (!leaderSearch) return true;
     const query = leaderSearch.toLowerCase();
     return (
@@ -1048,6 +1110,8 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     comment: '',
     status: 'pending' as JobApplication['status'],
   });
+  const [newApplicantMotivationFileName, setNewApplicantMotivationFileName] = useState('');
+  const [newApplicantMotivationFileData, setNewApplicantMotivationFileData] = useState('');
 
   const handleOpenEditComment = (app: JobApplication) => {
     setEditingCommentAppId(app.id);
@@ -1092,10 +1156,14 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
         notes: newApplicant.notes || newApplicant.comment || '',
         comment: newApplicant.comment || newApplicant.notes || '',
         verified: true,
+        motivationLetterFileName: newApplicantMotivationFileName || undefined,
+        motivationLetterFileData: newApplicantMotivationFileData || undefined,
       });
     }
 
     setIsAddApplicantOpen(false);
+    setNewApplicantMotivationFileName('');
+    setNewApplicantMotivationFileData('');
     setNewApplicant({
       jobId: '',
       jobTitle: '',
@@ -1569,9 +1637,29 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                         {app.cvFileName && (
                           <div className="text-[11px] text-emerald-800 font-bold mt-1 flex items-center gap-1">
                             <FileText className="w-3 h-3" />
-                            <span className="truncate max-w-[120px]">{app.cvFileName}</span>
+                            <span className="truncate max-w-[120px]" title={app.cvFileName}>{app.cvFileName}</span>
                           </div>
                         )}
+                        {app.motivationLetterFileName && (
+                          <div className="text-[11px] text-blue-700 font-bold mt-0.5 flex items-center gap-1" title="Motivation letter attached">
+                            <FileText className="w-3 h-3 text-blue-500" />
+                            <span className="truncate max-w-[120px]">{app.motivationLetterFileName}</span>
+                          </div>
+                        )}
+                        {/* Inline qualification edit */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newEdu = prompt('Edit education level:', app.educationLevel);
+                            if (newEdu !== null && newEdu.trim() && onUpdateJobApplication) {
+                              onUpdateJobApplication(app.id, { educationLevel: newEdu.trim() });
+                            }
+                          }}
+                          className="mt-1 text-[10px] text-slate-400 hover:text-emerald-700 flex items-center gap-1 cursor-pointer font-semibold"
+                          title="Edit qualifications"
+                        >
+                          <Edit2 className="w-2.5 h-2.5" /> Edit Qualifications
+                        </button>
                       </td>
 
                       {/* 5. Status (CRUD) */}
@@ -1966,6 +2054,34 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
               <span>Branches ({branches.length})</span>
             </button>
 
+            {/* Employment Types CRUD */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('employment-types')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                activeTab === 'employment-types'
+                  ? 'bg-emerald-700 text-white shadow-xs ring-1 ring-emerald-500'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>Employment Types ({employmentTypes.length})</span>
+            </button>
+
+            {/* Qualifications CRUD */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('qualifications')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                activeTab === 'qualifications'
+                  ? 'bg-emerald-700 text-white shadow-xs ring-1 ring-emerald-500'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>Qualifications ({qualifications.length})</span>
+            </button>
+
             {/* Impact Stories */}
             <button
               type="button"
@@ -2144,7 +2260,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                         required
                         value={contactEmail}
                         onChange={(e) => setContactEmail(e.target.value)}
-                        placeholder="dmechack12@gmail.com"
+                        placeholder="ubumwesaccogakenke@gmail.com"
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                       />
                       <span className="text-[10px] text-slate-400 mt-0.5 block">
@@ -2160,7 +2276,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                         type="email"
                         value={contactSupportEmail}
                         onChange={(e) => setContactSupportEmail(e.target.value)}
-                        placeholder="dmechack12@gmail.com"
+                        placeholder="ubumwesaccogakenke@gmail.com"
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                       />
                     </div>
@@ -3316,7 +3432,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                     Board of Directors &amp; Executive Management Team
                   </span>
                   <span className="text-[11px] text-slate-500">
-                    Manage Wellarse (Board Director), Mbitsemunda Phocas (Manager), Bartazal, and staff.
+                    Add, edit, delete leadership members and assign custom categories (Board, Manager, Committee, etc.)
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -3340,6 +3456,38 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                   </button>
                 </div>
               </div>
+
+              {/* Category Filter Pills */}
+              {allLeaderCategories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category:</span>
+                  <button
+                    type="button"
+                    onClick={() => setLeaderCategoryFilter('all')}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+                      leaderCategoryFilter === 'all'
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    All ({leaders.length})
+                  </button>
+                  {allLeaderCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setLeaderCategoryFilter(cat)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold capitalize transition-all cursor-pointer ${
+                        leaderCategoryFilter === cat
+                          ? 'bg-emerald-700 text-white'
+                          : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                      }`}
+                    >
+                      {cat} ({leaders.filter(l => l.category === cat).length})
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Add/Edit Leader Modal Form */}
               {isLeaderFormOpen && (
@@ -3375,14 +3523,48 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
 
                     <div>
                       <label className="block font-bold text-slate-700 mb-1">Leadership Category</label>
-                      <select
-                        value={leaderCategory}
-                        onChange={(e) => setLeaderCategory(e.target.value as any)}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg"
-                      >
-                        <option value="board">Board of Directors (Inama y'Ubutegetsi)</option>
-                        <option value="manager">Executive Management Team (Abayobozi b'Imirimo)</option>
-                      </select>
+                      <div className="space-y-1.5">
+                        {/* Preset category presets */}
+                        <select
+                          value={leaderCategoryCustom ? '__custom__' : leaderCategory}
+                          onChange={(e) => {
+                            if (e.target.value === '__custom__') {
+                              setLeaderCategory('__custom__');
+                            } else {
+                              setLeaderCategory(e.target.value);
+                              setLeaderCategoryCustom('');
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg"
+                        >
+                          <option value="board">Board of Directors (Inama y'Ubutegetsi)</option>
+                          <option value="manager">Executive Management (Abayobozi b'Imirimo)</option>
+                          <option value="supervisory">Supervisory Committee (Komite y'Igenzura)</option>
+                          <option value="credit">Credit Committee (Komite y'Inguzanyo)</option>
+                          <option value="audit">Audit Committee (Komite y'Igenzura ry'Imari)</option>
+                          <option value="staff">Staff / Support Team (Abakozi)</option>
+                          {allLeaderCategories
+                            .filter(c => !['board','manager','supervisory','credit','audit','staff'].includes(c))
+                            .map(c => (
+                              <option key={c} value={c} className="capitalize">{c}</option>
+                            ))
+                          }
+                          <option value="__custom__">+ Type Custom Category...</option>
+                        </select>
+                        {/* Custom free-text category field */}
+                        <input
+                          type="text"
+                          value={leaderCategoryCustom}
+                          onChange={(e) => setLeaderCategoryCustom(e.target.value)}
+                          placeholder="Or type a new category (e.g. General Assembly, Risk Committee...)"
+                          className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-[11px] placeholder:text-slate-400"
+                        />
+                        {leaderCategoryCustom && (
+                          <p className="text-[10px] text-emerald-700 font-semibold">
+                            ✓ Will be saved as: <strong>'{leaderCategoryCustom}'</strong>
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div>
@@ -4294,10 +4476,23 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                             onChange={(e) => setJobType(e.target.value as any)}
                             className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg"
                           >
-                            <option value="full_time">Full-Time</option>
-                            <option value="contract">Contract</option>
-                            <option value="internship">Internship</option>
+                            {employmentTypes.length > 0 ? (
+                              employmentTypes.map((et) => (
+                                <option key={et.id} value={et.key}>{et.labelEn}</option>
+                              ))
+                            ) : (
+                              <>
+                                <option value="full_time">Full-Time</option>
+                                <option value="part_time">Part-Time</option>
+                                <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                                <option value="volunteer">Volunteer</option>
+                              </>
+                            )}
                           </select>
+                          {employmentTypes.length === 0 && (
+                            <p className="text-[10px] text-amber-600 mt-1">ℹ️ Add custom types via the "Employment Types" admin tab to see them here.</p>
+                          )}
                         </div>
 
                         <div>
@@ -4657,6 +4852,369 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* TAB: EMPLOYMENT TYPES (CRUD) */}
+          {activeTab === 'employment-types' && (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="flex justify-between items-center text-xs">
+                <div>
+                  <span className="font-bold text-slate-700 uppercase tracking-wider block">Employment Types Manager</span>
+                  <span className="text-[11px] text-slate-400">Define job contract categories (Full-Time, Contract, Internship, Part-Time, etc.). These appear as options when posting vacancies.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEmpTypeFormOpen(true);
+                    setEditingEmpTypeId(null);
+                    setEmpTypeKey('');
+                    setEmpTypeLabelEn('');
+                    setEmpTypeLabelRw('');
+                    setEmpTypeLabelFr('');
+                    setEmpTypeDescription('');
+                    setEmpTypeBadgeColor('emerald');
+                  }}
+                  className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Type</span>
+                </button>
+              </div>
+
+              {isEmpTypeFormOpen && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!empTypeKey.trim() || !empTypeLabelEn.trim()) return;
+                    const payload = {
+                      key: empTypeKey.trim(),
+                      labelEn: empTypeLabelEn.trim(),
+                      labelRw: empTypeLabelRw.trim() || empTypeLabelEn.trim(),
+                      labelFr: empTypeLabelFr.trim() || empTypeLabelEn.trim(),
+                      description: empTypeDescription.trim(),
+                      badgeColor: empTypeBadgeColor
+                    };
+                    if (editingEmpTypeId && onUpdateEmploymentType) {
+                      onUpdateEmploymentType(editingEmpTypeId, payload);
+                    } else if (onAddEmploymentType) {
+                      onAddEmploymentType(payload);
+                    }
+                    setIsEmpTypeFormOpen(false);
+                    setEditingEmpTypeId(null);
+                  }}
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3"
+                >
+                  <div className="font-bold text-xs text-slate-800">
+                    {editingEmpTypeId ? 'Edit Employment Type' : 'Add New Employment Type'}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Key / Identifier *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. full_time"
+                        value={empTypeKey}
+                        onChange={(e) => setEmpTypeKey(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Badge Color</label>
+                      <select
+                        value={empTypeBadgeColor}
+                        onChange={(e) => setEmpTypeBadgeColor(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      >
+                        {['emerald','blue','purple','amber','rose','teal','slate','orange'].map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Label (English) *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Full-Time"
+                        value={empTypeLabelEn}
+                        onChange={(e) => setEmpTypeLabelEn(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Label (Kinyarwanda)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Igihe Cyose"
+                        value={empTypeLabelRw}
+                        onChange={(e) => setEmpTypeLabelRw(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Label (Français)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Temps Plein"
+                        value={empTypeLabelFr}
+                        onChange={(e) => setEmpTypeLabelFr(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Description</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Permanent full-time staff role with full benefits"
+                      value={empTypeDescription}
+                      onChange={(e) => setEmpTypeDescription(e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button type="submit" className="px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg cursor-pointer">
+                      {editingEmpTypeId ? 'Update Type' : 'Save Type'}
+                    </button>
+                    <button type="button" onClick={() => { setIsEmpTypeFormOpen(false); setEditingEmpTypeId(null); }}
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg cursor-pointer"
+                    >Cancel</button>
+                  </div>
+                </form>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {employmentTypes.map((et) => (
+                  <div key={et.id} className="p-3.5 border border-slate-200 rounded-xl bg-white space-y-1.5 shadow-xs">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white bg-${et.badgeColor || 'emerald'}-600 mb-1`}>
+                          {et.labelEn}
+                        </span>
+                        <p className="text-[10px] text-slate-500 font-mono">{et.key}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingEmpTypeId(et.id);
+                            setEmpTypeKey(et.key);
+                            setEmpTypeLabelEn(et.labelEn);
+                            setEmpTypeLabelRw(et.labelRw || '');
+                            setEmpTypeLabelFr(et.labelFr || '');
+                            setEmpTypeDescription(et.description || '');
+                            setEmpTypeBadgeColor(et.badgeColor || 'emerald');
+                            setIsEmpTypeFormOpen(true);
+                          }}
+                          className="p-1 text-slate-400 hover:text-emerald-700 rounded cursor-pointer"
+                        ><Edit2 className="w-3.5 h-3.5" /></button>
+                        {onDeleteEmploymentType && (
+                          <button
+                            type="button"
+                            onClick={() => { if (window.confirm(`Delete employment type "${et.labelEn}"?`)) onDeleteEmploymentType(et.id); }}
+                            className="p-1 text-slate-400 hover:text-red-600 rounded cursor-pointer"
+                          ><Trash2 className="w-3.5 h-3.5" /></button>
+                        )}
+                      </div>
+                    </div>
+                    {et.description && <p className="text-[11px] text-slate-600 italic">{et.description}</p>}
+                    <div className="text-[10px] text-slate-400 flex gap-3">
+                      <span>RW: {et.labelRw || '—'}</span>
+                      <span>FR: {et.labelFr || '—'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {employmentTypes.length === 0 && (
+                <div className="text-center py-8 text-slate-400 text-xs">No employment types yet. Click "Add Type" to create one.</div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: QUALIFICATIONS (CRUD) */}
+          {activeTab === 'qualifications' && (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="flex justify-between items-center text-xs">
+                <div>
+                  <span className="font-bold text-slate-700 uppercase tracking-wider block">Qualifications Manager</span>
+                  <span className="text-[11px] text-slate-400">Manage the list of recognized qualifications, degrees, and certifications used in job requirements and candidate screening.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsQualFormOpen(true);
+                    setEditingQualId(null);
+                    setQualCode('');
+                    setQualTitleEn('');
+                    setQualTitleRw('');
+                    setQualTitleFr('');
+                    setQualCategory('degree');
+                    setQualMinYears(1);
+                  }}
+                  className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Qualification</span>
+                </button>
+              </div>
+
+              {isQualFormOpen && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!qualCode.trim() || !qualTitleEn.trim()) return;
+                    const payload = {
+                      code: qualCode.trim(),
+                      titleEn: qualTitleEn.trim(),
+                      titleRw: qualTitleRw.trim() || qualTitleEn.trim(),
+                      titleFr: qualTitleFr.trim() || qualTitleEn.trim(),
+                      category: qualCategory,
+                      minYearsDefault: qualMinYears
+                    };
+                    if (editingQualId && onUpdateQualification) {
+                      onUpdateQualification(editingQualId, payload);
+                    } else if (onAddQualification) {
+                      onAddQualification(payload);
+                    }
+                    setIsQualFormOpen(false);
+                    setEditingQualId(null);
+                  }}
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3"
+                >
+                  <div className="font-bold text-xs text-slate-800">
+                    {editingQualId ? 'Edit Qualification' : 'Add New Qualification'}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Code / Short Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. A0-Fin"
+                        value={qualCode}
+                        onChange={(e) => setQualCode(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Category</label>
+                      <select
+                        value={qualCategory}
+                        onChange={(e) => setQualCategory(e.target.value as any)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      >
+                        <option value="degree">Degree</option>
+                        <option value="diploma">Diploma</option>
+                        <option value="certificate">Certificate / TVET</option>
+                        <option value="professional">Professional Certification</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Min. Years Exp Required</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={qualMinYears}
+                        onChange={(e) => setQualMinYears(Number(e.target.value))}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Full Title (English) *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Bachelor's Degree in Finance or Economics"
+                      value={qualTitleEn}
+                      onChange={(e) => setQualTitleEn(e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Full Title (Kinyarwanda)</label>
+                      <input
+                        type="text"
+                        placeholder="Impamyabumenyi ya..."
+                        value={qualTitleRw}
+                        onChange={(e) => setQualTitleRw(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Full Title (Français)</label>
+                      <input
+                        type="text"
+                        placeholder="Licence / Diplôme en..."
+                        value={qualTitleFr}
+                        onChange={(e) => setQualTitleFr(e.target.value)}
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button type="submit" className="px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg cursor-pointer">
+                      {editingQualId ? 'Update Qualification' : 'Save Qualification'}
+                    </button>
+                    <button type="button" onClick={() => { setIsQualFormOpen(false); setEditingQualId(null); }}
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg cursor-pointer"
+                    >Cancel</button>
+                  </div>
+                </form>
+              )}
+
+              <div className="space-y-2">
+                {qualifications.map((q) => (
+                  <div key={q.id} className="p-3.5 border border-slate-200 rounded-xl bg-white shadow-xs">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 font-mono">{q.code}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 capitalize">{q.category}</span>
+                          {q.minYearsDefault !== undefined && (
+                            <span className="px-2 py-0.5 rounded text-[10px] text-slate-500 bg-slate-50">{q.minYearsDefault}+ yrs exp</span>
+                          )}
+                        </div>
+                        <p className="text-xs font-semibold text-slate-800 mt-1">{q.titleEn}</p>
+                        {q.titleRw && <p className="text-[11px] text-slate-400 mt-0.5">{q.titleRw}</p>}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingQualId(q.id);
+                            setQualCode(q.code);
+                            setQualTitleEn(q.titleEn);
+                            setQualTitleRw(q.titleRw || '');
+                            setQualTitleFr(q.titleFr || '');
+                            setQualCategory(q.category || 'degree');
+                            setQualMinYears(q.minYearsDefault ?? 1);
+                            setIsQualFormOpen(true);
+                          }}
+                          className="p-1 text-slate-400 hover:text-emerald-700 rounded cursor-pointer"
+                        ><Edit2 className="w-3.5 h-3.5" /></button>
+                        {onDeleteQualification && (
+                          <button
+                            type="button"
+                            onClick={() => { if (window.confirm(`Delete qualification "${q.code}"?`)) onDeleteQualification(q.id); }}
+                            className="p-1 text-slate-400 hover:text-red-600 rounded cursor-pointer"
+                          ><Trash2 className="w-3.5 h-3.5" /></button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {qualifications.length === 0 && (
+                <div className="text-center py-8 text-slate-400 text-xs">No qualifications defined yet. Click "Add Qualification" to create one.</div>
+              )}
             </div>
           )}
 
@@ -5928,46 +6486,15 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
 
           {/* TAB: INQUIRIES */}
           {activeTab === 'inquiries' && (
-            <div className="space-y-4 animate-in fade-in">
-              <div className="flex justify-between items-center text-xs">
-                <div>
-                  <span className="font-bold text-slate-700 uppercase tracking-wider block">Contact Inquiries (Inbox)</span>
-                  <span className="text-[11px] text-slate-400">View and manage messages from members.</span>
-                </div>
-              </div>
-              <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                    <tr>
-                      <th className="py-2.5 px-3">Date</th>
-                      <th className="py-2.5 px-3">Name</th>
-                      <th className="py-2.5 px-3">Email</th>
-                      <th className="py-2.5 px-3">Phone</th>
-                      <th className="py-2.5 px-3">Subject</th>
-                      <th className="py-2.5 px-3">Sent Direct To</th>
-                      <th className="py-2.5 px-3">Message</th>
-                      <th className="py-2.5 px-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {contactInquiries.map((inq) => (
-                      <tr key={inq.id}>
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">{inq.createdAt || inq.date}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-900 whitespace-nowrap">{inq.name}</td>
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-emerald-700 whitespace-nowrap">{inq.email || '-'}</td>
-                        <td className="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap">{inq.phone}</td>
-                        <td className="py-2.5 px-3 font-medium text-slate-700 whitespace-nowrap">{inq.subject}</td>
-                        <td className="py-2.5 px-3 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">{inq.recipientEmail || 'dmechack12@gmail.com'}</td>
-                        <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate" title={inq.message}>{inq.message}</td>
-                        <td className="py-2.5 px-3 text-right">
-                          <button onClick={() => onDeleteContactInquiry(inq.id)} className="text-red-500 hover:text-red-700 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <InquiriesDashboard
+              inquiries={contactInquiries}
+              onAddInquiry={onAddContactInquiry}
+              onUpdateInquiry={onUpdateContactInquiry}
+              onDeleteInquiry={onDeleteContactInquiry}
+              onResetInquiries={onResetContactInquiries}
+              currentLang={currentLang}
+              saccoInfo={saccoInfo}
+            />
           )}
 
           {/* TAB: THEME COLOR */}
@@ -6304,9 +6831,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-bold text-slate-800 mb-1">
-                    Committee Deliberations &amp; Comments (Reserved for Notes)
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Committee Deliberations &amp; Comments (Reserved for Notes)</label>
                   <textarea
                     rows={2}
                     value={newApplicant.comment}
@@ -6325,6 +6850,60 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                     placeholder="Summary of experience and motivation..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden"
                   />
+                </div>
+
+                {/* Motivation Letter File Upload */}
+                <div className="sm:col-span-2">
+                  <div className="p-3 bg-blue-50 border border-dashed border-blue-300 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-blue-600" />
+                        Attach Motivation Letter File (Any Format — Optional)
+                      </span>
+                      {newApplicantMotivationFileName && (
+                        <span className="text-[11px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-300">
+                          ✓ Attached
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-blue-700">
+                      Upload motivation letter on behalf of the candidate: PDF, Word (.doc/.docx), image scan, or any format (max 10MB).
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <label className="cursor-pointer px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-800 border border-blue-300 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Choose File</span>
+                        <input
+                          type="file"
+                          accept="*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (file.size > 10 * 1024 * 1024) { alert('File too large. Max 10MB.'); return; }
+                            setNewApplicantMotivationFileName(file.name);
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === 'string') setNewApplicantMotivationFileData(reader.result);
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                      <span className="text-xs text-slate-500 truncate">
+                        {newApplicantMotivationFileName || 'No file selected'}
+                      </span>
+                      {newApplicantMotivationFileName && (
+                        <button
+                          type="button"
+                          onClick={() => { setNewApplicantMotivationFileName(''); setNewApplicantMotivationFileData(''); }}
+                          className="text-xs text-red-500 hover:text-red-700 font-bold cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 

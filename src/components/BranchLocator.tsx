@@ -144,11 +144,16 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
                         <span className="text-[11px] font-semibold text-emerald-800 ml-2">{branch.sector}</span>
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5 truncate">
-                        {currentLang === 'en' ? branch.locationDetailsEn : branch.locationDetailsRw}
+                        {currentLang === 'rw' ? branch.locationDetailsRw || branch.locationDetailsEn : branch.locationDetailsEn}
                       </p>
                       {branch.subBranches && branch.subBranches.length > 0 && (
                         <div className="mt-1 text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded inline-block font-semibold">
-                          {branch.subBranches.length} Sub-branch(es)
+                          {branch.subBranches.length}{' '}
+                          {currentLang === 'fr'
+                            ? 'Sous-agence(s)'
+                            : currentLang === 'rw'
+                            ? 'Ishami rito'
+                            : 'Sub-branch(es)'}
                         </div>
                       )}
                       <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-2 font-mono-numbers">
@@ -304,7 +309,7 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
                   <div>
                     <h3 className="text-xl font-extrabold text-slate-900">{selectedBranch.name}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      {currentLang === 'en' ? selectedBranch.locationDetailsEn : selectedBranch.locationDetailsRw}
+                      {currentLang === 'rw' ? selectedBranch.locationDetailsRw || selectedBranch.locationDetailsEn : selectedBranch.locationDetailsEn}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -316,7 +321,13 @@ export const BranchLocator: React.FC<BranchLocatorProps> = ({
                         title="Edit this branch in Admin Console"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit Branch</span>
+                        <span>
+                          {currentLang === 'fr'
+                            ? "Modifier l'Agence"
+                            : currentLang === 'rw'
+                            ? 'Hindura Ishami'
+                            : 'Edit Branch'}
+                        </span>
                       </button>
                     )}
                     <a

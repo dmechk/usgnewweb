@@ -148,7 +148,28 @@ export interface SaccoContactInfo {
   annualDividendPercent: number;
   sectorsCovered: number;
   branchesCount: number;
+  subBranchesCount?: number;
   yearFounded: number;
+}
+
+export interface EmploymentTypeItem {
+  id: string;
+  key: string;
+  labelEn: string;
+  labelRw: string;
+  labelFr?: string;
+  description?: string;
+  badgeColor?: string;
+}
+
+export interface QualificationItem {
+  id: string;
+  code: string;
+  titleEn: string;
+  titleRw: string;
+  titleFr?: string;
+  category?: 'degree' | 'diploma' | 'certificate' | 'professional' | 'other';
+  minYearsDefault?: number;
 }
 
 export interface NavItemConfig {
@@ -196,7 +217,7 @@ export interface JobPosting {
   departmentEn: string;
   departmentRw: string;
   location: string;
-  employmentType: 'full_time' | 'contract' | 'internship';
+  employmentType: string;
   salaryRange?: string;
   deadline: string;
   status: 'open' | 'closed';
@@ -223,6 +244,9 @@ export interface JobApplication {
   coverLetter: string;
   cvFileName?: string;
   cvFileData?: string;
+  /** Motivation letter file upload (PDF, DOCX, images, any format) */
+  motivationLetterFileName?: string;
+  motivationLetterFileData?: string;
   appliedDate: string;
   status: 'pending' | 'shortlisted' | 'not_shortlisted' | 'interview' | 'rejected' | 'accepted' | 'waitlisted';
   notes?: string;
@@ -345,6 +369,7 @@ export const INITIAL_STAFF: StaffMember[] = [];
 export interface PartnerItem {
   id: string;
   name: string;
+  fullName?: string;
   logoUrl: string;
   websiteUrl: string;
   visible?: boolean;
@@ -360,15 +385,26 @@ export interface SocialMediaItem {
   visible?: boolean;
 }
 
+export type InquiryStatus = 'pending' | 'in_review' | 'resolved' | 'archived';
+export type InquiryPriority = 'low' | 'medium' | 'high' | 'urgent';
+
 export interface ContactInquiry {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
   subject: string;
   message: string;
   createdAt?: string;
   date?: string;
   recipientEmail?: string;
+  status?: InquiryStatus;
+  priority?: InquiryPriority;
+  notes?: string;
+  adminReply?: string;
+  resolvedAt?: string;
+  source?: 'website' | 'phone' | 'walk_in' | 'email';
+  sector?: string;
 }
+
 

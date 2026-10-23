@@ -19,6 +19,9 @@ import {
   AboutValueItem,
   PartnerItem,
   SocialMediaItem,
+  ContactInquiry,
+  EmploymentTypeItem,
+  QualificationItem,
 } from '../types';
 import minecofinLogo from '../assets/images/Minecofin.png';
 import bnrLogo from '../assets/images/bnr logo.png';
@@ -33,8 +36,8 @@ export const SACCO_INFO: SaccoContactInfo = {
   headquarters: "Gakenke Commercial Center, Sector Gakenke, Northern Province",
   phone: "0786422080",
   managerPhone: "0786422080",
-  email: "dmechack12@gmail.com",
-  supportEmail: "dmechack12@gmail.com",
+  email: "ubumwesaccogakenke@gmail.com",
+  supportEmail: "ubumwesaccogakenke@gmail.com",
   whatsapp: "250786422080",
   whatsappMessage: "Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.",
   ussdCode: "*541#",
@@ -50,8 +53,9 @@ export const SACCO_INFO: SaccoContactInfo = {
   totalSavingsRwf: 4850000000,
   totalLoansDisbursedRwf: 3620000000,
   annualDividendPercent: 9.8,
-  sectorsCovered: 13,
-  branchesCount: 6,
+  sectorsCovered: 19,
+  branchesCount: 19,
+  subBranchesCount: 3,
   yearFounded: 2011,
 };
 
@@ -367,6 +371,15 @@ export const BRANCHES_DATA: BranchOutpost[] = [
     operatingHours: "Mon-Fri: 7:30 AM - 5:30 PM | Sat: 8:00 AM - 2:00 PM",
     cashService: true,
     momoAgent: true,
+    subBranches: [
+      {
+        id: "sub_gakenke_commercial",
+        name: "Gakenke Market Sub-Branch",
+        sector: "Gakenke",
+        managerName: "Diane Umutoni",
+        phone: "0786422080"
+      }
+    ],
     coordinates: { lat: -1.7042, lng: 29.7891 }
   },
   {
@@ -380,6 +393,15 @@ export const BRANCHES_DATA: BranchOutpost[] = [
     operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM",
     cashService: true,
     momoAgent: true,
+    subBranches: [
+      {
+        id: "sub_nemba_hospital",
+        name: "Nemba Hospital Service Sub-Branch",
+        sector: "Nemba",
+        managerName: "Eric Ndahiro",
+        phone: "0786422080"
+      }
+    ],
     coordinates: { lat: -1.6821, lng: 29.7614 }
   },
   {
@@ -393,11 +415,20 @@ export const BRANCHES_DATA: BranchOutpost[] = [
     operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM | Sat: Market Hours",
     cashService: true,
     momoAgent: true,
+    subBranches: [
+      {
+        id: "sub_rushashi_coffee",
+        name: "Rushashi Tea & Coffee Zone Sub-Branch",
+        sector: "Rushashi",
+        managerName: "Aline Mukamana",
+        phone: "0786422080"
+      }
+    ],
     coordinates: { lat: -1.7852, lng: 29.8310 }
   },
   {
     id: "janja_outpost",
-    name: "Janja Trading Center Outpost",
+    name: "Janja Trading Center Branch",
     sector: "Janja",
     locationDetailsEn: "Janja Commercial Center, near GS Janja",
     locationDetailsRw: "Mu gasantere ka Janja, iruhande rwa GS Janja",
@@ -423,7 +454,7 @@ export const BRANCHES_DATA: BranchOutpost[] = [
   },
   {
     id: "busengo_outpost",
-    name: "Busengo Service Point",
+    name: "Busengo Service Branch",
     sector: "Busengo",
     locationDetailsEn: "Busengo Market Road, Sector Office",
     locationDetailsRw: "Mu muhanda w'isoko rya Busengo",
@@ -433,6 +464,298 @@ export const BRANCHES_DATA: BranchOutpost[] = [
     cashService: true,
     momoAgent: true,
     coordinates: { lat: -1.5930, lng: 29.8012 }
+  },
+  {
+    id: "coko_branch",
+    name: "Coko Branch & Outpost",
+    sector: "Coko",
+    locationDetailsEn: "Coko Commercial Centre, near Coko Sector Office",
+    locationDetailsRw: "Ibiro by'Ishami rya Coko, hafi y'umurenge",
+    managerName: "Fidele Nizeyimana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7420, lng: 29.7150 }
+  },
+  {
+    id: "cyabingo_branch",
+    name: "Cyabingo Service Branch",
+    sector: "Cyabingo",
+    locationDetailsEn: "Cyabingo Trading Centre, Main Market",
+    locationDetailsRw: "Mu gasantere ka Cyabingo, ku isoko",
+    managerName: "Marie Rose Mukamana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6110, lng: 29.6840 }
+  },
+  {
+    id: "gashenyi_branch",
+    name: "Gashenyi Agro-Branch",
+    sector: "Gashenyi",
+    locationDetailsEn: "Gashenyi Center, adjacent to Sector Headquarters",
+    locationDetailsRw: "Mu gasantere ka Gashenyi, iruhande rw'umurenge",
+    managerName: "Innocent Twagirayezu",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6730, lng: 29.8520 }
+  },
+  {
+    id: "kamubuga_branch",
+    name: "Kamubuga Branch",
+    sector: "Kamubuga",
+    locationDetailsEn: "Kamubuga Trading Center, Near Dairy Collection",
+    locationDetailsRw: "Mu gasantere ka Kamubuga, hafi y'ikusanyirizo ry'amata",
+    managerName: "Jean Claude Habiyaremye",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6950, lng: 29.8310 }
+  },
+  {
+    id: "karambo_branch",
+    name: "Karambo Service Point",
+    sector: "Karambo",
+    locationDetailsEn: "Karambo Market Square, Sector Access Road",
+    locationDetailsRw: "Ku isoko rya Karambo, mu muhanda w'umurenge",
+    managerName: "Beatrice Nyirabunani",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7240, lng: 29.7480 }
+  },
+  {
+    id: "mataba_branch",
+    name: "Mataba Branch Office",
+    sector: "Mataba",
+    locationDetailsEn: "Mataba Center, opposite Farmers Cooperative",
+    locationDetailsRw: "Rwagati mu gasantere ka Mataba",
+    managerName: "Theogene Nkurunziza",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6420, lng: 29.6980 }
+  },
+  {
+    id: "minazi_branch",
+    name: "Minazi Community Branch",
+    sector: "Minazi",
+    locationDetailsEn: "Minazi Trading Post, Market Road",
+    locationDetailsRw: "Mu gasantere k'ubucuruzi ka Minazi",
+    managerName: "Francine Uwimana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7610, lng: 29.8050 }
+  },
+  {
+    id: "mugunga_branch",
+    name: "Mugunga Service Outpost",
+    sector: "Mugunga",
+    locationDetailsEn: "Mugunga Commercial Center",
+    locationDetailsRw: "Mu gasantere ka Mugunga",
+    managerName: "Alphonse Ndayisaba",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6680, lng: 29.6620 }
+  },
+  {
+    id: "muhondo_branch",
+    name: "Muhondo Mountain Branch",
+    sector: "Muhondo",
+    locationDetailsEn: "Muhondo Commercial Center, Near Coffee Processing Station",
+    locationDetailsRw: "Mu gasantere ka Muhondo, hafi y'uruganda rw'ikawa",
+    managerName: "Gisele Umurerwa",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.8120, lng: 29.8640 }
+  },
+  {
+    id: "muyongwe_branch",
+    name: "Muyongwe Tea-Zone Branch",
+    sector: "Muyongwe",
+    locationDetailsEn: "Muyongwe Center, near Tea Collection Point",
+    locationDetailsRw: "Mu gasantere ka Muyongwe, ku cyayi",
+    managerName: "Valens Bizimana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.6030, lng: 29.8610 }
+  },
+  {
+    id: "muzo_branch",
+    name: "Muzo Agricultural Branch",
+    sector: "Muzo",
+    locationDetailsEn: "Muzo Trading Centre, Main Road",
+    locationDetailsRw: "Mu mujyi muto wa Muzo, ku muhanda munini",
+    managerName: "Esperance Mukandori",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7580, lng: 29.7420 }
+  },
+  {
+    id: "ruli_branch",
+    name: "Ruli District Hospital Outpost",
+    sector: "Ruli",
+    locationDetailsEn: "Ruli Trading Center, Near Ruli Hospital",
+    locationDetailsRw: "Mu gasantere ka Ruli, hafi y'ibitaro bya Ruli",
+    managerName: "Jean Paul Nsabimana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7820, lng: 29.7610 }
+  },
+  {
+    id: "rusasa_branch",
+    name: "Rusasa Agricultural Branch",
+    sector: "Rusasa",
+    locationDetailsEn: "Rusasa Market Center, Coffee Cooperative Zone",
+    locationDetailsRw: "Ku isoko rya Rusasa, mu gace k'ikawa",
+    managerName: "Chantal Mukeshimana",
+    managerPhone: "0786422080",
+    operatingHours: "Mon-Fri: 8:00 AM - 4:30 PM",
+    cashService: true,
+    momoAgent: true,
+    coordinates: { lat: -1.7350, lng: 29.6890 }
+  }
+];
+
+export const INITIAL_EMPLOYMENT_TYPES: EmploymentTypeItem[] = [
+  {
+    id: 'emp-full-time',
+    key: 'full_time',
+    labelEn: 'Full-Time',
+    labelRw: 'Igihe Cyose',
+    labelFr: 'Temps Plein',
+    description: 'Permanent full-time staff role with full benefits',
+    badgeColor: 'emerald'
+  },
+  {
+    id: 'emp-contract',
+    key: 'contract',
+    labelEn: 'Fixed-Term Contract',
+    labelRw: 'Amasezerano',
+    labelFr: 'Contrat Déterminé',
+    description: 'Renewable period-based employment contract',
+    badgeColor: 'blue'
+  },
+  {
+    id: 'emp-internship',
+    key: 'internship',
+    labelEn: 'Graduate Internship',
+    labelRw: 'Imenyerezamwuga',
+    labelFr: 'Stage Professionnel',
+    description: 'Practical professional internship with stipend',
+    badgeColor: 'purple'
+  },
+  {
+    id: 'emp-part-time',
+    key: 'part_time',
+    labelEn: 'Part-Time',
+    labelRw: 'Igihe Gito',
+    labelFr: 'Temps Partiel',
+    description: 'Flexible hours or scheduled shifts',
+    badgeColor: 'amber'
+  },
+  {
+    id: 'emp-temporary',
+    key: 'temporary',
+    labelEn: 'Temporary / Seasonal',
+    labelRw: "By'Agateganyo",
+    labelFr: 'Temporaire / Saisonnier',
+    description: 'Special seasonal or project assistance role',
+    badgeColor: 'rose'
+  },
+  {
+    id: 'emp-consultant',
+    key: 'consultant',
+    labelEn: 'Consultancy / Advisory',
+    labelRw: 'Inzobere',
+    labelFr: 'Consultance',
+    description: 'Specialized institutional consulting mission',
+    badgeColor: 'teal'
+  }
+];
+
+export const INITIAL_QUALIFICATIONS: QualificationItem[] = [
+  {
+    id: 'qual-a0-finance',
+    code: 'A0-Fin',
+    titleEn: "Bachelor's Degree (A0) in Accounting, Finance, Economics, or Banking",
+    titleRw: "Impamyabumenyi y'Icyiciro cya Kabiri cya Kaminuza (A0) mu Ibaruramari, Imari, cyangwa Ubukungu",
+    titleFr: 'Licence / Bac+3 (A0) en Comptabilité, Finance, Économie ou Banque',
+    category: 'degree',
+    minYearsDefault: 2
+  },
+  {
+    id: 'qual-a0-it',
+    code: 'A0-IT',
+    titleEn: "Bachelor's Degree (A0) in Information Technology, Computer Science, or MIS",
+    titleRw: "Impamyabumenyi ya Kaminuza (A0) mu Ikoranabuhanga cyangwa Mudasobwa",
+    titleFr: 'Licence (A0) en Informatique, TIC ou Systèmes d’Information',
+    category: 'degree',
+    minYearsDefault: 2
+  },
+  {
+    id: 'qual-msc-mba',
+    code: 'MSc/MBA',
+    titleEn: "Master's Degree (MSc / MBA / M.A) in Finance, Strategic Management, or Economics",
+    titleRw: "Icyiciro cya Gatatu cya Kaminuza (Master's / MBA) mu bucuruzi cyangwa imari",
+    titleFr: 'Master / MBA en Finance, Gestion Stratégique ou Économie',
+    category: 'degree',
+    minYearsDefault: 4
+  },
+  {
+    id: 'qual-cpa-acca',
+    code: 'CPA/ACCA',
+    titleEn: 'Professional Accounting Certification (CPA, ACCA, CIA, or Microfinance Cert)',
+    titleRw: "Icyemezo cy'Ubunyamwuga mu Ibaruramari (CPA, ACCA, cyangwa CIA)",
+    titleFr: 'Certification Professionnelle Comptable (CPA, ACCA, CIA)',
+    category: 'professional',
+    minYearsDefault: 3
+  },
+  {
+    id: 'qual-a1-diploma',
+    code: 'A1',
+    titleEn: "Advanced Diploma / Associate Degree (A1) in Business or Accounting",
+    titleRw: "Impamyabumenyi y'Icyiciro cya Mbere cya Kaminuza (A1)",
+    titleFr: 'Diplôme Universitaire (A1 / Bac+2) en Gestion ou Comptabilité',
+    category: 'diploma',
+    minYearsDefault: 1
+  },
+  {
+    id: 'qual-a2-secondary',
+    code: 'A2',
+    titleEn: 'High School Diploma / TVET Certificate (A2) in Accounting, Commerce, or Secretarial',
+    titleRw: "Impamyabumenyi y'Amashuri Yisumbuye (A2) mu Ibaruramari cyangwa Ubucuruzi",
+    titleFr: 'Diplôme d’Études Secondaires / TVET (A2) en Comptabilité ou Commerce',
+    category: 'certificate',
+    minYearsDefault: 1
+  },
+  {
+    id: 'qual-tvet-l5',
+    code: 'TVET-L5',
+    titleEn: 'TVET Level 5 Diploma in Financial Services or IT Systems',
+    titleRw: "Impamyabumenyi ya TVET Level 5 muri Serivisi z'Imari cyangwa Ikoranabuhanga",
+    titleFr: 'Diplôme TVET Niveau 5 en Services Financiers ou Systèmes IT',
+    category: 'diploma',
+    minYearsDefault: 1
   }
 ];
 
@@ -502,8 +825,8 @@ export const ANNOUNCEMENTS: Announcement[] = [
     titleRw: "Inama Rusange ya 15 no Kugabana Inyungu ku Migabane",
     summaryEn: "All active members are invited to review audited financial statements and ratify the 9.8% dividend distribution.",
     summaryRw: "Abanyamuryango bose b'imena baratumirwa kwemeza raporo y'imari n'inyungu ku migabane ya 9.8%.",
-    contentEn: "The Board of Directors of Ubumwe SACCO Gakenke informs all esteemed members that the 15th AGM will take place at the Gakenke Youth Cultural Hall. Agenda: 1. Audited financials 2. Ratification of 9.8% annual dividend 3. 2027 Agricultural credit facility. Call 0786422080 or email dmechack12@gmail.com for inquiries.",
-    contentRw: "Inama y'Ubutegetsi ya Ubumwe SACCO Gakenke iramenyesha abanyamuryango ko inama rusange izabera mu cyumba cy'urubyiruko rwa Gakenke. Ingingo: 1. Kwemeza raporo y'imari 2. Kwemeza inyungu ya 9.8% 3. Gahunda y'inguzanyo z'ubuhinzi. Baza kuri 0786422080 cyangwa dmechack12@gmail.com."
+    contentEn: "The Board of Directors of Ubumwe SACCO Gakenke informs all esteemed members that the 15th AGM will take place at the Gakenke Youth Cultural Hall. Agenda: 1. Audited financials 2. Ratification of 9.8% annual dividend 3. 2027 Agricultural credit facility. Call 0786422080 or email ubumwesaccogakenke@gmail.com for inquiries.",
+    contentRw: "Inama y'Ubutegetsi ya Ubumwe SACCO Gakenke iramenyesha abanyamuryango ko inama rusange izabera mu cyumba cy'urubyiruko rwa Gakenke. Ingingo: 1. Kwemeza raporo y'imari 2. Kwemeza inyungu ya 9.8% 3. Gahunda y'inguzanyo z'ubuhinzi. Baza kuri 0786422080 cyangwa ubumwesaccogakenke@gmail.com."
   },
   {
     id: "season-a-loan-window",
@@ -1239,13 +1562,13 @@ export const INITIAL_HOME_METRICS: HomeMetricItem[] = [
   },
   {
     id: "metric-4",
-    value: "6 Branches",
-    labelEn: "Service Outposts",
-    labelRw: "Amashami n'Utubande",
-    labelFr: "Agences & Postes",
-    detailEn: "Within 15 Mins of Any Village",
-    detailRw: "Hafi ya Buri Muturage",
-    detailFr: "À moins de 15 min de chaque village",
+    value: "19 Branches & 3 Sub-Branches",
+    labelEn: "19 Branches & 3 Sub-Branches",
+    labelRw: "Amashami 19 n'Utubande 3",
+    labelFr: "19 Agences & 3 Sous-Agences",
+    detailEn: "Covering all 19 Gakenke Sectors",
+    detailRw: "Mu Mirenge 19 Yose n'Utubande 3",
+    detailFr: "Couvrant les 19 secteurs et 3 sous-agences",
     iconName: "building",
     colorClass: "text-slate-800",
     bgClass: "bg-slate-100",
@@ -1313,6 +1636,7 @@ export const INITIAL_PARTNERS: PartnerItem[] = [
   {
     id: 'partner-minecofin',
     name: 'MINECOFIN',
+    fullName: 'Ministry of Finance & Economic Planning',
     logoUrl: minecofinLogo,
     websiteUrl: 'https://www.minecofin.gov.rw',
     visible: true,
@@ -1320,6 +1644,7 @@ export const INITIAL_PARTNERS: PartnerItem[] = [
   {
     id: 'partner-bnr',
     name: 'BNR',
+    fullName: 'National Bank of Rwanda',
     logoUrl: bnrLogo,
     websiteUrl: 'https://www.bnr.rw',
     visible: true,
@@ -1327,6 +1652,7 @@ export const INITIAL_PARTNERS: PartnerItem[] = [
   {
     id: 'partner-rca',
     name: 'RCA',
+    fullName: 'Rwanda Cooperative Agency',
     logoUrl: rcaLogo,
     websiteUrl: 'https://www.rca.gov.rw',
     visible: true,
@@ -1334,6 +1660,7 @@ export const INITIAL_PARTNERS: PartnerItem[] = [
   {
     id: 'partner-brd',
     name: 'BRD',
+    fullName: 'Development Bank of Rwanda',
     logoUrl: brdLogo,
     websiteUrl: 'https://www.brd.rw',
     visible: true,
@@ -1370,5 +1697,90 @@ export const INITIAL_SOCIAL_LINKS: SocialMediaItem[] = [
     visible: true,
   },
 ];
+
+export const INITIAL_CONTACT_INQUIRIES: ContactInquiry[] = [
+  {
+    id: 'inq-101',
+    name: 'Jean Damascene Uwimana',
+    email: 'damascene.uwimana@gmail.com',
+    phone: '0788345210',
+    subject: 'Agri-Loan & Coffee Washing Station Working Capital',
+    message: 'Hello, our coffee cooperative in Rushashi is preparing for the cherry harvest season. We would like to apply for seasonal agricultural input credit under the SACCO cooperative discount rate. Can an officer visit our station?',
+    createdAt: '22 Oct 2026, 09:15 AM',
+    date: '22 Oct 2026, 09:15 AM',
+    recipientEmail: 'ubumwesaccogakenke@gmail.com',
+    status: 'pending',
+    priority: 'high',
+    sector: 'Rushashi',
+    source: 'website',
+    notes: 'Urgent harvest financing request. Forwarded details to Loan Officer.',
+  },
+  {
+    id: 'inq-102',
+    name: 'Marie Claire Mukamana',
+    email: 'claire.muka@yahoo.com',
+    phone: '0782190844',
+    subject: 'USSD *541# Mobile Banking Setup',
+    message: 'Muraho neza. I registered my SACCO account at Nemba outpost last month. I tried dialing *541# but my MTN MoMo number says pending verification. How can I complete authorization?',
+    createdAt: '22 Oct 2026, 11:40 AM',
+    date: '22 Oct 2026, 11:40 AM',
+    recipientEmail: 'ubumwesaccogakenke@gmail.com',
+    status: 'in_review',
+    priority: 'medium',
+    sector: 'Nemba',
+    source: 'website',
+    notes: 'Checked telecom API logs. KYC phone matches account ID 042-889. Pending MoMo float sync.',
+  },
+  {
+    id: 'inq-103',
+    name: 'Emmanuel Nsengiyumva',
+    email: 'emmanuel.nsengi@gmail.com',
+    phone: '0785661122',
+    subject: 'Commercial Micro-Business Loan Extension',
+    message: 'Good morning. I run a hardware store in Gakenke town center. I have completed 80% repayment on my 2-year SME facility and would like to inquire about loan top-up eligibility for importing solar equipment.',
+    createdAt: '21 Oct 2026, 03:25 PM',
+    date: '21 Oct 2026, 03:25 PM',
+    recipientEmail: 'ubumwesaccogakenke@gmail.com',
+    status: 'resolved',
+    priority: 'high',
+    sector: 'Gakenke',
+    source: 'walk_in',
+    notes: 'Manager Mbitsemunda reviewed credit score. 100% on-time repayment history. Approved for top-up application.',
+    resolvedAt: '22 Oct 2026',
+    adminReply: 'Called member directly on phone and invited to Gakenke branch with last 6 months turnover statements.',
+  },
+  {
+    id: 'inq-104',
+    name: 'Claudine Nyirabagenzi',
+    email: 'claudine.nyira@gmail.com',
+    phone: '0787320019',
+    subject: 'Fixed Deposit Term Rates & Interest Inquiries',
+    message: 'Nifuzaga kumenya inyungu mutanga ku mafaranga azigamiwe igihe kirekire (Fixed Term Deposit) mu gihe cy amezi 12 kuri Miliyoni 5 z amafaranga y u Rwanda.',
+    createdAt: '20 Oct 2026, 10:05 AM',
+    date: '20 Oct 2026, 10:05 AM',
+    recipientEmail: 'ubumwesaccogakenke@gmail.com',
+    status: 'pending',
+    priority: 'low',
+    sector: 'Kivuruga',
+    source: 'website',
+  },
+  {
+    id: 'inq-105',
+    name: 'Vedaste Hakizimana',
+    email: 'hakizi.vedaste@gmail.com',
+    phone: '0781298455',
+    subject: 'Motorcycle Taxi (Motari) Asset Financing',
+    message: 'Greetings. Our local youth transport association has 6 registered drivers who want to acquire new motorbikes through cooperative asset financing. What are the deposit terms and guarantor rules?',
+    createdAt: '19 Oct 2026, 02:50 PM',
+    date: '19 Oct 2026, 02:50 PM',
+    recipientEmail: 'ubumwesaccogakenke@gmail.com',
+    status: 'in_review',
+    priority: 'medium',
+    sector: 'Rushashi',
+    source: 'phone',
+    notes: 'Association has registered with RCA. Requested copy of cooperative registration certificate.',
+  },
+];
+
 
 

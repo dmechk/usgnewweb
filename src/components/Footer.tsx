@@ -72,17 +72,19 @@ export const Footer: React.FC<FooterProps> = ({
   const cleanWhatsapp = saccoInfo.whatsapp.replace(/[^0-9]/g, '') || '250786422080';
   const whatsappUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
     saccoInfo.whatsappMessage ||
-    (currentLang === 'en'
-      ? 'Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.'
-      : 'Muraho UBUMWE SACCO GAKENKE, nifuzaga kubaza amakuru kuri serivisi zanyu.')
+    (currentLang === 'fr'
+      ? 'Bonjour UBUMWE SACCO GAKENKE, je souhaite me renseigner sur vos services coopératifs.'
+      : currentLang === 'rw'
+      ? 'Muraho UBUMWE SACCO GAKENKE, nifuzaga kubaza amakuru kuri serivisi zanyu.'
+      : 'Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.')
   )}`;
 
   const visibleNavs = navItems.filter((i) => i.visible);
 
   return (
-    <footer className="bg-slate-950 text-slate-400 text-xs border-t border-slate-900 relative">
-      {/* Top Imigongo Skeleton Ribbon (Dark Variant) */}
-      <ImigongoRibbon height={18} variant="dark" bordered={true} />
+    <footer className="bg-white text-slate-700 text-xs border-t-4 border-emerald-700 relative shadow-lg">
+      {/* Top Imigongo Skeleton Ribbon */}
+      <ImigongoRibbon height={18} variant="light" bordered={true} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 lg:py-16 space-y-12">
         {/* Main 3-Column Info Grid */}
@@ -98,33 +100,53 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="w-8 h-8 rounded-lg bg-emerald-700 group-hover:bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 transition-colors shadow-sm">
                 <Landmark className="w-4 h-4 text-emerald-100" />
               </div>
-              <span className="text-base font-extrabold text-white tracking-tight group-hover:text-emerald-300 transition-colors">
+              <span className="text-base font-extrabold text-slate-900 tracking-tight group-hover:text-emerald-700 transition-colors">
                 {saccoInfo.name}
               </span>
             </button>
 
-            <p className="text-slate-400 text-xs leading-relaxed">
-              Financial cooperative dedicated to the socio-economic prosperity of farmers, merchants, and families across the 19 sectors of Gakenke District.
+            <p className="text-slate-600 text-xs leading-relaxed">
+              {currentLang === 'fr'
+                ? 'Coopérative financière dédiée à la prospérité socio-économique des agriculteurs, commerçants et familles des 19 secteurs du district de Gakenke.'
+                : currentLang === 'rw'
+                ? "Koperative y'imari igamije iterambere ry'ubukungu n'imibereho myiza y'abahinzi, aborozi n'abaturage bo mu mirenge 19 ya Gakenke."
+                : 'Financial cooperative dedicated to the socio-economic prosperity of farmers, merchants, and families across the 19 sectors of Gakenke District.'}
             </p>
 
-            <div className="pt-2 space-y-1.5 text-[11px] text-slate-400">
+            <div className="pt-2 space-y-1.5 text-[11px] text-slate-500">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>RCA Microfinance Registration: {saccoInfo.rcaRegistration}</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? `Enregistrement Microfinance RCA : ${saccoInfo.rcaRegistration}`
+                    : currentLang === 'rw'
+                    ? `Icyangombwa cya RCA : ${saccoInfo.rcaRegistration}`
+                    : `RCA Microfinance Registration: ${saccoInfo.rcaRegistration}`}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Certified Financial Cooperative Institution</span>
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Institution Financière Coopérative Agréée'
+                    : currentLang === 'rw'
+                    ? "Ikigo cy'Imari cya Koperative Cyemewe"
+                    : 'Certified Financial Cooperative Institution'}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Direct Contact Details: WhatsApp, Phone, Email (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-              {currentLang === 'en' ? 'Direct Contact & Helpline' : 'Itumanaho & Ubufasha'}
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              {currentLang === 'fr'
+                ? 'Contact Direct & Assistance'
+                : currentLang === 'rw'
+                ? 'Itumanaho & Ubufasha'
+                : 'Direct Contact & Helpline'}
             </h4>
-            <div className="space-y-2.5 text-slate-300">
+            <div className="space-y-2.5 text-slate-700">
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -148,7 +170,7 @@ export const Footer: React.FC<FooterProps> = ({
                 className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
               >
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Email: <strong className="text-slate-200">{saccoInfo.email}</strong></span>
+                <span>Email: <strong className="text-slate-900">{saccoInfo.email}</strong></span>
               </a>
 
               <div className="flex items-center gap-2 text-amber-300 font-mono-numbers">
@@ -157,7 +179,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
 
               <div className="flex items-start gap-2 text-slate-400 text-[11px] pt-1">
-                <MapPin className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>{saccoInfo.headquarters}</span>
               </div>
             </div>
@@ -165,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Quick Navigational Links (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
               {t.footer.quickLinks}
             </h4>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -176,11 +198,11 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigateToSection(item.targetSection)}
                   className={`text-left text-xs transition-all flex items-center gap-1.5 py-1 px-1.5 rounded-lg cursor-pointer group ${
                     item.isPrimary
-                      ? 'text-emerald-400 font-bold hover:text-emerald-300'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-900/80 hover:translate-x-1'
+                      ? 'text-emerald-700 font-bold hover:text-emerald-800'
+                      : 'text-slate-900 font-medium hover:text-emerald-700 hover:bg-emerald-50 hover:translate-x-1'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition-colors shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 group-hover:bg-emerald-500 transition-colors shrink-0" />
                   <span className="truncate">
                     {currentLang === 'fr'
                       ? item.labelFr || item.labelEn
@@ -203,14 +225,14 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Partners & Social Media */}
         {((partners && partners.filter((p) => p.visible !== false).length > 0) ||
           (socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0)) && (
-          <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-8 pt-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* OUR PARTNERS */}
             {partners && partners.filter((p) => p.visible !== false).length > 0 && (
               <div>
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
                   {currentLang === 'rw' ? 'Abafatanyabikorwa' : currentLang === 'fr' ? 'Nos Partenaires' : 'Our Partners'}
                 </h4>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-stretch gap-4">
                   {partners
                     .filter((p) => p.visible !== false)
                     .map((partner) => (
@@ -223,27 +245,33 @@ export const Footer: React.FC<FooterProps> = ({
                         title={partner.name}
                         className="group"
                       >
-                        <div className="bg-white rounded-lg p-2 transition-all duration-200 group-hover:shadow-lg group-hover:shadow-emerald-500/20 group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-emerald-400 flex items-center justify-center min-h-[48px]">
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 transition-all duration-200 group-hover:shadow-lg group-hover:shadow-emerald-500/20 group-hover:scale-105 group-hover:border-emerald-300 flex flex-col items-center justify-center gap-2 min-w-[110px] min-h-[90px] max-w-[130px]">
                           {partner.logoUrl ? (
                             <img
                               src={partner.logoUrl}
                               alt={`${partner.name} logo`}
-                              className="h-10 w-auto object-contain max-w-[130px]"
+                              className="h-9 w-auto object-contain max-w-[110px]"
                               onError={(e) => {
-                                const target = e.currentTarget;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent && !parent.querySelector('.partner-fallback-text')) {
-                                  const span = document.createElement('span');
-                                  span.className = 'partner-fallback-text text-xs font-bold text-slate-800 px-2';
-                                  span.textContent = partner.name;
-                                  parent.appendChild(span);
-                                }
+                                e.currentTarget.style.display = 'none';
                               }}
                             />
                           ) : (
-                            <span className="text-xs font-bold text-slate-800 px-2">{partner.name}</span>
+                            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                              <span className="text-sm font-extrabold text-emerald-800">
+                                {partner.name.charAt(0)}
+                              </span>
+                            </div>
                           )}
+                          <div className="text-center">
+                            <div className="text-[11px] font-extrabold text-slate-800 group-hover:text-emerald-700 tracking-wide leading-tight">
+                              {partner.name}
+                            </div>
+                            {partner.fullName && (
+                              <div className="text-[9px] text-slate-400 leading-tight mt-0.5 px-1">
+                                {partner.fullName}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </a>
                     ))}
@@ -253,7 +281,7 @@ export const Footer: React.FC<FooterProps> = ({
             {/* OUR SOCIAL MEDIA */}
             {socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0 && (
               <div>
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
                   {currentLang === 'rw' ? 'Dukurikire' : currentLang === 'fr' ? 'Suivez-nous' : 'Follow Us'}
                 </h4>
                 <div className="flex flex-wrap items-center gap-3">
@@ -342,7 +370,7 @@ export const Footer: React.FC<FooterProps> = ({
               <button
                 type="button"
                 onClick={onManagerLogout}
-                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs flex items-center gap-1 transition-all cursor-pointer border border-slate-700"
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs flex items-center gap-1 transition-all cursor-pointer border border-slate-300"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Log Out</span>
@@ -367,17 +395,17 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Imigongo Skeleton Trim */}
-        <ImigongoRibbon height={12} variant="dark" bordered={false} />
+        <ImigongoRibbon height={12} variant="light" bordered={false} />
 
         {/* Copyright & Disclaimer */}
-        <div className="pt-2 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <p>© 2026 {saccoInfo.name}. All Rights Reserved. Developed by &amp; DmechTech Ltd.</p>
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-600">
             <span>District: {saccoInfo.district}</span>
             <span>·</span>
             <span>USSD: {saccoInfo.ussdCode}</span>
             <span>·</span>
-            <a href={`tel:${saccoInfo.phone}`} className="hover:text-emerald-400 font-mono-numbers">
+            <a href={`tel:${saccoInfo.phone}`} className="hover:text-emerald-700 font-mono-numbers">
               {saccoInfo.phone}
             </a>
           </div>
