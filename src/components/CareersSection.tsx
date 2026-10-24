@@ -34,6 +34,7 @@ import {
   Upload,
   ChevronDown,
   ChevronUp,
+  Save,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { JobApplicationModal } from './JobApplicationModal';
@@ -115,7 +116,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
   const [formDepartmentEn, setFormDepartmentEn] = useState('Credit & Financial Operations');
   const [formDepartmentRw, setFormDepartmentRw] = useState('Inguzanyo n\'Imari');
   const [formLocation, setFormLocation] = useState('Gakenke Head Office');
-  const [formType, setFormType] = useState<'full_time' | 'contract' | 'internship'>('full_time');
+  const [formType, setFormType] = useState<string>('full_time');
   const [formSalary, setFormSalary] = useState('Competitive SACCO Scale');
   const [formDeadline, setFormDeadline] = useState('2026-11-15');
   const [formStatus, setFormStatus] = useState<'open' | 'closed'>('open');
@@ -138,6 +139,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
 
   // In-Page Review Drawer States
   const [inPageReviewAppId, setInPageReviewAppId] = useState<string | null>(null);
+  const [reviewCommentDraft, setReviewCommentDraft] = useState('');
   const [feedbackSubject, setFeedbackSubject] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSuccessMsg, setFeedbackSuccessMsg] = useState('');
@@ -223,9 +225,15 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
 
     const matchedJob = jobPostings.find((j) => j.id === applySelectedJobId);
     const resolvedTitle = matchedJob
-      ? currentLang === 'en'
-        ? matchedJob.titleEn
-        : matchedJob.titleRw
+      ? currentLang === 'fr'
+        ? matchedJob.titleFr || matchedJob.titleEn
+        : currentLang === 'rw'
+        ? matchedJob.titleRw
+        : matchedJob.titleEn
+      : currentLang === 'fr'
+      ? 'Candidature Générale'
+      : currentLang === 'rw'
+      ? 'Ubusabe Busanzwe bw\'Akazi'
       : 'General Employment Application';
 
     const refCode = `UBUMWE-${Date.now().toString().slice(-6)}`;
@@ -767,10 +775,12 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                 </div>
                 <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">
                   {activeApplyingJob
-                    ? `${currentLang === 'en' ? 'Apply for' : 'Gusaba Umwanya wa'} ${currentLang === 'en' ? activeApplyingJob.titleEn : activeApplyingJob.titleRw}`
-                    : currentLang === 'en'
-                    ? 'General Job Application'
-                    : 'Gusaba Akazi Muri UBUMWE SACCO'}
+                    ? `${currentLang === 'fr' ? 'Postuler pour' : currentLang === 'rw' ? 'Gusaba Umwanya wa' : 'Apply for'} ${currentLang === 'fr' ? (activeApplyingJob.titleFr || activeApplyingJob.titleEn) : currentLang === 'rw' ? activeApplyingJob.titleRw : activeApplyingJob.titleEn}`
+                    : currentLang === 'fr'
+                    ? 'Candidature Spontanée'
+                    : currentLang === 'rw'
+                    ? 'Gusaba Akazi Muri UBUMWE SACCO'
+                    : 'General Job Application'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Complete your candidate application profile directly on this page. No popup modal required.
@@ -852,7 +862,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                     >
                       {jobPostings.map((j) => (
                         <option key={j.id} value={j.id}>
-                          {currentLang === 'en' ? j.titleEn : j.titleRw} ({currentLang === 'en' ? j.departmentEn : j.departmentRw}) - {j.location}
+                          {currentLang === 'fr' ? (j.titleFr || j.titleEn) : currentLang === 'rw' ? j.titleRw : j.titleEn} ({currentLang === 'fr' ? (j.departmentFr || j.departmentEn) : currentLang === 'rw' ? j.departmentRw : j.departmentEn}) - {j.location}
                         </option>
                       ))}
                     </select>
@@ -1342,155 +1352,130 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
               </div>
             </div>
 
-            {/* Job Postings List */}
-            <div className="space-y-4">
-              {filteredJobs.length === 0 ? (
-                <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
-                  <Briefcase className="w-12 h-12 text-slate-300 mx-auto" />
-                  <h3 className="text-lg font-bold text-slate-700">No Job Openings Found</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    No vacancies match your current search filters. You can still submit a general application for future opportunities.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedDepartment('all');
-                      setSelectedType('all');
-                    }}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              ) : (
-                filteredJobs.map((job) => {
+            {/* Job Postings Grid - Modeled on ProductCatalog */}
+            {filteredJobs.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+                <Briefcase className="w-12 h-12 text-slate-300 mx-auto" />
+                <h3 className="text-lg font-bold text-slate-700">No Job Openings Found</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  No vacancies match your current search filters. You can still submit a general application for future opportunities.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedDepartment('all');
+                    setSelectedType('all');
+                  }}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {filteredJobs.map((job) => {
                   const badge = getEmploymentBadge(job.employmentType);
                   const isExpanded = expandedJobId === job.id;
                   const isClosed = job.status === 'closed';
                   const jobAppCount = jobApplications.filter(
                     (a) => a.jobId === job.id || a.jobTitle.toLowerCase() === job.titleEn.toLowerCase()
                   ).length;
+                  const jobTitle = currentLang === 'fr' ? (job.titleFr || job.titleEn) : currentLang === 'rw' ? (job.titleRw || job.titleEn) : job.titleEn;
+                  const deptName = currentLang === 'fr' ? (job.departmentFr || job.departmentEn) : currentLang === 'rw' ? (job.departmentRw || job.departmentEn) : job.departmentEn;
+                  const jobDesc = currentLang === 'fr' ? (job.descriptionFr || job.descriptionEn) : currentLang === 'rw' ? (job.descriptionRw || job.descriptionEn) : job.descriptionEn;
+                  const requirements = currentLang === 'rw' ? (job.requirementsRw || job.requirementsEn) : job.requirementsEn;
+                  const responsibilities = currentLang === 'rw' ? (job.responsibilitiesRw || job.responsibilitiesEn) : job.responsibilitiesEn;
 
                   return (
                     <div
                       key={job.id}
-                      className={`bg-white rounded-3xl border ${
-                        isClosed ? 'border-slate-200 opacity-75' : 'border-slate-200 hover:border-emerald-300'
-                      } p-6 sm:p-8 shadow-xs hover:shadow-md transition-all space-y-6 relative group`}
+                      className={`bg-white rounded-2xl border ${
+                        isClosed ? 'border-slate-200/80 opacity-80' : 'border-slate-200/80 hover:border-emerald-300'
+                      } shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group p-6 sm:p-7 relative`}
                     >
-                      {/* Top Job Header Bar */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${badge.bg}`}>
-                            {badge.label}
-                          </span>
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                            {currentLang === 'en' ? job.departmentEn : job.departmentRw}
-                          </span>
+                      <div>
+                        {/* Top Category / Employment Badge & Status */}
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${badge.bg}`}>
+                              {badge.label}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">
+                              {deptName}
+                            </span>
+                          </div>
+
                           {isClosed ? (
-                            <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800">
-                              Applications Closed
+                            <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                              Closed
                             </span>
                           ) : (
-                            <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                              Accepting Applications
+                              Active
                             </span>
                           )}
                         </div>
 
-                        {/* Admin / Actions Bar for Job Card */}
-                        <div className="flex items-center gap-2">
-                          {isAdmin && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setApplicantJobFilter(job.id);
-                                setCareersTab('applicants');
-                              }}
-                              className="px-2.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer bg-slate-900 text-white hover:bg-slate-800 flex items-center gap-1.5 shadow-xs"
-                              title="Admin: View candidates who applied for this vacancy"
-                            >
-                              <Users className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>Applicants ({jobAppCount})</span>
-                            </button>
-                          )}
-
-                          {isAdmin && (
-                            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-                              <button
-                                type="button"
-                                onClick={() => openEditModal(job)}
-                                className="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-white rounded-lg transition-colors cursor-pointer"
-                                title="Edit Job Vacancy"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  onUpdateJobPosting &&
-                                  onUpdateJobPosting(job.id, {
-                                    status: job.status === 'open' ? 'closed' : 'open',
-                                  })
-                                }
-                                className="px-2 py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                                title="Toggle Status"
-                              >
-                                {job.status === 'open' ? 'Close' : 'Open'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => onDeleteJobPosting && onDeleteJobPosting(job.id)}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-colors cursor-pointer"
-                                title="Delete Job Vacancy"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          )}
+                        {/* Title & Salary Scale (ProductCatalog style) */}
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-emerald-700">
+                            <Briefcase className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-emerald-800 transition-colors leading-snug">
+                              {jobTitle}
+                            </h3>
+                            <span className="text-xs font-semibold text-emerald-700 font-mono-numbers block mt-0.5">
+                              {job.salaryRange || 'Competitive SACCO Package'}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Job Title & Summary */}
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                          {currentLang === 'rw' ? job.titleRw || job.titleEn : job.titleEn}
-                        </h3>
-                        <p className="text-slate-600 mt-2 text-sm leading-relaxed">
-                          {currentLang === 'rw' ? job.descriptionRw || job.descriptionEn : job.descriptionEn}
+                        {/* Tagline / Brief Description */}
+                        <p className="text-xs sm:text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed">
+                          {jobDesc}
                         </p>
-                      </div>
 
-                      {/* Meta Tags: Location, Salary, Deadline */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-600 pt-2 border-t border-slate-100">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{job.location}</span>
+                        {/* Meta Chips: Location & Deadline */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4 pb-3 border-b border-slate-100">
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span className="truncate">{job.location}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Deadline: <strong className="text-slate-700 font-medium">{job.deadline}</strong></span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{job.salaryRange || 'Competitive SACCO Package'}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Deadline: <strong>{job.deadline}</strong></span>
-                        </div>
-                      </div>
 
-                      {/* Collapsible Requirements and Responsibilities */}
-                      {isExpanded && (
-                        <div className="pt-4 border-t border-slate-100 space-y-6 animate-in fade-in">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        {/* Key Requirements with CheckCircle2 (ProductCatalog style) */}
+                        {requirements && requirements.length > 0 && (
+                          <div className="space-y-1.5 mb-5">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                              Key Requirements
+                            </div>
+                            {requirements.slice(0, 3).map((feat, idx) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                                <span className="line-clamp-1">{feat}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Collapsible Details (All Requirements & Responsibilities) */}
+                        {isExpanded && (
+                          <div className="my-4 pt-4 border-t border-slate-100 space-y-4 animate-in fade-in">
+                            <div className="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                              <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                 <span>Requirements &amp; Profile</span>
                               </h4>
-                              <ul className="space-y-2 text-xs text-slate-700">
-                                {(currentLang === 'rw' ? job.requirementsRw || job.requirementsEn : job.requirementsEn).map((req, idx) => (
-                                  <li key={idx} className="flex items-start gap-2">
+                              <ul className="space-y-1.5 text-xs text-slate-700">
+                                {requirements.map((req, idx) => (
+                                  <li key={idx} className="flex items-start gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
                                     <span>{req}</span>
                                   </li>
@@ -1498,67 +1483,109 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                               </ul>
                             </div>
 
-                            <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <Sparkles className="w-4 h-4 text-emerald-600" />
-                                <span>Key Responsibilities</span>
-                              </h4>
-                              <ul className="space-y-2 text-xs text-slate-700">
-                                {(currentLang === 'rw' ? job.responsibilitiesRw || job.responsibilitiesEn : job.responsibilitiesEn).map((resp, idx) => (
-                                  <li key={idx} className="flex items-start gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
-                                    <span>{resp}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
+                            {responsibilities && responsibilities.length > 0 && (
+                              <div className="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                                <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Responsibilities</span>
+                                </h4>
+                                <ul className="space-y-1.5 text-xs text-slate-700">
+                                  {responsibilities.map((resp, idx) => (
+                                    <li key={idx} className="flex items-start gap-1.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
+                                      <span>{resp}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
+                        )}
+                      </div>
+
+                      {/* Card Action Section (Modeled on ProductCatalog) */}
+                      <div className="pt-4 border-t border-slate-100 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedJobId(isExpanded ? null : job.id)}
+                            className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span>{isExpanded ? 'Hide' : 'Details'}</span>
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {!isClosed ? (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenApplyModal(job)}
+                              className="flex-1 py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                            >
+                              <span>Apply Now</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <span className="flex-1 py-2 px-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold text-center">
+                              Closed
+                            </span>
+                          )}
                         </div>
-                      )}
 
-                      {/* Action Bar */}
-                      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedJobId(isExpanded ? null : job.id)}
-                          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>{isExpanded ? 'Hide Details' : 'View Full Role Profile & Duties'}</span>
-                          <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isExpanded ? '-rotate-90' : 'rotate-90'}`} />
-                        </button>
-
-                        <div className="flex items-center gap-3">
-                          {isAdmin && (
+                        {/* Admin Direct CRUD & Candidate Review Toolbar */}
+                        {isAdmin && (
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
                             <button
                               type="button"
                               onClick={() => {
                                 setApplicantJobFilter(job.id);
                                 setCareersTab('applicants');
                               }}
-                              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                              className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
+                              title="Admin: View candidates who applied for this vacancy"
                             >
-                              <Users className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>View Applicants ({jobAppCount})</span>
+                              <Users className="w-3 h-3 text-emerald-400" />
+                              <span>Applicants ({jobAppCount})</span>
                             </button>
-                          )}
 
-                          {!isClosed && (
                             <button
                               type="button"
-                              onClick={() => handleOpenApplyModal(job)}
-                              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                              onClick={() => openEditModal(job)}
+                              className="p-1.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                              title="Edit Job Vacancy"
                             >
-                              <span>Apply for This Role</span>
-                              <ArrowRight className="w-4 h-4" />
+                              <Edit2 className="w-3.5 h-3.5" />
                             </button>
-                          )}
-                        </div>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onUpdateJobPosting &&
+                                onUpdateJobPosting(job.id, {
+                                  status: job.status === 'open' ? 'closed' : 'open',
+                                })
+                              }
+                              className="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                              title="Toggle Status"
+                            >
+                              {job.status === 'open' ? 'Close' : 'Open'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => onDeleteJobPosting && onDeleteJobPosting(job.id)}
+                              className="p-1.5 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                              title="Delete Job Vacancy"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
-                })
-              )}
-            </div>
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -1696,7 +1723,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                       >
                         {jobPostings.map((j) => (
                           <option key={j.id} value={j.id}>
-                            {currentLang === 'en' ? j.titleEn : j.titleRw} ({currentLang === 'en' ? j.departmentEn : j.departmentRw})
+                            {currentLang === 'fr' ? (j.titleFr || j.titleEn) : currentLang === 'rw' ? j.titleRw : j.titleEn} ({currentLang === 'fr' ? (j.departmentFr || j.departmentEn) : currentLang === 'rw' ? j.departmentRw : j.departmentEn})
                           </option>
                         ))}
                       </select>
@@ -1945,7 +1972,7 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
                     <option value="all">All Vacancy Positions</option>
                     {jobPostings.map((job) => (
                       <option key={job.id} value={job.id}>
-                        {currentLang === 'en' ? job.titleEn : job.titleRw}
+                        {currentLang === 'fr' ? (job.titleFr || job.titleEn) : currentLang === 'rw' ? job.titleRw : job.titleEn}
                       </option>
                     ))}
                   </select>

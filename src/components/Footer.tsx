@@ -38,7 +38,7 @@ interface FooterProps {
   onOpenMembershipModal: () => void;
   isManagerLoggedIn: boolean;
   managerName?: string;
-  onOpenManagerLogin: () => void;
+  onOpenManagerLogin?: () => void;
   onOpenAdminConsole: (tab?: string) => void;
   onManagerLogout: () => void;
   onManagerLoginSuccess?: (user?: { name: string; email: string; role: string }) => void; // optional callback with optional user
@@ -82,9 +82,9 @@ export const Footer: React.FC<FooterProps> = ({
   const visibleNavs = navItems.filter((i) => i.visible);
 
   return (
-    <footer className="bg-white text-slate-700 text-xs border-t-4 border-emerald-700 relative shadow-lg">
+    <footer className="bg-slate-900 text-slate-300 text-xs border-t-4 border-emerald-600 relative">
       {/* Top Imigongo Skeleton Ribbon */}
-      <ImigongoRibbon height={18} variant="light" bordered={true} />
+      <ImigongoRibbon height={18} variant="dark" bordered={false} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 lg:py-16 space-y-12">
         {/* Main 3-Column Info Grid */}
@@ -100,12 +100,12 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="w-8 h-8 rounded-lg bg-emerald-700 group-hover:bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 transition-colors shadow-sm">
                 <Landmark className="w-4 h-4 text-emerald-100" />
               </div>
-              <span className="text-base font-extrabold text-slate-900 tracking-tight group-hover:text-emerald-700 transition-colors">
+              <span className="text-base font-extrabold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
                 {saccoInfo.name}
               </span>
             </button>
 
-            <p className="text-slate-600 text-xs leading-relaxed">
+            <p className="text-slate-400 text-xs leading-relaxed">
               {currentLang === 'fr'
                 ? 'Coopérative financière dédiée à la prospérité socio-économique des agriculteurs, commerçants et familles des 19 secteurs du district de Gakenke.'
                 : currentLang === 'rw'
@@ -113,7 +113,7 @@ export const Footer: React.FC<FooterProps> = ({
                 : 'Financial cooperative dedicated to the socio-economic prosperity of farmers, merchants, and families across the 19 sectors of Gakenke District.'}
             </p>
 
-            <div className="pt-2 space-y-1.5 text-[11px] text-slate-500">
+            <div className="pt-2 space-y-1.5 text-[11px] text-slate-400">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>
@@ -139,14 +139,14 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Direct Contact Details: WhatsApp, Phone, Email (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               {currentLang === 'fr'
                 ? 'Contact Direct & Assistance'
                 : currentLang === 'rw'
                 ? 'Itumanaho & Ubufasha'
                 : 'Direct Contact & Helpline'}
             </h4>
-            <div className="space-y-2.5 text-slate-700">
+            <div className="space-y-2.5 text-slate-300">
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -170,7 +170,7 @@ export const Footer: React.FC<FooterProps> = ({
                 className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
               >
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Email: <strong className="text-slate-900">{saccoInfo.email}</strong></span>
+                <span>Email: <strong className="text-white">{saccoInfo.email}</strong></span>
               </a>
 
               <div className="flex items-center gap-2 text-amber-300 font-mono-numbers">
@@ -179,7 +179,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
 
               <div className="flex items-start gap-2 text-slate-400 text-[11px] pt-1">
-                <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <span>{saccoInfo.headquarters}</span>
               </div>
             </div>
@@ -187,7 +187,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Quick Navigational Links (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
               {t.footer.quickLinks}
             </h4>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -198,11 +198,11 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigateToSection(item.targetSection)}
                   className={`text-left text-xs transition-all flex items-center gap-1.5 py-1 px-1.5 rounded-lg cursor-pointer group ${
                     item.isPrimary
-                      ? 'text-emerald-700 font-bold hover:text-emerald-800'
-                      : 'text-slate-900 font-medium hover:text-emerald-700 hover:bg-emerald-50 hover:translate-x-1'
+                      ? 'text-emerald-400 font-bold hover:text-emerald-300'
+                      : 'text-slate-300 font-medium hover:text-emerald-400 hover:bg-slate-800 hover:translate-x-1'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 group-hover:bg-emerald-500 transition-colors shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:bg-emerald-400 transition-colors shrink-0" />
                   <span className="truncate">
                     {currentLang === 'fr'
                       ? item.labelFr || item.labelEn
@@ -213,7 +213,7 @@ export const Footer: React.FC<FooterProps> = ({
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-slate-500 pt-2">
+            <p className="text-[11px] text-slate-400 pt-2">
               {currentLang === 'fr'
                 ? 'Lun - Ven : 8h00 - 17h00 | Sam : 8h00 - 13h00'
                 : currentLang === 'rw'
@@ -225,11 +225,11 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Partners & Social Media */}
         {((partners && partners.filter((p) => p.visible !== false).length > 0) ||
           (socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0)) && (
-          <div className="mt-8 pt-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* OUR PARTNERS */}
             {partners && partners.filter((p) => p.visible !== false).length > 0 && (
               <div>
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
                   {currentLang === 'rw' ? 'Abafatanyabikorwa' : currentLang === 'fr' ? 'Nos Partenaires' : 'Our Partners'}
                 </h4>
                 <div className="flex flex-wrap items-stretch gap-4">
@@ -243,31 +243,43 @@ export const Footer: React.FC<FooterProps> = ({
                         rel="noopener noreferrer"
                         aria-label={partner.name}
                         title={partner.name}
-                        className="group"
+                        className="group/card"
                       >
-                        <div className="bg-white border border-slate-200 rounded-xl p-3 transition-all duration-200 group-hover:shadow-lg group-hover:shadow-emerald-500/20 group-hover:scale-105 group-hover:border-emerald-300 flex flex-col items-center justify-center gap-2 min-w-[110px] min-h-[90px] max-w-[130px]">
+                        <div className="bg-slate-800 border border-slate-700 rounded-xl p-3 transition-all duration-300 ease-out group-hover/card:shadow-2xl group-hover/card:shadow-emerald-500/30 group-hover/card:scale-110 group-hover/card:-translate-y-1 group-hover/card:border-emerald-500 flex flex-col items-center justify-center gap-2 min-w-[120px] min-h-[100px] max-w-[140px] cursor-pointer">
                           {partner.logoUrl ? (
-                            <img
-                              src={partner.logoUrl}
-                              alt={`${partner.name} logo`}
-                              className="h-9 w-auto object-contain max-w-[110px]"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
+                            <div className="w-full h-14 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-sm overflow-hidden">
+                              <img
+                                src={partner.logoUrl}
+                                alt={`${partner.name} logo`}
+                                className="h-10 w-auto object-contain max-w-[110px] transition-transform duration-300 ease-out group-hover/card:scale-125"
+                                onError={(e) => {
+                                  // Replace broken img with letter fallback
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    parent.classList.remove('bg-white', 'p-1.5');
+                                    parent.classList.add('bg-emerald-950/60', 'border', 'border-emerald-800/40');
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = document.createElement('span');
+                                    fallback.className = 'text-xl font-extrabold text-emerald-400';
+                                    fallback.textContent = partner.name.charAt(0);
+                                    parent.appendChild(fallback);
+                                  }
+                                }}
+                              />
+                            </div>
                           ) : (
-                            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                              <span className="text-sm font-extrabold text-emerald-800">
+                            <div className="w-14 h-14 rounded-lg bg-emerald-950/60 border border-emerald-800/40 flex items-center justify-center transition-transform duration-300 ease-out group-hover/card:scale-110">
+                              <span className="text-xl font-extrabold text-emerald-400 transition-all duration-300 group-hover/card:text-emerald-300">
                                 {partner.name.charAt(0)}
                               </span>
                             </div>
                           )}
                           <div className="text-center">
-                            <div className="text-[11px] font-extrabold text-slate-800 group-hover:text-emerald-700 tracking-wide leading-tight">
+                            <div className="text-[11px] font-extrabold text-slate-200 group-hover/card:text-emerald-400 tracking-wide leading-tight transition-colors duration-200">
                               {partner.name}
                             </div>
                             {partner.fullName && (
-                              <div className="text-[9px] text-slate-400 leading-tight mt-0.5 px-1">
+                              <div className="text-[9px] text-slate-400 group-hover/card:text-slate-300 leading-tight mt-0.5 px-1 transition-colors duration-200">
                                 {partner.fullName}
                               </div>
                             )}
@@ -281,7 +293,7 @@ export const Footer: React.FC<FooterProps> = ({
             {/* OUR SOCIAL MEDIA */}
             {socialLinks && socialLinks.filter((s) => s.visible !== false).length > 0 && (
               <div>
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
                   {currentLang === 'rw' ? 'Dukurikire' : currentLang === 'fr' ? 'Suivez-nous' : 'Follow Us'}
                 </h4>
                 <div className="flex flex-wrap items-center gap-3">
@@ -355,6 +367,7 @@ export const Footer: React.FC<FooterProps> = ({
             )}
           </div>
         )}
+
         {/* Staff Login Button */}
         <div className="mt-6 flex items-center justify-end">
           {isManagerLoggedIn ? (
@@ -395,17 +408,17 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Imigongo Skeleton Trim */}
-        <ImigongoRibbon height={12} variant="light" bordered={false} />
+        <ImigongoRibbon height={12} variant="dark" bordered={false} />
 
         {/* Copyright & Disclaimer */}
-        <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
           <p>© 2026 {saccoInfo.name}. All Rights Reserved. Developed by &amp; DmechTech Ltd.</p>
-          <div className="flex items-center gap-4 text-slate-600">
+          <div className="flex items-center gap-4 text-slate-400">
             <span>District: {saccoInfo.district}</span>
             <span>·</span>
             <span>USSD: {saccoInfo.ussdCode}</span>
             <span>·</span>
-            <a href={`tel:${saccoInfo.phone}`} className="hover:text-emerald-700 font-mono-numbers">
+            <a href={`tel:${saccoInfo.phone}`} className="hover:text-emerald-400 font-mono-numbers">
               {saccoInfo.phone}
             </a>
           </div>

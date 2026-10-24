@@ -928,7 +928,11 @@ export const Gallery: React.FC<GalleryProps> = ({
                       Official Milestone Narrative · Amagambo n'Inkuru
                     </span>
                     <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-0.5">
-                      {currentLang === 'en' ? activeMomentDetail.titleEn : activeMomentDetail.titleRw}
+                      {currentLang === 'fr'
+                        ? activeMomentDetail.titleFr || activeMomentDetail.titleEn
+                        : currentLang === 'rw'
+                        ? activeMomentDetail.titleRw
+                        : activeMomentDetail.titleEn}
                     </h3>
                   </div>
 
@@ -959,17 +963,25 @@ export const Gallery: React.FC<GalleryProps> = ({
                   </div>
 
                   <p className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed">
-                    "{currentLang === 'en' ? activeMomentDetail.captionEn : activeMomentDetail.captionRw}"
+                    "{currentLang === 'fr'
+                      ? activeMomentDetail.captionFr || activeMomentDetail.captionEn
+                      : currentLang === 'rw'
+                      ? activeMomentDetail.captionRw
+                      : activeMomentDetail.captionEn}"
                   </p>
                 </div>
 
                 {/* Secondary Language Translation (so members and visitors can read both English and Kinyarwanda clearly) */}
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-950 space-y-1">
                   <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-800 block">
-                    {currentLang === 'en' ? 'Kinyarwanda Version / Mu Kinyarwanda:' : 'English Version / Mu Cyongereza:'}
+                    {currentLang === 'fr'
+                      ? 'Version Kinyarwanda / Mu Kinyarwanda:'
+                      : currentLang === 'rw'
+                      ? 'English Version / Mu Cyongereza:'
+                      : 'Kinyarwanda Version / Mu Kinyarwanda:'}
                   </span>
                   <p className="italic leading-relaxed">
-                    {currentLang === 'en' ? activeMomentDetail.captionRw : activeMomentDetail.captionEn}
+                    {currentLang === 'rw' ? activeMomentDetail.captionEn : activeMomentDetail.captionRw}
                   </p>
                 </div>
               </div>

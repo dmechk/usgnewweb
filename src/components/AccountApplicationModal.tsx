@@ -60,7 +60,7 @@ export const AccountApplicationModal: React.FC<AccountApplicationModalProps> = (
     // Validate 16-digit Rwandan National ID
     const cleanId = idNumber.replace(/\s+/g, '');
     if (cleanId.length !== 16 || !/^\d+$/.test(cleanId)) {
-      setIdError(currentLang === 'en' ? 'National ID must be exactly 16 numeric digits.' : 'Indangamuntu igomba kuba igizwe n\'imibare 16 yose.');
+      setIdError(currentLang === 'fr' ? 'La carte d\'identité nationale doit comporter exactement 16 chiffres.' : currentLang === 'rw' ? 'Indangamuntu igomba kuba igizwe n\'imibare 16 yose.' : 'National ID must be exactly 16 numeric digits.');
       return;
     }
     setIdError('');

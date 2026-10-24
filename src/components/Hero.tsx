@@ -17,6 +17,8 @@ import {
   Plus,
   Trash2,
   Upload,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 
@@ -65,6 +67,7 @@ export const Hero: React.FC<HeroProps> = ({
   const [isPaused, setIsPaused] = React.useState(false);
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const touchStartX = React.useRef<number | null>(null);
 
   // Compress image on the fly to avoid exceeding browser localStorage quota
   const compressHeroImage = (file: File): Promise<string> => {
@@ -105,6 +108,76 @@ export const Hero: React.FC<HeroProps> = ({
     });
   };
 
+  // Curate rich cooperative moment images for continuous full-frame flow
+  const defaultFlowImages = React.useMemo(() => [
+    '/src/assets/images/mbitsemunda_phocas_desk.jpg',
+    '/src/assets/images/community_governance_1791989970347.jpg',
+    '/src/assets/images/farmers_cooperative_1791989969904.jpg',
+    '/src/assets/images/portrait_director_wellars_1791994899049.jpg',
+    '/src/assets/images/bartazal_speaking.jpg',
+    '/src/assets/images/hero_sacco_banking_1791989969362.jpg',
+    '/src/assets/images/entrepreneur_business_1791989970089.jpg',
+  ], []);
+
+  const allFlowImages = React.useMemo(() => {
+    const combined = [...slides];
+    defaultFlowImages.forEach((img) => {
+      if (!combined.includes(img)) combined.push(img);
+    });
+    return combined;
+  }, [slides, defaultFlowImages]);
+
+  const handlePrev = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + allFlowImages.length) % allFlowImages.length);
+  };
+
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % allFlowImages.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+    touchStartX.current = null;
+  };
+
+  // Keyboard Left / Right arrow navigation
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (e.key === 'ArrowLeft') {
+        setCurrentIndex((prev) => (prev - 1 + allFlowImages.length) % allFlowImages.length);
+      } else if (e.key === 'ArrowRight') {
+        setCurrentIndex((prev) => (prev + 1) % allFlowImages.length);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [allFlowImages.length]);
+
+  // Ambient auto-flow when idle; smoothly transitions to next image every 5.5s, pauses on hover/upload
+  React.useEffect(() => {
+    if (allFlowImages.length <= 1 || isPaused || isUploading) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % allFlowImages.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [allFlowImages.length, isPaused, isUploading]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !onUpdateSlides) return;
@@ -130,27 +203,8 @@ export const Hero: React.FC<HeroProps> = ({
     if (window.confirm('Delete this welcome slide image?')) {
       const updated = slides.filter((_, i) => i !== currentIndex);
       onUpdateSlides(updated);
-      setCurrentIndex((prev) => (prev >= updated.length ? updated.length - 1 : prev));
+      setCurrentIndex((prev) => (prev >= updated.length ? Math.max(0, updated.length - 1) : prev));
     }
-  };
-
-  // Auto-advance slide to the left every 3 seconds (as requested)
-  React.useEffect(() => {
-    if (slides.length <= 1 || isPaused || isUploading) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [slides.length, isPaused, isUploading]);
-
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
   };
 
   const districtBadge =
@@ -212,7 +266,7 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="bg-emerald-950/90 border-b border-emerald-800/80 px-4 py-2 text-xs flex items-center justify-between text-emerald-200">
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="font-bold">Home Hero Section (Admin Control Active · {slides.length} Welcome Slides)</span>
+            <span className="font-bold">Home Hero Section (Admin Control Active · {slides.length} Welcome Backgrounds)</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -221,7 +275,7 @@ export const Hero: React.FC<HeroProps> = ({
               className="px-3 py-1 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Camera className="w-3 h-3" />
-              <span>Manage Slides &amp; Pictures</span>
+              <span>Manage Pictures</span>
             </button>
             <button
               type="button"
@@ -280,87 +334,92 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Left-Moving Sliding Carousel (7 cols) */}
+          {/* Right Column: Full-Frame Hero Image Flow with Left/Right Controls (7 cols) */}
           <div className="lg:col-span-7">
             <div
-              className="relative rounded-3xl overflow-hidden border-2 border-emerald-500/30 shadow-2xl shadow-emerald-950/60 bg-slate-800 group transition-all duration-500 hover:border-emerald-500/60 ring-1 ring-white/10 select-none"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              className="relative rounded-3xl overflow-hidden border border-emerald-500/25 shadow-2xl shadow-emerald-950/50 bg-slate-950 group ring-1 ring-white/10 select-none h-[460px] sm:h-[520px] lg:h-[580px]"
             >
-              {/* Left-Moving Carousel Track */}
-              <div className="relative w-full h-[380px] sm:h-[460px] lg:h-[560px] overflow-hidden bg-slate-950">
-                <div
-                  className="flex h-full transition-transform duration-700 ease-out will-change-transform"
-                  style={{
-                    transform: `translateX(-${currentIndex * 100}%)`,
-                  }}
-                >
-                  {slides.map((slideUrl, idx) => (
-                    <div
-                      key={`slide-${idx}-${slideUrl}`}
-                      className="min-w-full h-full relative shrink-0"
-                    >
-                      <img
-                        src={slideUrl}
-                        alt={`UBUMWE SACCO GAKENKE Slide ${idx + 1}`}
-                        className="w-full h-full object-cover select-none"
-                        referrerPolicy="no-referrer"
-                        loading={idx === 0 ? 'eager' : 'lazy'}
-                      />
-                    </div>
-                  ))}
+              {/* Full-Frame Horizontal Sliding Track */}
+              <div
+                className="flex h-full w-full transition-transform duration-700 ease-out will-change-transform"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {allFlowImages.map((imgUrl, idx) => (
+                  <div
+                    key={`hero-flow-img-${idx}-${imgUrl}`}
+                    className="relative w-full h-full min-w-full shrink-0 overflow-hidden bg-slate-900"
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`UBUMWE SACCO GAKENKE ${idx + 1}`}
+                      className="w-full h-full object-cover select-none"
+                      loading={idx === 0 ? 'eager' : 'lazy'}
+                    />
+                    {/* Subtle cinematic gradient overlay for high contrast and readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/15 to-slate-950/25 pointer-events-none" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Left Navigation Arrow Button */}
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous image"
+                className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-950/75 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer shadow-2xl z-25 group/btn"
+                title="Previous image (Left arrow)"
+              >
+                <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover/btn:-translate-x-0.5" />
+              </button>
+
+              {/* Right Navigation Arrow Button */}
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next image"
+                className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-950/75 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer shadow-2xl z-25 group/btn"
+                title="Next image (Right arrow)"
+              >
+                <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover/btn:translate-x-0.5" />
+              </button>
+
+              {/* Bottom Overlay Bar with District Badge & Counter/Dots */}
+              <div className="absolute bottom-4 inset-x-4 z-20 flex items-center justify-between gap-2 pointer-events-none">
+                {/* Flow Identity Badge */}
+                <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/15 text-[11px] text-slate-200 shadow-xl pointer-events-auto">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-semibold tracking-wide">
+                    {currentLang === 'fr'
+                      ? 'UBUMWE SACCO · District de Gakenke'
+                      : currentLang === 'rw'
+                      ? 'UBUMWE SACCO · Akarere ka Gakenke'
+                      : 'UBUMWE SACCO · Gakenke District'}
+                  </span>
                 </div>
 
-                {/* Subtle gradient overlay at bottom for cinematic readability */}
-                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent pointer-events-none" />
-
-                {/* Left Slide Arrow */}
-                {slides.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    aria-label="Previous slide"
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/70 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer shadow-lg z-20"
-                  >
-                    <span className="text-lg font-bold leading-none">&#8249;</span>
-                  </button>
-                )}
-
-                {/* Right Slide Arrow */}
-                {slides.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    aria-label="Next slide"
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/70 hover:bg-emerald-600 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer shadow-lg z-20"
-                  >
-                    <span className="text-lg font-bold leading-none">&#8250;</span>
-                  </button>
-                )}
-
-                {/* Bottom Navigation Indicators (Dots & Slide Count) */}
-                {slides.length > 1 && (
-                  <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-2 z-20">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15">
-                      {slides.map((_, i) => (
-                        <button
-                          key={`dot-${i}`}
-                          type="button"
-                          onClick={() => setCurrentIndex(i)}
-                          aria-label={`Jump to slide ${i + 1}`}
-                          className={`transition-all rounded-full cursor-pointer ${
-                            currentIndex === i
-                              ? 'w-7 h-2 bg-emerald-400 shadow-sm'
-                              : 'w-2 h-2 bg-white/40 hover:bg-white/80'
-                          }`}
-                        />
-                      ))}
-                      <span className="text-[10px] text-slate-300 font-mono ml-1.5 pl-1.5 border-l border-white/20">
-                        {currentIndex + 1}/{slides.length}
-                      </span>
-                    </div>
+                {/* Slide counter & interactive mini dots */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/15 text-xs text-slate-200 shadow-xl pointer-events-auto">
+                  <div className="flex items-center gap-1.5 hidden sm:flex">
+                    {allFlowImages.map((_, i) => (
+                      <button
+                        key={`dot-${i}`}
+                        type="button"
+                        onClick={() => setCurrentIndex(i)}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          i === currentIndex ? 'w-5 bg-emerald-400' : 'w-1.5 bg-white/40 hover:bg-white/75'
+                        }`}
+                        aria-label={`Go to image ${i + 1}`}
+                      />
+                    ))}
                   </div>
-                )}
+                  <span className="font-mono text-emerald-400 font-bold ml-1">{currentIndex + 1}</span>
+                  <span className="text-slate-500 font-mono">/</span>
+                  <span className="text-slate-300 font-mono">{allFlowImages.length}</span>
+                </div>
               </div>
 
               {/* Hidden File Input for Direct Local Image Upload */}
@@ -372,12 +431,20 @@ export const Hero: React.FC<HeroProps> = ({
                 className="hidden"
               />
 
-              {/* Admin Change Picture / Manage Slides Floating Controls */}
+              {/* Admin Floating Controls */}
               {isAdmin && (
                 <div className="absolute top-4 right-4 flex flex-wrap items-center justify-end gap-2 z-30">
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-950/85 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold backdrop-blur-md">
-                    {slides.length} Slides Active
-                  </span>
+                  {/* Delete current slide if custom slides present */}
+                  {onUpdateSlides && slides.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteCurrentSlide}
+                      className="px-2.5 py-1.5 bg-rose-950/85 hover:bg-rose-600 text-rose-200 hover:text-white rounded-xl text-xs font-semibold backdrop-blur-md border border-rose-500/30 flex items-center gap-1 shadow-xl transition-all cursor-pointer"
+                      title="Delete this image"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
 
                   {/* Direct Add Image button */}
                   {onUpdateSlides && (
@@ -389,28 +456,16 @@ export const Hero: React.FC<HeroProps> = ({
                         fileInputRef.current?.click();
                       }}
                       className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold backdrop-blur-md border border-emerald-400/40 flex items-center gap-1.5 shadow-xl transition-all cursor-pointer"
-                      title="Upload and add another image to the welcome slideshow"
+                      title="Upload and add another image to the visual flow"
                     >
                       {isUploading ? (
                         <span>Uploading...</span>
                       ) : (
                         <>
                           <Plus className="w-3.5 h-3.5" />
-                          <span>+ Add Slide</span>
+                          <span>+ Add Photo</span>
                         </>
                       )}
-                    </button>
-                  )}
-
-                  {/* Delete Current Slide button */}
-                  {onUpdateSlides && slides.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={handleDeleteCurrentSlide}
-                      className="p-1.5 bg-rose-950/80 hover:bg-rose-600 text-rose-200 hover:text-white rounded-xl text-xs font-bold backdrop-blur-md border border-rose-500/40 flex items-center shadow-xl transition-all cursor-pointer"
-                      title={`Delete current slide #${currentIndex + 1}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
 
@@ -423,7 +478,7 @@ export const Hero: React.FC<HeroProps> = ({
                       title="Open full admin pictures manager"
                     >
                       <Camera className="w-3.5 h-3.5 text-emerald-300" />
-                      <span>All Controls</span>
+                      <span>Manage Flow</span>
                     </button>
                   )}
                 </div>

@@ -76,7 +76,7 @@ import { AdminConsoleModal } from './components/AdminConsoleModal';
 import { ContactSection } from './components/ContactSection';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
-import { Shield, Phone, ImageIcon, Compass, Settings, LogOut, Quote, Briefcase, Eye, ArrowRight, LayoutGrid, Users, Video } from 'lucide-react';
+import { Shield, Phone, ImageIcon, Compass, Settings, LogOut, Quote, Briefcase, Eye, ArrowRight, LayoutGrid, Users, Video, Archive, Layers } from 'lucide-react';
 
 export default function App() {
   const [currentLang, setCurrentLang] = useState<Language>(() => {
@@ -442,13 +442,23 @@ export default function App() {
       const saved = localStorage.getItem('ubumwe_partners');
       if (saved) {
         const parsed: PartnerItem[] = JSON.parse(saved);
-        return parsed.map((item) => {
+        // Always restore bundled asset logoUrl for known partners —
+        // localStorage stores plain path strings but Vite hashes asset URLs at build time.
+        const restored = parsed.map((item) => {
           const def = INITIAL_PARTNERS.find((p) => p.id === item.id);
-          if (def && (!item.logoUrl || item.logoUrl.includes('broken'))) {
+          if (def) {
+            // Always use the fresh bundled logoUrl for known partners
             return { ...item, logoUrl: def.logoUrl };
           }
           return item;
         });
+        // Merge any default partners not yet in localStorage
+        INITIAL_PARTNERS.forEach((def) => {
+          if (!restored.find((p) => p.id === def.id)) {
+            restored.push(def);
+          }
+        });
+        return restored;
       }
       return INITIAL_PARTNERS;
     } catch {
@@ -1002,7 +1012,7 @@ export default function App() {
     setBranches((prev) =>
       prev.map((b) => {
         if (b.id === branchId) {
-          return { ...b, subBranches: (b.subBranches || []).filter((s: { id: string }) => s.id !== subId) };
+          return { ...b, subBranches: (b.subBranches || []).filter((s) => s.id !== subId) };
         }
         return b;
       })
@@ -1017,7 +1027,7 @@ export default function App() {
     setBranches((prev) =>
       prev.map((b) => {
         if (b.id === branchId) {
-          const updatedSubs = (b.subBranches || []).map((s: { id: string }) =>
+          const updatedSubs = (b.subBranches || []).map((s) =>
             s.id === subId ? { ...s, ...updated } : s
           );
           return { ...b, subBranches: updatedSubs };
@@ -1522,6 +1532,7 @@ export default function App() {
               isAdmin={isManagerLoggedIn}
               onOpenAdminConsole={handleOpenAdminConsole}
               onDeleteMetric={handleDeleteHomeMetric}
+              onUpdateSaccoInfo={handleUpdateSaccoInfo}
             />
 
             {/* Featured Manager Message on Home Page */}
@@ -1834,6 +1845,16 @@ export default function App() {
           >
             <ImageIcon className="w-3 h-3 text-emerald-400" />
             <span className="hidden md:inline">Change Pictures</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleOpenAdminConsole('products')}
+            className="px-2.5 py-1.5 bg-slate-800 hover:bg-emerald-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Manage Financial Products (Savings, Loans, Digital)"
+          >
+            <Layers className="w-3 h-3 text-emerald-400" />
+            <span className="hidden md:inline">Products ({products.length})</span>
           </button>
 
           <button

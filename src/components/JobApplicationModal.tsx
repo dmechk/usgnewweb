@@ -179,12 +179,12 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
               <span>UBUMWE SACCO GAKENKE · Employment Application</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white">
-              {currentLang === 'en' ? 'Apply for Employment' : 'Gusaba Akazi muri Koperative'}
+              {currentLang === 'fr' ? 'Soumettre une Candidature' : currentLang === 'rw' ? 'Gusaba Akazi muri Koperative' : 'Apply for Employment'}
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm mt-1">
               {currentSelectedJob
-                ? `${currentLang === 'en' ? currentSelectedJob.titleEn : currentSelectedJob.titleRw} · ${currentSelectedJob.location}`
-                : 'Join our team in empowering the community of Gakenke.'}
+                ? `${currentLang === 'fr' ? (currentSelectedJob.titleFr || currentSelectedJob.titleEn) : currentLang === 'rw' ? currentSelectedJob.titleRw : currentSelectedJob.titleEn} · ${currentSelectedJob.location}`
+                : currentLang === 'fr' ? 'Rejoignez notre équipe pour servir Gakenke.' : currentLang === 'rw' ? 'Injira mu bantu bacu bafasha abaturage ba Gakenke.' : 'Join our team in empowering the community of Gakenke.'}
             </p>
           </div>
 
@@ -206,12 +206,14 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl font-extrabold text-slate-900">
-                  {currentLang === 'en' ? 'Application Received Successfully!' : 'Ubusabe Bwakiriwe Neza!'}
+                  {currentLang === 'fr' ? 'Candidature Reçue avec Succès !' : currentLang === 'rw' ? 'Ubusabe Bwakiriwe Neza!' : 'Application Received Successfully!'}
                 </h3>
                 <p className="text-slate-600 text-sm max-w-md mx-auto">
-                  {currentLang === 'en'
-                    ? 'Thank you for your interest in joining UBUMWE SACCO GAKENKE. Our Human Resources and Management committee will review your application.'
-                    : 'Urakoze kwifuza gukorana na UBUMWE SACCO GAKENKE. Komite y\'Abakozi n\'Ubuyobozi izasuzuma dosiye yawe.'}
+                  {currentLang === 'fr'
+                    ? 'Merci de votre intérêt à rejoindre UBUMWE SACCO GAKENKE. Notre comité des Ressources Humaines examinera votre candidature.'
+                    : currentLang === 'rw'
+                    ? 'Urakoze kwifuza gukorana na UBUMWE SACCO GAKENKE. Komite y\'Abakozi n\'Ubuyobozi izasuzuma dosiye yawe.'
+                    : 'Thank you for your interest in joining UBUMWE SACCO GAKENKE. Our Human Resources and Management committee will review your application.'}
                 </p>
               </div>
 
@@ -268,7 +270,7 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
                   >
                     {allJobs.map((j) => (
                       <option key={j.id} value={j.id}>
-                        {currentLang === 'en' ? j.titleEn : j.titleRw} ({j.departmentEn} - {j.location})
+                        {currentLang === 'fr' ? (j.titleFr || j.titleEn) : currentLang === 'rw' ? j.titleRw : j.titleEn} ({j.departmentEn} - {j.location})
                       </option>
                     ))}
                   </select>

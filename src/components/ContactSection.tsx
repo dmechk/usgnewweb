@@ -217,9 +217,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const cleanWhatsapp = saccoInfo.whatsapp.replace(/[^0-9]/g, '') || '250786422080';
   const whatsappUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
     saccoInfo.whatsappMessage ||
-      (currentLang === 'en'
-        ? 'Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.'
-        : 'Muraho UBUMWE SACCO GAKENKE, nifuzaga kubaza amakuru kuri serivisi zanyu.')
+      (currentLang === 'fr'
+        ? 'Bonjour UBUMWE SACCO GAKENKE, je souhaite me renseigner sur vos services coopératifs.'
+        : currentLang === 'rw'
+        ? 'Muraho UBUMWE SACCO GAKENKE, nifuzaga kubaza amakuru kuri serivisi zanyu.'
+        : 'Hello UBUMWE SACCO GAKENKE, I would like to inquire about cooperative services.')
   )}`;
 
   return (

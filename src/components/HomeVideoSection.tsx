@@ -54,17 +54,21 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{currentLang === 'en' ? 'Discover UBUMWE SACCO' : 'Menya Birambuye UBUMWE SACCO'}</span>
+              <span>{currentLang === 'fr' ? 'Découvrir UBUMWE SACCO' : currentLang === 'rw' ? 'Menya Birambuye UBUMWE SACCO' : 'Discover UBUMWE SACCO'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-              {currentLang === 'en'
-                ? 'Cooperative Video Showcase & Member Success'
-                : 'Amashusho n’Ubuhamya bw’Iterambere ry’Abanyamuryango'}
+              {currentLang === 'fr'
+                ? 'Vidéos Coopératives & Réussites des Membres'
+                : currentLang === 'rw'
+                ? 'Amashusho n’Ubuhamya bw’Iterambere ry’Abanyamuryango'
+                : 'Cooperative Video Showcase & Member Success'}
             </h2>
             <p className="text-slate-300 text-sm sm:text-base mt-2">
-              {currentLang === 'en'
-                ? 'Watch how our cooperative savings, micro-loans, and digital USSD *541# empower farmers and entrepreneurs across Gakenke.'
-                : 'Reba uko ubwizigame, inguzanyo ziciriritse, na serivisi za USSD *541# bihindura imibereho n\'ubucuruzi mu Karere ka Gakenke.'}
+              {currentLang === 'fr'
+                ? 'Découvrez comment notre épargne coopérative, nos micro-prêts et le service USSD *541# transforment la vie des agriculteurs et entrepreneurs de Gakenke.'
+                : currentLang === 'rw'
+                ? 'Reba uko ubwizigame, inguzanyo ziciriritse, na serivisi za USSD *541# bihindura imibereho n\'ubucuruzi mu Karere ka Gakenke.'
+                : 'Watch how our cooperative savings, micro-loans, and digital USSD *541# empower farmers and entrepreneurs across Gakenke.'}
             </p>
           </div>
 
@@ -121,11 +125,11 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
               <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-bold text-white">
-                    {currentLang === 'en' ? activeVideo.titleEn : activeVideo.titleRw}
+                    {currentLang === 'fr' ? (activeVideo.titleFr || activeVideo.titleEn) : currentLang === 'rw' ? activeVideo.titleRw : activeVideo.titleEn}
                   </h3>
                   {(activeVideo.descriptionEn || activeVideo.descriptionRw) && (
                     <p className="text-xs text-slate-300 mt-1">
-                      {currentLang === 'en' ? activeVideo.descriptionEn : activeVideo.descriptionRw}
+                      {currentLang === 'fr' ? (activeVideo.descriptionFr || activeVideo.descriptionEn) : currentLang === 'rw' ? activeVideo.descriptionRw : activeVideo.descriptionEn}
                     </p>
                   )}
                 </div>
@@ -181,10 +185,10 @@ export const HomeVideoSection: React.FC<HomeVideoSectionProps> = ({
 
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-bold truncate text-white">
-                          {currentLang === 'en' ? vid.titleEn : vid.titleRw}
+                          {currentLang === 'fr' ? (vid.titleFr || vid.titleEn) : currentLang === 'rw' ? vid.titleRw : vid.titleEn}
                         </h4>
                         <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
-                          {currentLang === 'en' ? vid.descriptionEn : vid.descriptionRw}
+                          {currentLang === 'fr' ? (vid.descriptionFr || vid.descriptionEn) : currentLang === 'rw' ? vid.descriptionRw : vid.descriptionEn}
                         </p>
                         {vid.badge && (
                           <span className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">

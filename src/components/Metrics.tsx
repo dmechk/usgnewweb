@@ -14,6 +14,9 @@ import {
   Edit2,
   Plus,
   Trash2,
+  X,
+  Save,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface MetricsProps {
@@ -23,6 +26,7 @@ interface MetricsProps {
   isAdmin?: boolean;
   onOpenAdminConsole?: (tab?: string) => void;
   onDeleteMetric?: (id: string) => void;
+  onUpdateSaccoInfo?: (updated: Partial<SaccoContactInfo>) => void;
 }
 
 /**
@@ -101,9 +105,57 @@ export const Metrics: React.FC<MetricsProps> = ({
   isAdmin = false,
   onOpenAdminConsole,
   onDeleteMetric,
+  onUpdateSaccoInfo,
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isInView, setIsInView] = useState(false);
+
+  // In-Place Oversight CRUD Modal State
+  const [isEditOversightModalOpen, setIsEditOversightModalOpen] = useState(false);
+  const [formRcaReg, setFormRcaReg] = useState(saccoInfo.rcaRegistration || 'RCA / COOP / 042 / 2011');
+  const [formOversightEn, setFormOversightEn] = useState(saccoInfo.oversightLabelEn || 'Cooperative Oversight:');
+  const [formOversightRw, setFormOversightRw] = useState(saccoInfo.oversightLabelRw || 'Ubugenzuzi bwa Koperative :');
+  const [formOversightFr, setFormOversightFr] = useState(saccoInfo.oversightLabelFr || 'Supervision Coopérative :');
+  const [formLicensedEn, setFormLicensedEn] = useState(saccoInfo.licensedLabelEn || 'Licensed Financial Cooperative');
+  const [formLicensedRw, setFormLicensedRw] = useState(saccoInfo.licensedLabelRw || "Koperative y'Imari Yemewe n'Amategeko");
+  const [formLicensedFr, setFormLicensedFr] = useState(saccoInfo.licensedLabelFr || 'Coopérative Financière Agréée');
+  const [formPhone, setFormPhone] = useState(saccoInfo.phone || '0786422080');
+  const [formUssd, setFormUssd] = useState(saccoInfo.ussdCode || '*541#');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    setFormRcaReg(saccoInfo.rcaRegistration || 'RCA / COOP / 042 / 2011');
+    setFormOversightEn(saccoInfo.oversightLabelEn || 'Cooperative Oversight:');
+    setFormOversightRw(saccoInfo.oversightLabelRw || 'Ubugenzuzi bwa Koperative :');
+    setFormOversightFr(saccoInfo.oversightLabelFr || 'Supervision Coopérative :');
+    setFormLicensedEn(saccoInfo.licensedLabelEn || 'Licensed Financial Cooperative');
+    setFormLicensedRw(saccoInfo.licensedLabelRw || "Koperative y'Imari Yemewe n'Amategeko");
+    setFormLicensedFr(saccoInfo.licensedLabelFr || 'Coopérative Financière Agréée');
+    setFormPhone(saccoInfo.phone || '0786422080');
+    setFormUssd(saccoInfo.ussdCode || '*541#');
+  }, [saccoInfo]);
+
+  const handleSaveOversight = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onUpdateSaccoInfo) {
+      onUpdateSaccoInfo({
+        rcaRegistration: formRcaReg,
+        oversightLabelEn: formOversightEn,
+        oversightLabelRw: formOversightRw,
+        oversightLabelFr: formOversightFr,
+        licensedLabelEn: formLicensedEn,
+        licensedLabelRw: formLicensedRw,
+        licensedLabelFr: formLicensedFr,
+        phone: formPhone,
+        ussdCode: formUssd,
+      });
+    }
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+      setIsEditOversightModalOpen(false);
+    }, 1200);
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -152,17 +204,17 @@ export const Metrics: React.FC<MetricsProps> = ({
 
   const oversightLabel =
     currentLang === 'fr'
-      ? 'Supervision Coopérative :'
+      ? (saccoInfo.oversightLabelFr || 'Supervision Coopérative :')
       : currentLang === 'rw'
-      ? 'Ubugenzuzi bwa Koperative :'
-      : 'Cooperative Oversight:';
+      ? (saccoInfo.oversightLabelRw || 'Ubugenzuzi bwa Koperative :')
+      : (saccoInfo.oversightLabelEn || 'Cooperative Oversight:');
 
   const licensedLabel =
     currentLang === 'fr'
-      ? 'Coopérative Financière Agréée'
+      ? (saccoInfo.licensedLabelFr || 'Coopérative Financière Agréée')
       : currentLang === 'rw'
-      ? "Koperative y'Imari Yemewe n'Amategeko"
-      : 'Licensed Financial Cooperative';
+      ? (saccoInfo.licensedLabelRw || "Koperative y'Imari Yemewe n'Amategeko")
+      : (saccoInfo.licensedLabelEn || 'Licensed Financial Cooperative');
 
   const helpDeskLabel =
     currentLang === 'fr'
@@ -295,6 +347,19 @@ export const Metrics: React.FC<MetricsProps> = ({
             <span className="font-mono-numbers">{saccoInfo.rcaRegistration}</span>
             <span aria-hidden="true" className="text-slate-400">·</span>
             <span className="text-emerald-800 font-medium">{licensedLabel}</span>
+
+            {/* Admin In-Place CRUD Edit Trigger */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setIsEditOversightModalOpen(true)}
+                className="ml-2 px-2.5 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-md font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shadow-2xs border border-emerald-300"
+                title="Edit Cooperative Oversight & RCA Registration"
+              >
+                <Edit2 className="w-3 h-3 text-emerald-700" />
+                <span>Edit (CRUD)</span>
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-4 text-slate-600 font-mono-numbers text-xs">
             <span>
@@ -307,6 +372,188 @@ export const Metrics: React.FC<MetricsProps> = ({
           </div>
         </div>
       </div>
+
+      {/* In-Place Oversight & RCA Registration CRUD Modal */}
+      {isEditOversightModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 text-slate-900 font-bold">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold leading-tight">
+                    Edit Cooperative Oversight &amp; RCA Registration
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-normal">
+                    Update regulatory licensing details, registration code, and badges live on the site.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditOversightModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Live Preview of what this line looks like */}
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Live Preview (How it appears to citizens)
+              </span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                <span className="font-semibold text-slate-800">{formOversightEn || 'Cooperative Oversight:'}</span>
+                <span className="font-mono-numbers font-bold text-slate-900">{formRcaReg}</span>
+                <span className="text-slate-400">·</span>
+                <span className="text-emerald-800 font-medium">{formLicensedEn || 'Licensed Financial Cooperative'}</span>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveOversight} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Official RCA Registration Number *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formRcaReg}
+                  onChange={(e) => setFormRcaReg(e.target.value)}
+                  placeholder="RCA / COOP / 042 / 2011"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-mono font-bold focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Prefix Label (English)
+                  </label>
+                  <input
+                    type="text"
+                    value={formOversightEn}
+                    onChange={(e) => setFormOversightEn(e.target.value)}
+                    placeholder="Cooperative Oversight:"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Prefix Label (Kinyarwanda)
+                  </label>
+                  <input
+                    type="text"
+                    value={formOversightRw}
+                    onChange={(e) => setFormOversightRw(e.target.value)}
+                    placeholder="Ubugenzuzi bwa Koperative :"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Status Badge (English)
+                  </label>
+                  <input
+                    type="text"
+                    value={formLicensedEn}
+                    onChange={(e) => setFormLicensedEn(e.target.value)}
+                    placeholder="Licensed Financial Cooperative"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Status Badge (Kinyarwanda)
+                  </label>
+                  <input
+                    type="text"
+                    value={formLicensedRw}
+                    onChange={(e) => setFormLicensedRw(e.target.value)}
+                    placeholder="Koperative y'Imari Yemewe n'Amategeko"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Help Desk Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={formPhone}
+                    onChange={(e) => setFormPhone(e.target.value)}
+                    placeholder="0786422080"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    USSD Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formUssd}
+                    onChange={(e) => setFormUssd(e.target.value)}
+                    placeholder="*541#"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {saveSuccess && (
+                <div className="p-2.5 bg-emerald-100 border border-emerald-300 rounded-xl text-xs text-emerald-900 font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  <span>Oversight updated successfully!</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-2">
+                {onOpenAdminConsole && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditOversightModalOpen(false);
+                      onOpenAdminConsole('contact');
+                    }}
+                    className="text-xs text-emerald-700 hover:text-emerald-800 font-bold underline cursor-pointer"
+                  >
+                    Open in Admin Console
+                  </button>
+                )}
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditOversightModalOpen(false)}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

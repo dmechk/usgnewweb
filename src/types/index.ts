@@ -18,16 +18,20 @@ export interface SaccoProduct {
   category: 'savings' | 'loans' | 'digital';
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   taglineEn: string;
   taglineRw: string;
+  taglineFr?: string;
   interestRate: string;
   minAmount: number;
   maxAmount: number;
   duration: string;
   featuresEn: string[];
   featuresRw: string[];
+  featuresFr?: string[];
   requirementsEn: string[];
   requirementsRw: string[];
+  requirementsFr?: string[];
   popular?: boolean;
 }
 
@@ -37,6 +41,7 @@ export interface BranchOutpost {
   sector: string;
   locationDetailsEn: string;
   locationDetailsRw: string;
+  locationDetailsFr?: string;
   managerName: string;
   managerPhone: string;
   operatingHours: string;
@@ -53,12 +58,15 @@ export interface Announcement {
   id: string;
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   date: string;
   category: 'agm' | 'dividend' | 'loan_window' | 'notice';
   summaryEn: string;
   summaryRw: string;
+  summaryFr?: string;
   contentEn: string;
   contentRw: string;
+  contentFr?: string;
   imageUrl?: string;
 }
 
@@ -67,9 +75,11 @@ export interface LeaderMember {
   name: string;
   roleEn: string;
   roleRw: string;
+  roleFr?: string;
   category: string;
   qualificationEn: string;
   qualificationRw: string;
+  qualificationFr?: string;
   imageUrl: string;
   phone?: string;
 }
@@ -78,12 +88,14 @@ export interface InstitutionMoment {
   id: string;
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   date: string;
   category: 'agm_dividend' | 'award' | 'community' | 'branch_opening' | 'training';
   imageUrl: string;
   additionalImages?: string[];
   captionEn: string;
   captionRw: string;
+  captionFr?: string;
 }
 
 export interface ApplicationRecord {
@@ -142,6 +154,12 @@ export interface SaccoContactInfo {
   rcaRegistration: string;
   regulatoryLicense?: string;
   bnrLicense?: string;
+  oversightLabelEn?: string;
+  oversightLabelRw?: string;
+  oversightLabelFr?: string;
+  licensedLabelEn?: string;
+  licensedLabelRw?: string;
+  licensedLabelFr?: string;
   activeMembers: number;
   totalSavingsRwf: number;
   totalLoansDisbursedRwf: number;
@@ -186,8 +204,10 @@ export interface ManagerMessage {
   id: string;
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   bodyEn: string;
   bodyRw: string;
+  bodyFr?: string;
   authorName: string;
   authorRole: string;
   date: string;
@@ -214,8 +234,10 @@ export interface JobPosting {
   id: string;
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   departmentEn: string;
   departmentRw: string;
+  departmentFr?: string;
   location: string;
   employmentType: string;
   salaryRange?: string;
@@ -223,10 +245,13 @@ export interface JobPosting {
   status: 'open' | 'closed';
   descriptionEn: string;
   descriptionRw: string;
+  descriptionFr?: string;
   requirementsEn: string[];
   requirementsRw: string[];
+  requirementsFr?: string[];
   responsibilitiesEn: string[];
   responsibilitiesRw: string[];
+  responsibilitiesFr?: string[];
   postedDate: string;
 }
 
@@ -276,9 +301,11 @@ export interface CommunityImpactStory {
   name: string;
   roleEn: string;
   roleRw: string;
+  roleFr?: string;
   image: string;
   quoteEn: string;
   quoteRw: string;
+  quoteFr?: string;
   metric: string;
 }
 
@@ -286,8 +313,10 @@ export interface HomeVideoItem {
   id: string;
   titleEn: string;
   titleRw: string;
+  titleFr?: string;
   descriptionEn?: string;
   descriptionRw?: string;
+  descriptionFr?: string;
   videoUrl: string; // can be data URL, mp4 url, or YouTube/Vimeo embed
   thumbnailUrl?: string;
   badge?: string;

@@ -12,6 +12,8 @@ import {
   Calculator,
   CheckCircle2,
   Sparkles,
+  Plus,
+  Edit2,
 } from 'lucide-react';
 
 interface ProductCatalogProps {
@@ -134,6 +136,25 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             >
               {t.products.digitalTab}
             </button>
+
+            {/* Admin Direct CRUD Action */}
+            {isAdmin && onOpenAdminConsole && (
+              <button
+                type="button"
+                onClick={onOpenAdminConsole}
+                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-700 hover:bg-emerald-600 text-white shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Open Admin Console to Add, Edit, or Delete Financial Products"
+              >
+                <Plus className="w-4 h-4" />
+                <span>
+                  {currentLang === 'fr'
+                    ? 'Gérer / Ajouter Produit'
+                    : currentLang === 'rw'
+                    ? 'Gucunga / Kongeramo Serivisi'
+                    : 'Manage / Add Product'}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -143,9 +164,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filteredProducts.map((product) => {
             const isLoan = product.category === 'loans';
-            const title = currentLang === 'en' ? product.titleEn : product.titleRw;
-            const tagline = currentLang === 'en' ? product.taglineEn : product.taglineRw;
-            const features = currentLang === 'en' ? product.featuresEn : product.featuresRw;
+            const title = currentLang === 'fr' ? (product.titleFr || product.titleEn) : currentLang === 'rw' ? product.titleRw : product.titleEn;
+            const tagline = currentLang === 'fr' ? (product.taglineFr || product.taglineEn) : currentLang === 'rw' ? product.taglineRw : product.taglineEn;
+            const features = currentLang === 'fr' ? (product.featuresFr || product.featuresEn) : currentLang === 'rw' ? product.featuresRw : product.featuresEn;
 
             return (
               <div
@@ -154,7 +175,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               >
                 {product.popular && (
                   <span className="absolute top-4 right-4 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {currentLang === 'en' ? 'Most Popular' : 'Ikunzwe Cyane'}
+                    {currentLang === 'fr' ? 'Le Plus Populaire' : currentLang === 'rw' ? 'Ikunzwe Cyane' : 'Most Popular'}
                   </span>
                 )}
 
@@ -206,7 +227,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       className="w-full py-2.5 px-4 bg-[#1b3a27] hover:bg-[#132c1c] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
                     >
                       <Calculator className="w-4 h-4 text-emerald-300" />
-                      <span>{currentLang === 'en' ? 'Calculate This Loan' : 'Bara Iyi Nguzanyo'}</span>
+                      <span>{currentLang === 'fr' ? 'Calculer ce Prêt' : currentLang === 'rw' ? 'Bara Iyi Nguzanyo' : 'Calculate This Loan'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
@@ -218,6 +239,18 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       <ShieldCheck className="w-4 h-4 text-emerald-200" />
                       <span>{currentLang === 'en' ? 'Open Account' : currentLang === 'fr' ? 'Ouvrir un Compte' : 'Fungura Konti'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
+                  {/* Admin Quick Edit Button */}
+                  {isAdmin && onOpenAdminConsole && (
+                    <button
+                      type="button"
+                      onClick={onOpenAdminConsole}
+                      className="mt-2 w-full py-1.5 px-3 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Edit in Admin (CRUD)</span>
                     </button>
                   )}
                 </div>
@@ -294,10 +327,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           <div className="text-center max-w-2xl mx-auto mb-4">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1b3a27] tracking-wider uppercase mb-1">
               <Calculator className="w-4 h-4 text-emerald-700" />
-              <span>{currentLang === 'en' ? 'Loan Repayment Simulator' : 'Kubara Ubwishyu bw\'Inguzanyo'}</span>
+              <span>{currentLang === 'fr' ? 'Simulateur de Remboursement' : currentLang === 'rw' ? "Kubara Ubwishyu bw'Inguzanyo" : 'Loan Repayment Simulator'}</span>
             </span>
             <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {currentLang === 'en' ? 'Simulate Your Monthly Installments' : 'Bara Amafaranga Uzajya Wishyura Buri Kwezi'}
+              {currentLang === 'fr' ? 'Simulez Vos Mensualités de Prêt' : currentLang === 'rw' ? 'Bara Amafaranga Uzajya Wishyura Buri Kwezi' : 'Simulate Your Monthly Installments'}
             </h3>
           </div>
 

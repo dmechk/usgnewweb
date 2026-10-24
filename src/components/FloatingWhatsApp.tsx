@@ -37,7 +37,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
                 <h4 className="text-xs font-bold leading-tight">{saccoInfo.shortName} Chat</h4>
                 <div className="flex items-center gap-1.5 text-[10px] text-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                  <span>{currentLang === 'en' ? `Online / ${saccoInfo.phone}` : `Birakora / ${saccoInfo.phone}`}</span>
+                  <span>{currentLang === 'fr' ? `En ligne / ${saccoInfo.phone}` : currentLang === 'rw' ? `Birakora / ${saccoInfo.phone}` : `Online / ${saccoInfo.phone}`}</span>
                 </div>
               </div>
             </div>
@@ -54,9 +54,11 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
           <div className="p-4 space-y-3 bg-slate-50 text-xs text-slate-700">
             <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs">
               <p className="font-medium text-slate-800">
-                {currentLang === 'en'
-                  ? `Muraho! Welcome to ${saccoInfo.name}. How can we help you today?`
-                  : `Muraho neza! Kaze muri ${saccoInfo.shortName}. Twabafasha iki uyu munsi?`}
+                {currentLang === 'fr'
+                  ? `Muraho! Bienvenue à ${saccoInfo.name}. Comment pouvons-nous vous aider aujourd'hui?`
+                  : currentLang === 'rw'
+                  ? `Muraho neza! Kaze muri ${saccoInfo.shortName}. Twabafasha iki uyu munsi?`
+                  : `Muraho! Welcome to ${saccoInfo.name}. How can we help you today?`}
               </p>
               <span className="text-[10px] text-slate-400 mt-1 block">
                 Manager: Mbitsemunda Phocas Desk
@@ -71,7 +73,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
                 className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>{currentLang === 'en' ? 'Start WhatsApp Chat' : 'Tangira Ikiganiro kuri WhatsApp'}</span>
+                <span>{currentLang === 'fr' ? 'Démarrer le Chat WhatsApp' : currentLang === 'rw' ? 'Tangira Ikiganiro kuri WhatsApp' : 'Start WhatsApp Chat'}</span>
                 <ExternalLink className="w-3 h-3 opacity-80" />
               </a>
 
@@ -80,7 +82,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
                 className="w-full py-2 px-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-semibold flex items-center justify-center gap-1.5 transition-colors"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>{currentLang === 'en' ? `Call Desk: ${saccoInfo.phone}` : `Hamagara: ${saccoInfo.phone}`}</span>
+                <span>{currentLang === 'fr' ? `Appeler: ${saccoInfo.phone}` : currentLang === 'rw' ? `Hamagara: ${saccoInfo.phone}` : `Call Desk: ${saccoInfo.phone}`}</span>
               </a>
             </div>
           </div>

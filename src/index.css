@@ -509,3 +509,44 @@ header nav button:not(.active-nav):hover {
     padding: 0 !important;
   }
 }
+
+/* Modern Continuous Flow Animation */
+@keyframes flowUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes flowDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-flow-up {
+  animation: flowUp 34s linear infinite;
+  will-change: transform;
+}
+
+.animate-flow-down {
+  animation: flowDown 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-flow-full {
+  animation: flowUp 38s linear infinite;
+  will-change: transform;
+}
+
+.pause-flow:hover .animate-flow-up,
+.pause-flow:hover .animate-flow-down,
+.pause-flow:hover .animate-flow-full {
+  animation-play-state: paused;
+}
+

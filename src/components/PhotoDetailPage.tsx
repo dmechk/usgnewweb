@@ -147,37 +147,37 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
       case 'award':
         return {
           icon: <Trophy className="w-4 h-4 text-amber-500" />,
-          label: currentLang === 'en' ? 'Excellence & Awards' : 'Ibihembo n\'Ishimwe',
+          label: currentLang === 'fr' ? 'Excellence & Prix' : currentLang === 'rw' ? 'Ibihembo n\'Ishimwe' : 'Excellence & Awards',
           color: 'bg-amber-50 text-amber-900 border-amber-200',
         };
       case 'agm_dividend':
         return {
           icon: <PiggyBank className="w-4 h-4 text-emerald-600" />,
-          label: currentLang === 'en' ? 'Dividends & AGM Assembly' : 'Inama Rusange & Inyungu',
+          label: currentLang === 'fr' ? 'Dividendes & Assemblée Générale' : currentLang === 'rw' ? 'Inama Rusange & Inyungu' : 'Dividends & AGM Assembly',
           color: 'bg-emerald-50 text-emerald-900 border-emerald-200',
         };
       case 'branch_opening':
         return {
           icon: <Building2 className="w-4 h-4 text-blue-600" />,
-          label: currentLang === 'en' ? 'Banking Hall & Infrastructure' : 'Amashami & Utubande',
+          label: currentLang === 'fr' ? 'Guichet Bancaire & Infrastructures' : currentLang === 'rw' ? 'Amashami & Utubande' : 'Banking Hall & Infrastructure',
           color: 'bg-blue-50 text-blue-900 border-blue-200',
         };
       case 'community':
         return {
           icon: <Users className="w-4 h-4 text-purple-600" />,
-          label: currentLang === 'en' ? 'Community & Farmers Field' : 'Abahinzi n\'Abanyamuryango',
+          label: currentLang === 'fr' ? 'Communauté & Agriculteurs' : currentLang === 'rw' ? 'Abahinzi n\'Abanyamuryango' : 'Community & Farmers Field',
           color: 'bg-purple-50 text-purple-900 border-purple-200',
         };
       case 'training':
         return {
           icon: <GraduationCap className="w-4 h-4 text-orange-600" />,
-          label: currentLang === 'en' ? 'Financial Literacy' : 'Amahugurwa n\'Ubumenyi',
+          label: currentLang === 'fr' ? 'Éducation Financière' : currentLang === 'rw' ? 'Amahugurwa n\'Ubumenyi' : 'Financial Literacy',
           color: 'bg-orange-50 text-orange-900 border-orange-200',
         };
       default:
         return {
           icon: <Sparkles className="w-4 h-4 text-emerald-600" />,
-          label: currentLang === 'en' ? 'Institutional Milestone' : 'Ibyagezweho',
+          label: currentLang === 'fr' ? 'Événement Institutionnel' : currentLang === 'rw' ? 'Ibyagezweho' : 'Institutional Milestone',
           color: 'bg-slate-100 text-slate-800 border-slate-200',
         };
     }
@@ -249,7 +249,7 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
               </button>
               <span>/</span>
               <span className="text-slate-900 font-bold max-w-[220px] truncate">
-                {currentLang === 'en' ? moment.titleEn : moment.titleRw}
+                {currentLang === 'fr' ? moment.titleFr || moment.titleEn : currentLang === 'rw' ? moment.titleRw : moment.titleEn}
               </span>
             </div>
           </div>
@@ -418,7 +418,7 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
             {/* Title */}
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-950 leading-snug">
-                {currentLang === 'en' ? moment.titleEn : moment.titleRw}
+                {currentLang === 'fr' ? moment.titleFr || moment.titleEn : currentLang === 'rw' ? moment.titleRw : moment.titleEn}
               </h1>
               {moment.titleRw && moment.titleRw !== moment.titleEn && currentLang === 'en' && (
                 <h2 className="text-sm sm:text-base font-bold text-emerald-800 mt-1">
@@ -438,7 +438,7 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
               </div>
 
               <p className="text-base sm:text-lg text-slate-100 leading-relaxed font-medium">
-                "{currentLang === 'en' ? moment.captionEn : moment.captionRw}"
+                "{currentLang === 'fr' ? moment.captionFr || moment.captionEn : currentLang === 'rw' ? moment.captionRw : moment.captionEn}"
               </p>
 
               {currentLang === 'en' && moment.captionRw && (
@@ -556,7 +556,7 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
                         ← Previous Story
                       </span>
                       <h4 className="text-xs font-bold text-slate-900 group-hover:text-emerald-800 truncate">
-                        {currentLang === 'en' ? prevMoment.titleEn : prevMoment.titleRw}
+                        {currentLang === 'fr' ? prevMoment.titleFr || prevMoment.titleEn : currentLang === 'rw' ? prevMoment.titleRw : prevMoment.titleEn}
                       </h4>
                     </div>
                   </button>
@@ -578,7 +578,7 @@ export const PhotoDetailPage: React.FC<PhotoDetailPageProps> = ({
                         Next Story →
                       </span>
                       <h4 className="text-xs font-bold text-slate-900 group-hover:text-emerald-800 truncate">
-                        {currentLang === 'en' ? nextMoment.titleEn : nextMoment.titleRw}
+                        {currentLang === 'fr' ? nextMoment.titleFr || nextMoment.titleEn : currentLang === 'rw' ? nextMoment.titleRw : nextMoment.titleEn}
                       </h4>
                     </div>
                   </button>

@@ -28,6 +28,7 @@ import {
   QualificationItem,
 } from '../types';
 import { THEME_OPTIONS, INITIAL_PARTNERS, INITIAL_SOCIAL_LINKS } from '../data/saccoData';
+import { AdminArchive, archiveItem } from './AdminArchive';
 import { ImageUploader } from './ImageUploader';
 import { VideoUploader } from './VideoUploader';
 import { InquiriesDashboard } from './InquiriesDashboard';
@@ -95,6 +96,7 @@ import {
   Instagram,
   Youtube,
   Upload,
+  Archive,
 } from 'lucide-react';
 import { ImigongoRibbon } from './ImigongoPattern';
 import { ApplicantFeedbackModal } from './ApplicantFeedbackModal';
@@ -106,7 +108,7 @@ interface AdminConsoleModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentLang: Language;
-  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos' | 'partners' | 'employment-types' | 'qualifications';
+  initialTab?: 'contact' | 'pictures' | 'navigation' | 'leaders' | 'moments' | 'products' | 'announcements' | 'applications' | 'careers' | 'job-applicants' | 'theme' | 'guide' | 'branches' | 'inquiries' | 'messages' | 'impact' | 'home-hero' | 'home-metrics' | 'about' | 'videos' | 'partners' | 'employment-types' | 'qualifications' | 'archive';
   saccoInfo: SaccoContactInfo;
   onUpdateSaccoInfo: (updated: Partial<SaccoContactInfo>) => void;
   navItems: NavItemConfig[];
@@ -329,6 +331,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     | 'partners'
     | 'employment-types'
     | 'qualifications'
+    | 'archive'
   >(initialTab === 'job-applicants' || (initialTab as string) === 'applicants' ? 'job-applicants' : (initialTab as any));
 
   useEffect(() => {
@@ -352,6 +355,11 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
   const [contactHeadquarters, setContactHeadquarters] = useState(saccoInfo.headquarters);
   const [contactHoursEn, setContactHoursEn] = useState(saccoInfo.operatingHoursEn || 'Mon - Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM');
   const [contactHoursRw, setContactHoursRw] = useState(saccoInfo.operatingHoursRw || 'Kuwa Mbere - Kuwa Gatanu: Saa 8:00 - 17:00 | Kuwa Gatandatu: Saa 8:00 - 13:00');
+  const [contactRcaReg, setContactRcaReg] = useState(saccoInfo.rcaRegistration || 'RCA / COOP / 042 / 2011');
+  const [contactOversightEn, setContactOversightEn] = useState(saccoInfo.oversightLabelEn || 'Cooperative Oversight:');
+  const [contactOversightRw, setContactOversightRw] = useState(saccoInfo.oversightLabelRw || 'Ubugenzuzi bwa Koperative :');
+  const [contactLicensedEn, setContactLicensedEn] = useState(saccoInfo.licensedLabelEn || 'Licensed Financial Cooperative');
+  const [contactLicensedRw, setContactLicensedRw] = useState(saccoInfo.licensedLabelRw || "Koperative y'Imari Yemewe n'Amategeko");
   const [contactSavedSuccess, setContactSavedSuccess] = useState(false);
 
   // Sync state if saccoInfo updates externally
@@ -366,6 +374,11 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
     setContactHeadquarters(saccoInfo.headquarters);
     setContactHoursEn(saccoInfo.operatingHoursEn || 'Mon - Fri: 8:00 AM - 5:00 PM | Sat: 8:00 AM - 1:00 PM');
     setContactHoursRw(saccoInfo.operatingHoursRw || 'Kuwa Mbere - Kuwa Gatanu: Saa 8:00 - 17:00 | Kuwa Gatandatu: Saa 8:00 - 13:00');
+    setContactRcaReg(saccoInfo.rcaRegistration || 'RCA / COOP / 042 / 2011');
+    setContactOversightEn(saccoInfo.oversightLabelEn || 'Cooperative Oversight:');
+    setContactOversightRw(saccoInfo.oversightLabelRw || 'Ubugenzuzi bwa Koperative :');
+    setContactLicensedEn(saccoInfo.licensedLabelEn || 'Licensed Financial Cooperative');
+    setContactLicensedRw(saccoInfo.licensedLabelRw || "Koperative y'Imari Yemewe n'Amategeko");
   }, [saccoInfo]);
 
   const handleSaveContactInfo = (e: React.FormEvent) => {
@@ -381,6 +394,11 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
       headquarters: contactHeadquarters,
       operatingHoursEn: contactHoursEn,
       operatingHoursRw: contactHoursRw,
+      rcaRegistration: contactRcaReg,
+      oversightLabelEn: contactOversightEn,
+      oversightLabelRw: contactOversightRw,
+      licensedLabelEn: contactLicensedEn,
+      licensedLabelRw: contactLicensedRw,
     });
     setContactSavedSuccess(true);
     setTimeout(() => setContactSavedSuccess(false), 3000);
@@ -1134,9 +1152,11 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
 
     const matchedJob = jobPostings.find((j) => j.id === newApplicant.jobId);
     const resolvedTitle = matchedJob
-      ? currentLang === 'en'
-        ? matchedJob.titleEn
-        : matchedJob.titleRw
+      ? currentLang === 'fr'
+        ? matchedJob.titleFr || matchedJob.titleEn
+        : currentLang === 'rw'
+        ? matchedJob.titleRw
+        : matchedJob.titleEn
       : newApplicant.jobTitle || 'General SACCO Application';
 
     if (onAddJobApplication) {
@@ -1497,7 +1517,7 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                 <option value="all">All Vacancy Positions</option>
                 {jobPostings.map((job) => (
                   <option key={job.id} value={job.id}>
-                    {currentLang === 'en' ? job.titleEn : job.titleRw}
+                    {currentLang === 'fr' ? (job.titleFr || job.titleEn) : currentLang === 'rw' ? job.titleRw : job.titleEn}
                   </option>
                 ))}
               </select>
@@ -2179,6 +2199,20 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
               <BookOpen className="w-3.5 h-3.5" />
               <span>Guide</span>
             </button>
+
+            {/* 11. Archive & Backup */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('archive')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                activeTab === 'archive'
+                  ? 'bg-indigo-700 text-white shadow-xs ring-1 ring-indigo-500'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Archive className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Archive & Backup</span>
+            </button>
           </div>
 
         {/* Modal Body / Scrollable Content */}
@@ -2382,6 +2416,93 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                       placeholder="Kuwa Mbere - Kuwa Gatanu: Saa 8:00 - 17:00 | Kuwa Gatandatu: Saa 8:00 - 13:00"
                       className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     />
+                  </div>
+
+                  {/* Cooperative Oversight & RCA Registration (Full CRUD) */}
+                  <div className="md:col-span-2 p-5 bg-emerald-50/70 border-2 border-emerald-300/80 rounded-2xl space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs uppercase tracking-wider">
+                        <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                        <span>Cooperative Oversight &amp; Regulatory Licensing (RCA Registration)</span>
+                      </div>
+                      <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold uppercase w-fit">
+                        Live on Metrics Strip &amp; Footer
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* RCA Registration Number */}
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-bold text-slate-800 mb-1">
+                          Official RCA Registration Number *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={contactRcaReg}
+                          onChange={(e) => setContactRcaReg(e.target.value)}
+                          placeholder="RCA / COOP / 042 / 2011"
+                          className="w-full px-3 py-2 bg-white border border-emerald-400 rounded-xl text-xs sm:text-sm font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-2xs"
+                        />
+                        <span className="text-[11px] text-slate-500 mt-1 block">
+                          Displays in the live oversight bar: "Cooperative Oversight: RCA / COOP / 042 / 2011 · Licensed Financial Cooperative"
+                        </span>
+                      </div>
+
+                      {/* Oversight Label (English / Kinyarwanda) */}
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Oversight Prefix Label (English)
+                        </label>
+                        <input
+                          type="text"
+                          value={contactOversightEn}
+                          onChange={(e) => setContactOversightEn(e.target.value)}
+                          placeholder="Cooperative Oversight:"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Oversight Prefix Label (Kinyarwanda)
+                        </label>
+                        <input
+                          type="text"
+                          value={contactOversightRw}
+                          onChange={(e) => setContactOversightRw(e.target.value)}
+                          placeholder="Ubugenzuzi bwa Koperative :"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Licensed Label (English / Kinyarwanda) */}
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Licensing Status Badge (English)
+                        </label>
+                        <input
+                          type="text"
+                          value={contactLicensedEn}
+                          onChange={(e) => setContactLicensedEn(e.target.value)}
+                          placeholder="Licensed Financial Cooperative"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Licensing Status Badge (Kinyarwanda)
+                        </label>
+                        <input
+                          type="text"
+                          value={contactLicensedRw}
+                          onChange={(e) => setContactLicensedRw(e.target.value)}
+                          placeholder="Koperative y'Imari Yemewe n'Amategeko"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -6661,6 +6782,35 @@ export const AdminConsoleModal: React.FC<AdminConsoleModalProps> = ({
                 </div>
               </div>
             </div>
+          )}
+
+          {/* TAB: ARCHIVE & BACKUP */}
+          {activeTab === 'archive' && (
+            <AdminArchive
+              onRestore={(collection, data) => {
+                const item = data as any;
+                switch (collection) {
+                  case 'products': if (onAddProduct) onAddProduct(item); break;
+                  case 'announcements': if (onAddAnnouncement) onAddAnnouncement(item); break;
+                  case 'leaders': if (onAddLeader) onAddLeader(item); break;
+                  case 'moments': if (onAddMoment) onAddMoment(item); break;
+                  case 'branches': if (onAddBranch) onAddBranch(item); break;
+                  case 'job_postings': if (onAddJobPosting) onAddJobPosting(item); break;
+                  case 'job_applications': if (onAddJobApplication) onAddJobApplication(item); break;
+                  case 'community_stories': if (onAddCommunityStory) onAddCommunityStory(item); break;
+                  case 'home_videos': if (onAddHomeVideo) onAddHomeVideo(item); break;
+                  case 'home_metrics': if (onAddHomeMetric) onAddHomeMetric(item); break;
+                  case 'partners': if (onAddPartner) onAddPartner(item); break;
+                  case 'social_links': if (onAddSocialLink) onAddSocialLink(item); break;
+                  case 'manager_messages': onAddManagerMessage(item); break;
+                  case 'employment_types': if (onAddEmploymentType) onAddEmploymentType(item); break;
+                  case 'qualifications': if (onAddQualification) onAddQualification(item); break;
+                  case 'nav_items': onAddNavItem(item); break;
+                  default: break;
+                }
+              }}
+              onSnapshotRestored={() => window.location.reload()}
+            />
           )}
 
         </div>

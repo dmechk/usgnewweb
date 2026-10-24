@@ -33,8 +33,8 @@ export const ManagerMessageCard: React.FC<ManagerMessageCardProps> = ({
     };
     reader.readAsDataURL(file);
   };
-  const title = currentLang === 'en' ? message.titleEn : (message.titleRw || message.titleEn);
-  const body = currentLang === 'en' ? message.bodyEn : (message.bodyRw || message.bodyEn);
+  const title = currentLang === 'fr' ? (message.titleFr || message.titleEn) : currentLang === 'rw' ? (message.titleRw || message.titleEn) : message.titleEn;
+  const body = currentLang === 'fr' ? (message.bodyFr || message.bodyEn) : currentLang === 'rw' ? (message.bodyRw || message.bodyEn) : message.bodyEn;
 
   if (variant === 'home') {
     return (
@@ -152,7 +152,7 @@ export const ManagerMessageCard: React.FC<ManagerMessageCardProps> = ({
                     <span>Official Institutional Statement</span>
                   </span>
                   <span className="text-emerald-400 font-medium">
-                    {currentLang === 'en' ? 'Serving 19 Sectors of Gakenke' : 'Dukorera mu Mirenge 19 ya Gakenke'}
+                    {currentLang === 'fr' ? 'Servant 19 Secteurs de Gakenke' : currentLang === 'rw' ? 'Dukorera mu Mirenge 19 ya Gakenke' : 'Serving 19 Sectors of Gakenke'}
                   </span>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export const ManagerMessageCard: React.FC<ManagerMessageCardProps> = ({
 
           <div>
             <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">
-              {currentLang === 'en' ? 'Institutional Message' : 'Ubutumwa bw\'Ubuyobozi'}
+              {currentLang === 'fr' ? 'Message Institutionnel' : currentLang === 'rw' ? 'Ubutumwa bw\'Ubuyobozi' : 'Institutional Message'}
             </span>
             <h4 className="text-base sm:text-lg font-bold text-slate-900">{message.authorName}</h4>
             <p className="text-xs text-slate-600">{message.authorRole}</p>

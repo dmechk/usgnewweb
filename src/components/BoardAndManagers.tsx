@@ -195,11 +195,15 @@ export const BoardAndManagers: React.FC<BoardAndManagersProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {filteredLeaders.map((leader) => {
             const roleText =
-              currentLang === 'rw'
+              currentLang === 'fr'
+                ? leader.roleFr || leader.roleEn
+                : currentLang === 'rw'
                 ? leader.roleRw || leader.roleEn
                 : leader.roleEn;
             const qualText =
-              currentLang === 'rw'
+              currentLang === 'fr'
+                ? leader.qualificationFr || leader.qualificationEn
+                : currentLang === 'rw'
                 ? leader.qualificationRw || leader.qualificationEn
                 : leader.qualificationEn;
             const categoryBadge =

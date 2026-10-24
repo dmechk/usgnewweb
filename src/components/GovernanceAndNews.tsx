@@ -57,7 +57,7 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
     }
   };
 
-  const storiesList = communityStories && communityStories.length > 0 ? communityStories : TESTIMONIALS;
+  const storiesList: CommunityImpactStory[] = communityStories && communityStories.length > 0 ? communityStories : TESTIMONIALS as CommunityImpactStory[];
 
   return (
     <section id="announcements" className="py-16 lg:py-24 bg-slate-50 border-b border-slate-200">
@@ -159,14 +159,14 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
                 <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between">
                   <blockquote className="text-sm sm:text-base text-slate-700 leading-relaxed italic">
-                    "{currentLang === 'rw' ? item.quoteRw || item.quoteEn : item.quoteEn}"
+                    "{currentLang === 'fr' ? ((item as CommunityImpactStory).quoteFr || item.quoteEn) : currentLang === 'rw' ? item.quoteRw || item.quoteEn : item.quoteEn}"
                   </blockquote>
 
                   <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-bold text-slate-900">{item.name}</h4>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        {currentLang === 'rw' ? item.roleRw || item.roleEn : item.roleEn}
+                        {currentLang === 'fr' ? ((item as CommunityImpactStory).roleFr || item.roleEn) : currentLang === 'rw' ? item.roleRw || item.roleEn : item.roleEn}
                       </p>
                     </div>
                     <UserCheck className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -243,7 +243,7 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                   {ann.imageUrl ? (
                     <img
                       src={ann.imageUrl}
-                      alt={currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
+                      alt={currentLang === 'fr' ? ann.titleFr || ann.titleEn : currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
@@ -286,10 +286,10 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                     <span>{ann.date}</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-snug mb-2">
-                    {currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
+                    {currentLang === 'fr' ? ann.titleFr || ann.titleEn : currentLang === 'rw' ? ann.titleRw || ann.titleEn : ann.titleEn}
                   </h4>
                   <p className="text-xs text-slate-600 line-clamp-3 flex-1">
-                    {currentLang === 'rw' ? ann.summaryRw || ann.summaryEn : ann.summaryEn}
+                    {currentLang === 'fr' ? ann.summaryFr || ann.summaryEn : currentLang === 'rw' ? ann.summaryRw || ann.summaryEn : ann.summaryEn}
                   </p>
                   <div className="mt-4 pt-4 border-t border-slate-100">
                     <button
@@ -383,7 +383,9 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
               {/* Massive Full Article Headline */}
               <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight sm:leading-tight">
-                {currentLang === 'rw'
+                {currentLang === 'fr'
+                  ? selectedAnnouncement.titleFr || selectedAnnouncement.titleEn
+                  : currentLang === 'rw'
                   ? selectedAnnouncement.titleRw || selectedAnnouncement.titleEn
                   : selectedAnnouncement.titleEn}
               </h1>
@@ -393,7 +395,7 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
                 <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-lg bg-slate-950 max-h-[500px]">
                   <img
                     src={selectedAnnouncement.imageUrl}
-                    alt={currentLang === 'rw' ? selectedAnnouncement.titleRw || selectedAnnouncement.titleEn : selectedAnnouncement.titleEn}
+                    alt={currentLang === 'fr' ? selectedAnnouncement.titleFr || selectedAnnouncement.titleEn : currentLang === 'rw' ? selectedAnnouncement.titleRw || selectedAnnouncement.titleEn : selectedAnnouncement.titleEn}
                     className="w-full h-full object-cover"
                   />
                   <div className="p-3 bg-slate-900/90 text-slate-300 text-xs flex items-center justify-between">
@@ -405,7 +407,9 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
 
               {/* Lead Summary Callout */}
               <div className="p-5 sm:p-6 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-700 border-y border-r border-emerald-200 text-slate-900 text-sm sm:text-base font-semibold leading-relaxed shadow-2xs">
-                {currentLang === 'rw'
+                {currentLang === 'fr'
+                  ? selectedAnnouncement.summaryFr || selectedAnnouncement.summaryEn
+                  : currentLang === 'rw'
                   ? selectedAnnouncement.summaryRw || selectedAnnouncement.summaryEn
                   : selectedAnnouncement.summaryEn}
               </div>
@@ -413,7 +417,9 @@ export const GovernanceAndNews: React.FC<GovernanceAndNewsProps> = ({
               {/* Full Detailed Body Content */}
               <div className="text-sm sm:text-base lg:text-lg text-slate-800 leading-loose space-y-6">
                 <div className="whitespace-pre-line leading-relaxed">
-                  {currentLang === 'rw'
+                  {currentLang === 'fr'
+                    ? selectedAnnouncement.contentFr || selectedAnnouncement.contentEn
+                    : currentLang === 'rw'
                     ? selectedAnnouncement.contentRw || selectedAnnouncement.contentEn
                     : selectedAnnouncement.contentEn}
                 </div>
